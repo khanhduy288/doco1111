@@ -1,0 +1,60 @@
+.fa-cart-shopping {
+  position: relative;
+  display: inline-block;
+}
+
+.badge {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  font-size: 0.7em;
+}
+Modal {
+  width: 600px;
+}
+#ftco-nav {
+  background-color: white !important; /* Đặt nền trắng */
+  color: rgb(230, 86, 20) !important; /* Chữ vàng */
+}
+
+#ftco-nav .navbar-nav .nav-item .nav-link {
+  color: rgb(241, 102, 9) !important;
+  font-weight: bold;
+}
+
+.navbar-toggler {
+  border-color: rgb(243, 66, 12) !important;
+}
+.container {
+  background: white !important; /* Đặt nền trắng */
+  padding: 0 !important;
+  margin: 0 auto;
+  width: 100%;
+}
+.nav-link {
+  font-size: 16px !important; /* Điều chỉnh cỡ chữ */
+  font-weight: bold; /* Tăng độ đậm nếu cần */
+}
+.nav-link {
+  font-size: 18px; /* Tăng kích thước chữ */
+  color: #333; /* Màu chữ mặc định */
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  color: #ff6600; /* Màu chữ khi hover */
+  transform: scale(1.1); /* Hiệu ứng phóng to nhẹ */
+  text-decoration: underline; /* Gạch chân khi hover */
+}
+.nav-link i {
+  transition: transform 0.3s ease-in-out;
+}
+
+.nav-link:hover i {
+  transform: rotate(10deg); /* Xoay nhẹ khi hover */
+  color: #ff6600; /* Đổi màu */
+}

@@ -1,0 +1,24 @@
+.sider-container {
+    padding: 20px;
+    background-color:rgb(230, 240, 255);
+    height: 250px;
+  }
+  
+  .sider-heading {
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .sider-menu {
+    text-align: left;
+  }
+  
+  .sider-menu p {
+    color: #6c757d;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .sider-menu p:hover {
+    color: #d57737;
+  }

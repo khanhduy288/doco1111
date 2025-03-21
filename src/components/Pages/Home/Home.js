@@ -226,7 +226,6 @@ const Home = () => {
           <div className="img" style={{ backgroundImage: "url(images/chef-4.jpg)" }} />
           <div className="text px-4 pt-2">
             <h3>Kỹ năng dành cho con</h3>
-            <span className="position mb-2 text-dark"></span>
             <div className="faded">
             <p></p>
               <ul className="ftco-social d-flex">
@@ -244,7 +243,6 @@ const Home = () => {
           <div className="img" style={{ backgroundImage: "url(images/chef-4.jpg)" }} />
           <div className="text px-4 pt-2">
             <h3>Cách sơ cấp cứu ban đầu</h3>
-            <span className="position mb-2 text-dark"></span>
             <div className="faded">
               <p></p>
               <ul className="ftco-social d-flex">
@@ -262,7 +260,6 @@ const Home = () => {
           <div className="img" style={{ backgroundImage: "url(images/chef-3.jpg)" }} />
           <div className="text px-4 pt-2">
             <h3>Trải nghiệm tập huấn trại hè</h3>
-            <span className="position mb-2 text-dark"></span>
             <div className="faded">
               <p></p>
               <ul className="ftco-social d-flex">

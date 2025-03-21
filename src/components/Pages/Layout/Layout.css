@@ -58,3 +58,15 @@ Modal {
   transform: rotate(10deg); /* Xoay nhẹ khi hover */
   color: #ff6600; /* Đổi màu */
 }
+.navbar-toggler {
+  border: none; /* Ẩn viền nút */
+  background: transparent;
+}
+
+.navbar-toggler i {
+  color: orange !important; /* Đổi màu thành cam */
+  font-size: 24px; /* Điều chỉnh kích thước nếu cần */
+}
+.navbar-collapse {
+  transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}

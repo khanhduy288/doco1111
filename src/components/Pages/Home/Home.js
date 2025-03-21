@@ -292,9 +292,9 @@ const Home = () => {
     <div className="training-item">
       <div 
         className="training-img"
-        style={{ backgroundImage: `url("/images/skill-1.jpg")` }}
+        style={{ backgroundImage: `url("/images/skillcapcuu.jpg")` }}
       />
-      <h3 className="training-title">Kỹ năng sơ cấp cứu ban đầu theo tiêu chuẩn mới của Mỹ</h3>
+      <h3 className="training-title">Kỹ năng sơ cấp cứu ban đầu</h3>
     </div>
   </div>
 
@@ -302,7 +302,7 @@ const Home = () => {
     <div className="training-item">
       <div 
         className="training-img"
-        style={{ backgroundImage: `url("/images/skill-1.jpg")` }}
+        style={{ backgroundImage: `url("/images/skillbatcoc.jpg")` }}
       />
       <h3 className="training-title">Kỹ năng phòng, chống bắt cóc và xâm hại trẻ em</h3>
     </div>
@@ -312,7 +312,7 @@ const Home = () => {
     <div className="training-item">
       <div 
         className="training-img"
-        style={{ backgroundImage: `url("/images/skill-1.jpg")` }}
+        style={{ backgroundImage: `url("/images/skillhoahoan.jpg")` }}
       />
       <h3 className="training-title">Phòng, chống hỏa hoạn & thoát hiểm trong đám cháy</h3>
     </div>
@@ -322,9 +322,9 @@ const Home = () => {
     <div className="training-item">
       <div 
         className="training-img"
-        style={{ backgroundImage: `url("/images/skill-1.jpg")` }}
+        style={{ backgroundImage: `url("/images/skilltunoi.jpg")` }}
       />
-      <h3 className="training-title">Phòng, tránh tai nạn giao thông</h3>
+      <h3 className="training-title">Kĩ năng tự nổi</h3>
     </div>
   </div>
 
@@ -332,7 +332,7 @@ const Home = () => {
     <div className="training-item">
       <div 
         className="training-img"
-        style={{ backgroundImage: `url("/images/skill-1.jpg")` }}
+        style={{ backgroundImage: `url("/images/skilldiengiat.jpg")` }}
       />
       <h3 className="training-title">Phòng, chống và xử lý tai nạn điện giật</h3>
     </div>
@@ -342,7 +342,7 @@ const Home = () => {
     <div className="training-item">
       <div 
         className="training-img"
-        style={{ backgroundImage: `url("/images/skill-1.jpg")` }}
+        style={{ backgroundImage: `url("/images/skillngodoc.jpg")` }}
       />
       <h3 className="training-title">Kỹ năng phòng, chống ngộ độc</h3>
     </div>
@@ -357,9 +357,7 @@ const Home = () => {
                   <div className="testimony-wrap text-center">
                     <div className="text p-3">
                       <p className="mb-4">
-                        Far far away, behind the word mountains, far from the
-                        countries Vokalia and Consonantia, there live the blind
-                        texts.
+                       
                       </p>
                       <div
                         className="user-img mb-4"
@@ -369,8 +367,8 @@ const Home = () => {
                           <i className="fa fa-quote-left" />
                         </span>
                       </div>
-                      <p className="name">John Gustavo</p>
-                      <span className="position">Customer</span>
+                      <p className="name"></p>
+                      <span className="position"></span>
                     </div>
                   </div>
                 </div>
@@ -378,9 +376,7 @@ const Home = () => {
                   <div className="testimony-wrap text-center">
                     <div className="text p-3">
                       <p className="mb-4">
-                        Far far away, behind the word mountains, far from the
-                        countries Vokalia and Consonantia, there live the blind
-                        texts.
+                        
                       </p>
                       <div
                         className="user-img mb-4"
@@ -390,8 +386,8 @@ const Home = () => {
                           <i className="fa fa-quote-left" />
                         </span>
                       </div>
-                      <p className="name">John Gustavo</p>
-                      <span className="position">Customer</span>
+                      <p className="name"> </p>
+                      <span className="position"></span>
                     </div>
                   </div>
                 </div>
@@ -399,9 +395,7 @@ const Home = () => {
                   <div className="testimony-wrap text-center">
                     <div className="text p-3">
                       <p className="mb-4">
-                        Far far away, behind the word mountains, far from the
-                        countries Vokalia and Consonantia, there live the blind
-                        texts.
+                    
                       </p>
                       <div
                         className="user-img mb-4"
@@ -411,8 +405,8 @@ const Home = () => {
                           <i className="fa fa-quote-left" />
                         </span>
                       </div>
-                      <p className="name">John Gustavo</p>
-                      <span className="position">Customer</span>
+                      <p className="name"> </p>
+                      <span className="position"></span>
                     </div>
                   </div>
                 </div>
@@ -420,9 +414,7 @@ const Home = () => {
                   <div className="testimony-wrap text-center">
                     <div className="text p-3">
                       <p className="mb-4">
-                        Far far away, behind the word mountains, far from the
-                        countries Vokalia and Consonantia, there live the blind
-                        texts.
+                       
                       </p>
                       <div
                         className="user-img mb-4"
@@ -432,8 +424,8 @@ const Home = () => {
                           <i className="fa fa-quote-left" />
                         </span>
                       </div>
-                      <p className="name">John Gustavo</p>
-                      <span className="position">Customer</span>
+                      <p className="name"> </p>
+                      <span className="position"></span>
                     </div>
                   </div>
                 </div>
@@ -441,9 +433,7 @@ const Home = () => {
                   <div className="testimony-wrap text-center">
                     <div className="text p-3">
                       <p className="mb-4">
-                        Far far away, behind the word mountains, far from the
-                        countries Vokalia and Consonantia, there live the blind
-                        texts.
+                     
                       </p>
                       <div
                         className="user-img mb-4"
@@ -453,8 +443,8 @@ const Home = () => {
                           <i className="fa fa-quote-left" />
                         </span>
                       </div>
-                      <p className="name">John Gustavo</p>
-                      <span className="position">Customer</span>
+                      <p className="name"> </p>
+                      <span className="position"></span>
                     </div>
                   </div>
                 </div>

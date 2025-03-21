@@ -35,14 +35,14 @@ const Footer = () => {
           <div className="ftco-footer-widget mb-4">
             <h2 className="ftco-heading-2">Hình Ảnh</h2>
             <div className="thumb d-sm-flex">
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skill-1.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/chef-4.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skill-1.jpg)" }}></a>
+              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillhoahoan.jpg)" }}></a>
+              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skilldiengiat.jpg)" }}></a>
+              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillbatcoc.jpg)" }}></a>
             </div>
             <div className="thumb d-flex">
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/chef-4.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skill-1.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/chef-4.jpg)" }}></a>
+              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillcapcuu.jpg)" }}></a>
+              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skilltunoi.jpg)" }}></a>
+              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillngodoc.jpg)" }}></a>
             </div>
           </div>
         </div>

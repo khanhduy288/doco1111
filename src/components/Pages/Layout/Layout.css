@@ -70,3 +70,10 @@ Modal {
 .navbar-collapse {
   transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
+.navbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000; /* Đảm bảo nó không bị che khuất */
+  background-color: #000; /* Đổi màu nền để dễ nhìn hơn */
+}

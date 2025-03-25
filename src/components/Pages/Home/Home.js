@@ -143,7 +143,7 @@ const Home = () => {
       <div className="col-md-7 text-white">
       <br></br>
       <br></br>
-        <h2 className="mb-3">Về Chúng Tôi</h2>
+        <h2 className="mb-3" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '700' }}>Về Chúng Tôi</h2>
         <p className="lead" style={{ maxWidth: "80%", margin: "0 auto" }}>
 
           Viện khoa học giáo dục và an toàn Việt Nam có nhiều năm kinh nghiệm trong việc giảng dạy,
@@ -217,7 +217,7 @@ const Home = () => {
     <div className="row justify-content-center mb-5 pb-2">
       <div className="col-md-7 text-center heading-section">
         <span className="subheading"></span>
-        <h2 className="mb-4">Chương trình tập huấn trải nghiệm thực tế</h2>
+        <h2 className="mb-4" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '700' }}>Chương trình tập huấn trải nghiệm thực tế</h2>
       </div>
     </div>
     <div className="row">
@@ -278,7 +278,7 @@ const Home = () => {
   <br></br>
   <br></br>
   <div className="col-md-12 text-center heading-section">
-              <h2>TÌM HIỂU NỘI DUNG KHÓA HUẤN LUYỆN THỰC HÀNH</h2>
+              <h2 style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '700' }} >TÌM HIỂU NỘI DUNG KHÓA HUẤN LUYỆN THỰC HÀNH</h2>
             </div>
 </section>
       <section

@@ -236,3 +236,6 @@ h2, p {
 .register-form button:hover {
   background-color: #0056b3;
 }
+* {
+  font-family: 'Roboto', sans-serif !important;
+}

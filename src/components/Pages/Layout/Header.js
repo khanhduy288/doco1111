@@ -4,6 +4,8 @@ import { CartContext } from "../Cart/CartContext.js";
 import { Modal, Button } from "antd";
 import "./Layout.css";
 import Cart from "../Cart/Cart.js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse, faHome } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
   const { cart, getTotalItems } = useContext(CartContext);
@@ -67,10 +69,10 @@ const Header = () => {
 
     <div className="collapse navbar-collapse" id="ftco-nav">
       <ul className="navbar-nav ml-auto">
-        <li className="nav-item active">
-          <Link to="/" className="nav-link">
-            <i className="fa-solid fa-house fa-2x"></i>
-          </Link>
+      <li className="nav-item active">
+      <Link to="/" className="nav-link">
+        <FontAwesomeIcon icon={faHouse} size="2x" />
+        </Link>
         </li>
         <li className="nav-item">
           <Link to="/" className="nav-link">

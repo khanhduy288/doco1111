@@ -240,7 +240,7 @@ const Home = () => {
       </div>
       <div className="col-md-6 col-lg-4">
         <div className="staff">
-          <div className="img" style={{ backgroundImage: "url(images/chef-4.jpg)" }} />
+          <div className="img" style={{ backgroundImage: "url(images/chef-2.jpg)" }} />
           <div className="text px-4 pt-2">
             <h3>Cách sơ cấp cứu ban đầu</h3>
             <div className="faded">

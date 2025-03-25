@@ -1,4 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope, faPhone, faGlobe, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 
 const Footer = () => {
   return (
@@ -52,10 +54,18 @@ const Footer = () => {
           <div className="ftco-footer-widget mb-4">
             <h2 className="ftco-heading-2">Liên Hệ</h2>
             <ul className="list-unstyled">
-              <li><span className="fa fa-envelope"></span> Email: vp.vienkhgdat@gmail.com</li>
-              <li><span className="fa fa-phone"></span> Số điện thoại: 098 522 1159</li>
-              <li><span className="fa fa-globe"></span> Website: viengiaoducantoan.edu.vn</li>
-              <li><span className="fa fa-map-marker"></span>A2 D6, Ngõ 5, Thọ Tháp, Dịch Vọng, Cầu Giấy, Hà Nội </li>
+            <li>
+            <FontAwesomeIcon icon={faEnvelope} /> Email: vp.vienkhgdat@gmail.com
+            </li>
+            <li>
+            <FontAwesomeIcon icon={faPhone} /> Số điện thoại: 098 522 1159
+            </li>
+            <li>
+            <FontAwesomeIcon icon={faGlobe} /> Website: viengiaoducantoan.edu.vn
+            </li>
+            <li>
+            <FontAwesomeIcon icon={faMapMarkerAlt} /> A2 D6, Ngõ 5, Thọ Tháp, Dịch Vọng, Cầu Giấy, Hà Nội
+            </li>
             </ul>
           </div>
         </div>

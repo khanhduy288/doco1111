@@ -80,12 +80,12 @@ const Header = () => {
           </Link>
         </li>
         <li className="nav-item">
-          <Link to="/" className="nav-link">
+          <Link to="/Menu" className="nav-link">
             KHÓA HỌC
           </Link>
         </li>
         <li className="nav-item">
-          <Link to="/" className="nav-link">
+          <Link to="/Blog" className="nav-link">
             TIN TỨC
           </Link>
         </li>

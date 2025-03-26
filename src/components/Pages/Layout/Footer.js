@@ -20,7 +20,7 @@ const Footer = () => {
               </a>
               </li>                                     
               <li className="mr-3">
-              <a href="https://www.facebook.com/profile.php?id=61573711116533" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.facebook.com/visafe.edu.vn" target="_blank" rel="noopener noreferrer">
               <FontAwesomeIcon icon={faFacebook} />
               </a>
               </li>

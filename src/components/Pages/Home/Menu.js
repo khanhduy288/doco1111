@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import { CartContext } from "../Cart/CartContext";
 import { Pagination } from "antd";
 import "./Menu.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronRight, faHome, faBook } from "@fortawesome/free-solid-svg-icons";
+
 import axios from "axios";
 
 const Menu = () => {
@@ -90,111 +93,102 @@ const Menu = () => {
 
   return (
     <>
-      <section style={{ backgroundColor: "white", color: "gold" }}
-       
-      >
-        <div className="overlay" />
-        <div className="container">
-          <div className="row no-gutters slider-text align-items-end justify-content-center">
-            <div className="col-md-9 wow animate__animated animate__fadeIn text-center mb-5">
-              <h1 className="mb-2 bread">Thực đơn</h1>
-              <p className="breadcrumbs">
-                <span className="mr-2">
-                  <a href="index.html">
-                    Trang chủ <i className="fa fa-chevron-right" />
-                  </a>
-                </span>{" "}
-                <span>
-                  Thực đơn <i className="fa fa-chevron-right" />
-                </span>
-              </p>
-            </div>
-          </div>
+  <section style={{ backgroundColor: "white", color: "gold" }}>
+    <div className="overlay" />
+    <div className="container">
+      <div className="row no-gutters slider-text align-items-end justify-content-center">
+        <div className="col-md-9 wow animate__animated animate__fadeIn text-center mb-5">
+          <h1 className="mb-2 bread"></h1>
+          <p className="breadcrumbs">
+          <span className="mr-2">
+          <a href="index.html">
+            Trang chủ <FontAwesomeIcon icon={faHome} />
+          </a>
+          </span>
+          <span>
+            Khóa học <FontAwesomeIcon icon={faBook} />
+          </span>
+          </p>
         </div>
-      </section>
-      <section id="our_menu" className="pt-5 pb-5">
-        <div className="container">
+      </div>
+    </div>
+  </section>
+
+  <section id="courses" className="pt-5 pb-5">
+  <div className="container">
+    <div className="row">
+      <div className="col-lg-12">
+        <div className="page_title text-center mb-4">
+          <h1>Danh sách khóa học</h1>
+          <div className="single_line" />
+        </div>
+      </div>
+    </div>
+
+    <div className="row mt-1">
+      <div className="col-12">
+        <nav id="menu" style={{ backgroundColor: "white", color: "gold" }}>
+          <ul>
+            <li className={selectedCategory === null ? "active" : ""}>
+              <a onClick={() => handleCategoryClick(null)}>TẤT CẢ</a>
+            </li>
+            {["Thực hành", "Lý thuyết"].map((category, index) => (
+              <li
+                key={index}
+                className={selectedCategory === category ? "active" : ""}
+              >
+                <a onClick={() => handleCategoryClick(category)}>{category}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <div className="tab-content col-lg-12">
+        <div className="tab-pane fade show active">
           <div className="row">
-            <div className="col-lg-12">
-              <div className="page_title text-center mb-4">
-                <h1>thực đơn</h1>
-                <div className="single_line" />
+            {selectedCategory !== "Lý thuyết" && (
+              <div className="col-md-6">
+                <div className="single_menu">
+                  <h4>Chuyên đề thực hành:</h4>
+                  <ul>
+                    <li className="course-item">KN phòng tránh, xử lý tình huống ngạt nước, đuối nước</li>
+                    <li className="course-item">KN phòng chống và xử lý khi xảy ra tai nạn giao thông</li>
+                    <li className="course-item">KN phòng chống và xử lý khi có hỏa hoạn</li>
+                    <li className="course-item">KN phòng chống bắt cóc, xâm hại</li>
+                    <li className="course-item">KN phòng chống bạo lực học đường</li>
+                    <li className="course-item">KN phòng chống và xử lý khi bị hóc, sặc dị vật đường thở</li>
+                    <li className="course-item">KN sơ cấp cứu ban đầu theo tiêu chuẩn WHO</li>
+                  </ul>
+                </div>
               </div>
-            </div>
+            )}
+
+            {selectedCategory !== "Thực hành" && (
+              <div className="col-md-6">
+                <div className="single_menu">
+                  <h4>Chuyên đề lý thuyết:</h4>
+                  <ul>
+                    <li className="course-item">An toàn không gian mạng</li>
+                    <li className="course-item">KN phòng chống và xử lý khi xảy ra tai nạn điện</li>
+                    <li className="course-item">KN phòng chống ma túy và các chất gây nghiện</li>
+                    <li className="course-item">KN phòng chống ngộ độc thực phẩm</li>
+                    <li className="course-item">KN phòng chống và xử lý khi bị động vật tấn công</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="row mt-1">
-            <div className="col-12">
-              <nav id="menu" style={{ backgroundColor: "white", color: "gold" }}>
-                <ul>
-                  <li className={selectedCategory === null ? "active" : ""}>
-                    <a onClick={() => handleCategoryClick(null)}>TẤT CẢ</a>
-                  </li>
-                  {categories.map((category) => (
-                    <li
-                      key={category.idCategory}
-                      className={
-                        selectedCategory === category.idCategory ? "active" : ""
-                      }
-                    >
-                      <a
-                        onClick={() => handleCategoryClick(category.idCategory)}
-                      >
-                        {category.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </div>
-            <div className="tab-content col-lg-12" id="myTabContent">
-              <div
-                className="tab-pane fade show active"
-                id="breakfast"
-                role="tabpanel"
-                aria-labelledby="breakfast-tab"
-              >
-                <div className="row">
-                  {filteredDishes.slice(startIndex, endIndex).map((dish) => (
-                    <div key={dish.dishId} className="col-md-6">
-                      <div className="single_menu">
-                        <Link to={`/details/${dish.dishId}`}>
-                          <img src={dish.image} alt={dish.name} />
-                        </Link>
-                        <div className="menu_content">
-                          <h4>
-                            {dish.name} <span>{dish.price}đ</span>
-                          </h4>
-                          <p>{truncateText(dish.description, 50)}</p>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => addToCart(dish)}
-                          >
-                            Đặt +
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div
-                  className="pagination-container"
-                  style={{ marginTop: "20px", textAlign: "center" }}
-                >
-                  <Pagination
-                    current={currentPage}
-                    pageSize={pageSize}
-                    total={filteredDishes.length}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+
+          
         </div>
-      </section>
-    </>
+      </div>
+    </div>
+  </div>
+</section>
+
+</>
   );
 };
 

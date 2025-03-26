@@ -239,3 +239,9 @@ h2, p {
 * {
   font-family: 'Roboto', sans-serif !important;
 }
+@media (max-width: 768px) {
+  .register-section {
+    max-width: 90%; /* Thu nhỏ form để không bị cách mép quá nhiều */
+    padding: 30px 20px; /* Giảm padding ngang để vừa vặn màn hình nhỏ */
+  }
+}

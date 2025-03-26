@@ -462,8 +462,13 @@ const Home = () => {
     <input type="tel" name="phone" placeholder="Điện thoại *" required />
     <select name="course" required>
       <option value="">- Chọn Khóa Học -</option>
-      <option value="course1">Khóa học 1</option>
-      <option value="course2">Khóa học 2</option>
+      <option value="course1">-	KN phòng tránh, xử lý tình huống ngạt nước đuối nước</option>
+      <option value="course2">-	KN phòng chống và xử lý khi xảy ra tai nạn giao thông</option>
+      <option value="course2">-	KN phòng chống và xử lý khi có hoả hoạn</option>
+      <option value="course2">-	KN phòng chống bắt cóc, xâm hại</option>
+      <option value="course2">-	KN phòng chống bao lực học đường</option>
+      <option value="course2">-	KN phòng chống và xử lý khi bị hóc, sặc dị vật đường thở</option>
+      <option value="course2">-	KN sơ cấp cứu ban đầu theo tiêu chuẩn WHO</option>  
     </select>
     <textarea name="message" placeholder="Lời nhắn"></textarea>
     <button type="submit">Đăng ký</button>

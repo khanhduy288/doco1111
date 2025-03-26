@@ -1,6 +1,7 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faPhone, faGlobe, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faPhone, faGlobe, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
+import { faInstagram, faFacebook, faYoutube } from "@fortawesome/free-brands-svg-icons";
 
 const Footer = () => {
   return (
@@ -14,19 +15,19 @@ const Footer = () => {
             <h2 className="ftco-heading-2">Taste.it</h2>
             <ul className="ftco-footer-social list-unstyled mt-3 d-flex justify-content-center">
               <li className="mr-3">
-                <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-                  <span className="fa fa-instagram" />
-                </a>
+              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+              <FontAwesomeIcon icon={faInstagram} />
+              </a>
               </li>                                     
               <li className="mr-3">
-                <a href="https://www.facebook.com/profile.php?id=61573711116533" target="_blank" rel="noopener noreferrer">
-                  <span className="fa fa-facebook" />
-                </a>
+              <a href="https://www.facebook.com/profile.php?id=61573711116533" target="_blank" rel="noopener noreferrer">
+              <FontAwesomeIcon icon={faFacebook} />
+              </a>
               </li>
               <li className="mr-3">
-                <a href="https://www.youtube.com/@safedu-antoanviet" target="_blank" rel="noopener noreferrer">
-                  <span className="fa fa-youtube" />
-                </a>
+              <a href="https://www.youtube.com/@safedu-antoanviet" target="_blank" rel="noopener noreferrer">
+              <FontAwesomeIcon icon={faYoutube} />
+              </a>
               </li>
             </ul>
           </div>

@@ -78,3 +78,25 @@ Modal {
   z-index: 1000; /* Đảm bảo nó không bị che khuất */
   background-color: #000; /* Đổi màu nền để dễ nhìn hơn */
 }
+.ftco-footer-social li {
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  width: 50px; /* Độ rộng hình tròn */
+  height: 50px; /* Chiều cao hình tròn */
+  border-radius: 50%; /* Bo tròn */
+  background-color: red; /* Màu nền */
+}
+
+.ftco-footer-social li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.ftco-footer-social li svg {
+  font-size: 24px; /* Điều chỉnh kích thước icon */
+  color: white; /* Màu icon */
+}

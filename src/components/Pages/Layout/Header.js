@@ -5,7 +5,7 @@ import { Modal, Button } from "antd";
 import "./Layout.css";
 import Cart from "../Cart/Cart.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse, faHome } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faHome, faBars  } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
   const { cart, getTotalItems } = useContext(CartContext);
@@ -64,7 +64,7 @@ const Header = () => {
   aria-expanded="false"
   aria-label="Toggle navigation"
 >
-  <i className="fa-solid fa-bars"></i> {/* Icon 3 gạch */}
+<FontAwesomeIcon icon={faBars} style={{ color: "orange", fontSize: "24px" }} /> {/* Icon 3 gạch */}
 </button>
 
     <div className="collapse navbar-collapse" id="ftco-nav">

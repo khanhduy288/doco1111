@@ -146,7 +146,7 @@ const Home = () => {
         <h2 className="mb-3" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: '700' }}>Về Chúng Tôi</h2>
         <p className="lead" style={{ maxWidth: "80%", margin: "0 auto" }}>
 
-          Viện khoa học giáo dục và an toàn Việt Nam có nhiều năm kinh nghiệm trong việc giảng dạy,
+          Viện khoa học giáo dục an toàn Việt Nam có nhiều năm kinh nghiệm trong việc giảng dạy,
           huấn luyện thực hành phòng chống tai nạn thương tích cho trẻ, nhằm phòng chống mọi nguy hiểm có
           thể xảy ra hàng ngày như tai nạn đuối nước, bắt cóc, xâm hại tình dục, bạo lực học đường, tai nạn giao
           thông, tai nạn điện, hỏa hoạn, phòng chống ngộ độc, phòng chống động vật tấn công, phòng chống ma túy và

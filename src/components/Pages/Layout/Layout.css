@@ -100,3 +100,7 @@ Modal {
   font-size: 24px; /* Điều chỉnh kích thước icon */
   color: white; /* Màu icon */
 }
+.nav-link {
+  font-size: 20px !important;
+  font-weight: bold !important; /* Nếu muốn chữ đậm hơn */
+}

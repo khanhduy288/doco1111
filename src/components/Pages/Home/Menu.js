@@ -20,13 +20,24 @@ const courses = [
   { id: 12, name: "KN phòng chống và xử lý khi bị động vật tấn công", videoUrl: "/videos/dongvat.mp4" }
 ];
 
-
 const Menu = () => {
   useEffect(() => {
     new WOW().init();
   }, []);
 
   const [selectedCourse, setSelectedCourse] = useState(courses[0]);
+  const [videoExists, setVideoExists] = useState(true);
+
+  useEffect(() => {
+    fetch(selectedCourse.videoUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Video not found");
+        }
+        setVideoExists(true);
+      })
+      .catch(() => setVideoExists(false));
+  }, [selectedCourse]);
 
   return (
     <>
@@ -49,7 +60,6 @@ const Menu = () => {
       <section id="courses" className="pt-5 pb-5">
         <div className="container">
           <div className="row">
-            {/* Danh sách khóa học bên trái */}
             <div className="col-md-4">
               <div className="course-list">
                 {courses.map((course) => (
@@ -65,19 +75,22 @@ const Menu = () => {
               </div>
             </div>
             
-            {/* Chi tiết khóa học bên phải */}
             <div className="col-md-8">
               <div className="course-details text-center">
                 <h3>{selectedCourse.name}</h3>
-                <video 
-                  key={selectedCourse.id} 
-                  width="80%" 
-                  controls 
-                  style={{ borderRadius: "15px", boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)" }}
-                >
-                <source src={selectedCourse.videoUrl} type="video/mp4" />
-                Trình duyệt của bạn không hỗ trợ video.
-                </video>
+                {videoExists ? (
+                  <video 
+                    key={selectedCourse.id} 
+                    width="80%" 
+                    controls 
+                    style={{ borderRadius: "15px", boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)" }}
+                  >
+                    <source src={selectedCourse.videoUrl} type="video/mp4" />
+                    Trình duyệt của bạn không hỗ trợ video.
+                  </video>
+                ) : (
+                  <p style={{ fontSize: "18px", color: "red", fontWeight: "bold" }}>Video đang cập nhật...</p>
+                )}
               </div>
             </div>
           </div>

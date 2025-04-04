@@ -7,7 +7,7 @@ import "./Menu.css";
 
 const courses = [
   { id: 1, name: "KN phòng tránh, xử lý tình huống ngạt nước, đuối nước", videoUrl: "https://www.youtube.com/embed/HPQQLljVqWA", isIframe: true },
-  { id: 2, name: "KN phòng chống và xử lý khi xảy ra tai nạn giao thông", videoUrl: "/videos/tainan.mp4", isIframe: false },
+  { id: 2, name: "KN phòng chống và xử lý khi xảy ra tai nạn giao thông", videoUrl: "https://www.youtube.com/embed/W6hBSwJrDWw", isIframe: true },
   { id: 3, name: "KN phòng chống và xử lý khi có hỏa hoạn", videoUrl: "/videos/hoahoa.mp4", isIframe: false },
   { id: 4, name: "KN phòng chống bắt cóc, xâm hại", videoUrl: "/videos/batcoc.mp4", isIframe: false },
   { id: 5, name: "KN phòng chống bạo lực học đường", videoUrl: "/videos/baoluc.mp4", isIframe: false },

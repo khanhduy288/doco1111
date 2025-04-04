@@ -13,7 +13,11 @@ const Blog = () => {
     try {
       const response = await fetch("https://67ec9492aa794fb3222e24a5.mockapi.io/Blog/Blog");
       const data = await response.json();
-      setBlogs(data);
+
+      // Sắp xếp theo id giảm dần
+      const sortedData = data.sort((a, b) => Number(b.id) - Number(a.id));
+
+      setBlogs(sortedData);
     } catch (error) {
       console.error("Error fetching blogs:", error);
     } finally {
@@ -30,7 +34,7 @@ const Blog = () => {
 
   return (
     <section className="blog-section" style={{ padding: "5%" }}>
-      <div  className="container">
+      <div className="container">
         <h1 className="text-center mb-4">Tin Tức Mới Nhất</h1>
         {loading ? (
           <p>Đang tải...</p>
@@ -51,13 +55,11 @@ const Blog = () => {
                       src={blog.avatar}
                       alt={blog.name}
                       style={{
-                        
                         width: "100%",
                         height: "350px",
                         objectFit: "cover",
                         borderTopLeftRadius: "10px",
                         borderTopRightRadius: "10px",
-                        
                       }}
                     />
                     <div className="text p-4 text-center">

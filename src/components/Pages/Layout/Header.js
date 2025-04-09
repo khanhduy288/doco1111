@@ -109,7 +109,7 @@ const Header = () => {
                     Xin chào, {userName}
                   </Link>
                 ) : (
-                  <Link to="/authentication" className="nav-link" onClick={handleNavLinkClick}>
+                  <Link to="https://lms.viengiaoducantoan.edu.vn/login/canvas" className="nav-link" onClick={handleNavLinkClick}>
                     GIÁO ÁN
                   </Link>
                 )}

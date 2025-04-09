@@ -89,7 +89,7 @@ const Menu = () => {
                       borderRadius: "15px",
                       boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)"
                     }}
-                  >
+                  >``
                     <source src={selectedCourse.videoUrl} type="video/mp4" />
                     Trình duyệt của bạn không hỗ trợ video.
                   </video>

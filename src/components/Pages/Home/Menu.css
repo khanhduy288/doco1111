@@ -371,3 +371,20 @@ body {
     margin-bottom: 10px; /* Giãn cách giữa các mục */
     padding-left: 10%px; /* Cách lề trái từng mục */
   }
+  /* Style cho iframe video */
+.video-iframe {
+  width: 100%;
+  max-width: 960px; /* chiều rộng tối đa trên màn hình máy tính */
+  aspect-ratio: 16 / 9;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+  display: block;
+}
+
+/* Khi màn hình nhỏ (ví dụ: dưới 768px), giới hạn chiều rộng phù hợp */
+@media screen and (max-width: 768px) {
+  .video-iframe {
+    max-width: 100%; /* Trên điện thoại, video sẽ hiển thị tối đa kích thước của màn hình */
+  }
+}

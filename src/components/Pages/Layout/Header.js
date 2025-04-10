@@ -103,17 +103,36 @@ const Header = () => {
                   LIÊN HỆ
                 </Link>
               </li>
-              <li className="nav-item">
-                {userName ? (
-                  <Link to="/customer/profile" className="nav-link" onClick={handleNavLinkClick}>
-                    Xin chào, {userName}
-                  </Link>
-                ) : (
-                  <Link to="https://lms.viengiaoducantoan.edu.vn/login/canvas" className="nav-link" onClick={handleNavLinkClick}>
-                    GIÁO ÁN
-                  </Link>
-                )}
+              <li className="nav-item dropdown">
+               <a
+                className="nav-link dropdown-toggle"
+                href="#"
+                id="lessonDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                >
+                GIÁO ÁN
+                </a>
+                <ul className="dropdown-menu" aria-labelledby="lessonDropdown">
+                <li>
+                <a
+                className="dropdown-item"
+                href="https://lms.viengiaoducantoan.edu.vn/login/canvas"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleNavLinkClick}
+                >
+                Giáo án điện tử
+                </a>
               </li>
+    <li>
+      <Link to="/authentication" className="dropdown-item" onClick={handleNavLinkClick}>
+        Admin
+      </Link>
+    </li>
+  </ul>
+</li>
             </ul>
           </div>
         </div>

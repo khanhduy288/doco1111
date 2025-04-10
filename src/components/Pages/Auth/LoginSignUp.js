@@ -128,100 +128,52 @@ const LoginSignup = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-
+  
     if (!username) {
       toast.error("Tên đăng nhập không được để trống.");
       return;
     }
-
+  
     const passwordError = validatePassword(password);
     if (passwordError) {
       toast.error(passwordError);
       return;
     }
-
+  
     try {
-      const response = await axios.post(
-        "https://projectsep490g64summer24backend.azurewebsites.net/api/User/login",
-        {
-          userName: username,
-          password: password,
-          rememberMe: rememberMe,
-        }
+      const response = await axios.get(
+        "https://6437c88f0c58d3b14579192a.mockapi.io/api/tour/login"
       );
-      console.log("API Response:", response.data);
-
-      if (response.data.status) {
-        // Đăng nhập thành công
-        if (response.data.token) {
-          localStorage.setItem("SEPtoken", response.data.token);
-        } else {
-          console.error("Token không tồn tại trong response");
-        }
-
-        if (response.data.user) {
-          localStorage.setItem("SEPuser", JSON.stringify(response.data.user));
-        } else {
-          console.error("User data không tồn tại trong response");
-        }
-
+  
+      const users = response.data;
+  
+      // Tìm người dùng phù hợp
+      const user = users.find(
+        (u) =>
+          (u.userName === username || u.username === username) &&
+          u.password === password
+      );
+  
+      if (user) {
+        // Giả lập lưu token và user (vì API không có token thật)
+        localStorage.setItem("SEPuser", JSON.stringify(user));
         if (rememberMe) {
           localStorage.setItem("rememberedUsername", username);
         } else {
           localStorage.removeItem("rememberedUsername");
         }
-
-        const decodedToken = jwtDecode(response.data.token);
-        const userRole =
-          decodedToken[
-            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-          ];
+  
         toast.success("Đăng nhập thành công!");
-
-        switch (userRole) {
-          case "Admin":
-            navigate("/admin");
-            break;
-          case "Manager":
-            navigate("/manager");
-            break;
-          case "Receptionist":
-            navigate("/receptionist");
-            break;
-          case "Waiter":
-            navigate("/waiter");
-            break;
-          case "Owner":
-            navigate("/owner");
-            break;
-          case "Customer":
-            navigate("/");
-            break;
-          default:
-            navigate("/");
-        }
+        navigate("/dashboard");
       } else {
-        if (response.data.message) {
-          toast.error(response.data.message);
-        } else {
-          toast.error(
-            "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập."
-          );
-        }
+        toast.error("Tên đăng nhập hoặc mật khẩu không đúng.");
       }
     } catch (error) {
       console.error("Login failed:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Đăng nhập thất bại. Vui lòng thử lại sau.");
-      }
+      toast.error("Lỗi khi đăng nhập. Vui lòng thử lại sau.");
     }
   };
+  
 
   const handleSignup = async (event) => {
     event.preventDefault();

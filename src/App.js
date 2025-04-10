@@ -8,6 +8,7 @@ import Contact from "./components/Pages/Home/Contact.js";
 import LoginSignup from "./components/Pages/Auth/LoginSignUp.js";
 import Layout from "./components/Pages/Layout/Layout.js";
 import ForgetPassword from "./components/Pages/Auth/ForgetPassword.js";
+import Dashboard from './components/Pages/Home/Dashbroad.js'; 
 import DishDetails from "./components/Pages/Home/DishDetails.js";
 import BlogDetails from "./components/Pages/Home/BlogDetails.js";
 import { CartProvider } from "./components/Pages/Cart/CartContext.js";
@@ -38,7 +39,6 @@ import ChangePassword from "./components/Pages/Role/CustomerRole/Pages/ChangePas
 import ReceptionistLayout from "./components/Pages/Role/ReceptionistRole/Layout/ReceptionistLayout.js";
 import DetailReservation from "./components/Pages/Role/ManagerRole/Pages/DetailReservation.js";
 import { ReservationProvider } from "./components/Pages/Home/ReservationContext.js";
-import Dashboard from "./components/Pages/Role/ManagerRole/Pages/Dashboard.js";
 import OwnerLayout from "./components/Pages/Role/OwnerRole/Layout/OwnerLayout.js";
 import OwnerDashboard from "./components/Pages/Role/OwnerRole/Pages/OwnerDashboard.js";
 import OwnerListTableReservation from "./components/Pages/Role/OwnerRole/Pages/ListTableReservation.js";
@@ -73,6 +73,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/authentication" element={<LoginSignup />} />
+            <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
             <Route path="/forgetPassword" element={<ForgetPassword />} />
             <Route path="/resetPassword*" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />

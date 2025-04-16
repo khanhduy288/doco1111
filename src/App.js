@@ -57,6 +57,9 @@ import OwnerChangePassword from "./components/Pages/Role/OwnerRole/Pages/OwnerCh
 import ReceptionistChangePassword from "./components/Pages/Role/ReceptionistRole/Pages/ReceptionistChangePassword.js";
 import WaiterChangePassword from "./components/Pages/Role/WaiterRole/Pages/WaiterChangePassword.js";
 import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
+import PostForm from "./components/Pages/Home/PostForm.js";
+import History from "./components/Pages/Home/History.js";
+
 
 function App() {
   const ProtectedAdminLayout = withAuth(["Admin"])(AdminLayout);
@@ -74,6 +77,7 @@ function App() {
           <Routes>
             <Route path="/authentication" element={<LoginSignup />} />
             <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
+            <Route path="/postform" element={<PostForm />} /> {/* Đây nè */}
             <Route path="/forgetPassword" element={<ForgetPassword />} />
             <Route path="/resetPassword*" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
@@ -140,6 +144,7 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="/menu" element={<Menu />} />
+              <Route path="/history" element={<History />} />
               <Route path="/details/:id" element={<DishDetails />} />
               <Route path="/reservation" element={<Reservation />} />
               <Route path="/blog" element={<Blog />} />

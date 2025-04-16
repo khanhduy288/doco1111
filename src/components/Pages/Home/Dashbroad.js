@@ -944,96 +944,103 @@ const Dashboard = () => {
     const currentLessons = lessons.slice(startIndex, startIndex + pageSize);
   
     return (
-        
-        
-
-        
-      <div style={{ padding: "5%", margin: "auto" }}>
-        <h2 className="text-center mb-4">Quản Lý Buổi Dạy Kỹ Năng An Toàn</h2>
-  
-        <form onSubmit={handleSubmit} style={{ marginBottom: "30px", marginTop: "60px" }}>
-          <div className="row g-3">
-            <div className="col-md-4">
-              <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-control" required />
-            </div>
-            <div className="col-md-4">
-              <input type="text" name="skill" placeholder="Kỹ năng" value={formData.skill} onChange={handleChange} className="form-control" required />
-            </div>
-            <div className="col-md-4">
-              <input type="text" name="className" placeholder="Lớp học" value={formData.className} onChange={handleChange} className="form-control" />
-            </div>
-            <div className="col-md-4">
-              <input type="text" name="teacher" placeholder="Giáo viên" value={formData.teacher} onChange={handleChange} className="form-control" />
-            </div>
-            <div className="col-md-4">
-              <select name="locationProvince" value={formData.locationProvince} onChange={handleProvinceChange} className="form-control" required>
-                <option value="">Chọn tỉnh/thành phố</option>
-                {provincesData.map((province) => (
-                  <option key={province.name} value={province.name}>{province.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-4">
-              <select name="locationDistrict" value={formData.locationDistrict} onChange={handleDistrictChange} className="form-control" required disabled={!formData.locationProvince}>
-                <option value="">Chọn quận/huyện</option>
-                {formData.locationProvince && provincesData.find((p) => p.name === formData.locationProvince)?.districts.map((district) => (
-                  <option key={district} value={district}>{district}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-4">
-              <input type="text" name="note" placeholder="Ghi chú" value={formData.note} onChange={handleChange} className="form-control" />
-            </div>
-          </div>
-          <button type="submit" className="btn btn-primary mt-3">
-            {editId ? "Lưu chỉnh sửa" : "Thêm buổi dạy"}
-          </button>
-        </form>
-  
-        <div className="table-responsive">
-          <table className="table table-bordered table-striped">
-            <thead className="table-dark">
-              <tr>
-                <th>Ngày</th>
-                <th>Kỹ năng</th>
-                <th>Lớp</th>
-                <th>GV</th>
-                <th>Địa điểm</th>
-                <th>Ghi chú</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentLessons.length > 0 ? (
-                currentLessons.map((lesson) => (
-                  <tr key={lesson.id}>
-                    <td>{lesson.date}</td>
-                    <td>{lesson.skill}</td>
-                    <td>{lesson.className}</td>
-                    <td>{lesson.teacher}</td>
-                    <td>{lesson.locationProvince} - {lesson.locationDistrict}</td>
-                    <td>{lesson.note}</td>
-                    <td>
-                      <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(lesson)}>Sửa</button>
-                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(lesson.id)}>Xoá</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="text-center">Chưa có buổi dạy nào</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <>
+        {/* Thanh menu riêng ở đầu trang */}
+        <div className="bg-light border-bottom mb-4 px-4 py-3 d-flex justify-content-between align-items-center">
+          <h4 className="mb-0">Trang Quản Lý Buổi Dạy</h4>
+          <a href="/postform" className="btn btn-outline-primary btn-sm">
+            ➕ Đăng nội dung mới
+          </a>
         </div>
-  
-        {lessons.length > pageSize && (
-          <div className="text-center mt-4">
-            <Pagination current={currentPage} pageSize={pageSize} total={lessons.length} onChange={(page) => setCurrentPage(page)} />
+    
+        {/* Nội dung chính */}
+        <div style={{ padding: "5%", margin: "auto" }}>
+          <h2 className="text-center mb-4">Quản Lý Buổi Dạy Kỹ Năng An Toàn</h2>
+    
+          <form onSubmit={handleSubmit} style={{ marginBottom: "30px", marginTop: "60px" }}>
+            <div className="row g-3">
+              <div className="col-md-4">
+                <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-control" required />
+              </div>
+              <div className="col-md-4">
+                <input type="text" name="skill" placeholder="Kỹ năng" value={formData.skill} onChange={handleChange} className="form-control" required />
+              </div>
+              <div className="col-md-4">
+                <input type="text" name="className" placeholder="Lớp học" value={formData.className} onChange={handleChange} className="form-control" />
+              </div>
+              <div className="col-md-4">
+                <input type="text" name="teacher" placeholder="Giáo viên" value={formData.teacher} onChange={handleChange} className="form-control" />
+              </div>
+              <div className="col-md-4">
+                <select name="locationProvince" value={formData.locationProvince} onChange={handleProvinceChange} className="form-control" required>
+                  <option value="">Chọn tỉnh/thành phố</option>
+                  {provincesData.map((province) => (
+                    <option key={province.name} value={province.name}>{province.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-4">
+                <select name="locationDistrict" value={formData.locationDistrict} onChange={handleDistrictChange} className="form-control" required disabled={!formData.locationProvince}>
+                  <option value="">Chọn quận/huyện</option>
+                  {formData.locationProvince && provincesData.find((p) => p.name === formData.locationProvince)?.districts.map((district) => (
+                    <option key={district} value={district}>{district}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-4">
+                <input type="text" name="note" placeholder="Ghi chú" value={formData.note} onChange={handleChange} className="form-control" />
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary mt-3">
+              {editId ? "Lưu chỉnh sửa" : "Thêm buổi dạy"}
+            </button>
+          </form>
+    
+          <div className="table-responsive">
+            <table className="table table-bordered table-striped">
+              <thead className="table-dark">
+                <tr>
+                  <th>Ngày</th>
+                  <th>Kỹ năng</th>
+                  <th>Lớp</th>
+                  <th>GV</th>
+                  <th>Địa điểm</th>
+                  <th>Ghi chú</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentLessons.length > 0 ? (
+                  currentLessons.map((lesson) => (
+                    <tr key={lesson.id}>
+                      <td>{lesson.date}</td>
+                      <td>{lesson.skill}</td>
+                      <td>{lesson.className}</td>
+                      <td>{lesson.teacher}</td>
+                      <td>{lesson.locationProvince} - {lesson.locationDistrict}</td>
+                      <td>{lesson.note}</td>
+                      <td>
+                        <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(lesson)}>Sửa</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(lesson.id)}>Xoá</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center">Chưa có buổi dạy nào</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+    
+          {lessons.length > pageSize && (
+            <div className="text-center mt-4">
+              <Pagination current={currentPage} pageSize={pageSize} total={lessons.length} onChange={(page) => setCurrentPage(page)} />
+            </div>
+          )}
+        </div>
+      </>
     );
   };
   

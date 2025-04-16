@@ -42,10 +42,7 @@ const Contact = () => {
             <div className="col-md-3 mb-2 d-flex">
               <div className="dbox">
                 <p>
-                  <span>Địa chỉ 1:</span> Khu Công Nghệ Cao Hòa Lạc
-                </p>
-                <p>
-                  <span>Địa chỉ 2:</span> 201 Nguyễn Tuân
+                  <span>Địa chỉ 1:</span>  A2 D6, Ngõ 5, Thọ Tháp, Dịch Vọng, Cầu Giấy, Hà Nội
                 </p>
               </div>
             </div>
@@ -53,7 +50,7 @@ const Contact = () => {
               <div className="dbox">
                 <p>
                   <span>Số điện thoại:</span> 
-                  <a href="tel://1234567920"> 039 797 0202</a>
+                  <a href="tel://1234567920"> 098 522 1159</a>
                 </p>
               </div>
             </div>
@@ -61,7 +58,7 @@ const Contact = () => {
               <div className="dbox">
                 <p>
                   <span>Email:</span>{" "}
-                  <a href="mailto:info@yoursite.com">sep490_g64@gmail.com</a>
+                  <a href="mailto:info@yoursite.com">vp.vienkhgdat@gmail.com</a>
                 </p>
               </div>
             </div>
@@ -69,8 +66,8 @@ const Contact = () => {
               <div className="dbox">
                 <p>
                   <span>Fanpage</span>{" "}
-                  <a href="https://www.facebook.com/SEP490_G64" target="_blank">
-                    fb.com/SEP490_G64
+                  <a href="https://www.facebook.com/visafe.edu.vn" target="_blank">
+                  https://www.facebook.com/visafe.edu.vn
                   </a>
                 </p>
               </div>

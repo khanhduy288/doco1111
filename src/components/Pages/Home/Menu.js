@@ -16,7 +16,7 @@ const courses = [
   { id: 8, name: "An toàn không gian mạng", videoUrl: "https://www.youtube.com/embed/l5ULVA7mJ1k", isIframe: true },
   { id: 9, name: "KN phòng chống và xử lý khi xảy ra tai nạn điện", videoUrl: "https://www.youtube.com/embed/gexX3yC1YtI", isIframe: true },
   { id: 10, name: "KN phòng chống ma túy và các chất gây nghiện", videoUrl: "https://www.youtube.com/embed/VFOGe_ns3L8", isIframe: true },
-  { id: 11, name: "KN phòng chống ngộ độc thực phẩm", videoUrl: "https://www.youtube.com/embed/0b7DKy0Nzok", isIframe: true },
+  { id: 11, name: "KN phòng chống ngộ độc thực phẩm", videoUrl: "https://www.youtube.com/embed/nFg9S_Tj86I", isIframe: true },
   { id: 12, name: "KN phòng chống và xử lý khi bị động vật tấn công", videoUrl: "https://www.youtube.com/embed/QjSIzE73Hz4", isIframe: true }
 ];
 

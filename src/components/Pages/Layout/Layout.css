@@ -1,4 +1,3 @@
-
 .fa-cart-shopping {
   position: relative;
   display: inline-block;
@@ -14,12 +13,14 @@
   color: white;
   font-size: 0.7em;
 }
+
 Modal {
   width: 600px;
 }
+
 #ftco-nav {
-  background-color: white !important; /* Đặt nền trắng */
-  color: rgb(230, 86, 20) !important; /* Chữ vàng */
+  background-color: white !important;
+  color: rgb(230, 86, 20) !important;
 }
 
 #ftco-nav .navbar-nav .nav-item .nav-link {
@@ -30,62 +31,66 @@ Modal {
 .navbar-toggler {
   border-color: rgb(243, 66, 12) !important;
 }
+
 .container {
-  background: white !important; /* Đặt nền trắng */
+  background: white !important;
   padding: 0 !important;
   margin: 0 auto;
   width: 100%;
 }
+
 .nav-link {
-  font-size: 16px !important; /* Điều chỉnh cỡ chữ */
-  font-weight: bold; /* Tăng độ đậm nếu cần */
-}
-.nav-link {
-  font-size: 18px; /* Tăng kích thước chữ */
-  color: #333; /* Màu chữ mặc định */
+  font-size: 17px !important;
+  color: #333;
+  font-weight: bold !important;
   transition: all 0.3s ease-in-out;
 }
 
 .nav-link:hover {
-  color: #ff6600; /* Màu chữ khi hover */
-  transform: scale(1.1); /* Hiệu ứng phóng to nhẹ */
-  text-decoration: underline; /* Gạch chân khi hover */
+  color: #ff6600;
+  transform: scale(1.1);
+  text-decoration: underline;
 }
+
 .nav-link i {
   transition: transform 0.3s ease-in-out;
 }
 
 .nav-link:hover i {
-  transform: rotate(10deg); /* Xoay nhẹ khi hover */
-  color: #ff6600; /* Đổi màu */
+  transform: rotate(10deg);
+  color: #ff6600;
 }
+
 .navbar-toggler {
-  border: none; /* Ẩn viền nút */
+  border: none;
   background: transparent;
 }
 
 .navbar-toggler i {
-  color: orange !important; /* Đổi màu thành cam */
-  font-size: 24px; /* Điều chỉnh kích thước nếu cần */
+  color: orange !important;
+  font-size: 24px;
 }
+
 .navbar-collapse {
   transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
+
 .navbar {
   position: sticky;
   top: 0;
   width: 100%;
-  z-index: 1000; /* Đảm bảo nó không bị che khuất */
-  background-color: #000; /* Đổi màu nền để dễ nhìn hơn */
+  z-index: 1000;
+  background-color: #000;
 }
+
 .ftco-footer-social li {
   display: flex;
-  align-items: center; /* Căn giữa theo chiều dọc */
-  justify-content: center; /* Căn giữa theo chiều ngang */
-  width: 50px; /* Độ rộng hình tròn */
-  height: 50px; /* Chiều cao hình tròn */
-  border-radius: 50%; /* Bo tròn */
-  background-color: red; /* Màu nền */
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: red;
 }
 
 .ftco-footer-social li a {
@@ -97,10 +102,26 @@ Modal {
 }
 
 .ftco-footer-social li svg {
-  font-size: 24px; /* Điều chỉnh kích thước icon */
-  color: white; /* Màu icon */
+  font-size: 24px;
+  color: white;
 }
-.nav-link {
-  font-size: 20px !important;
-  font-weight: bold !important; /* Nếu muốn chữ đậm hơn */
+
+/* Dropdown hiển thị khi hover */
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+}
+
+/* Hiệu ứng hover cho dropdown item */
+.dropdown-menu .dropdown-item {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ✅ Hover nền cam và chữ trắng */
+.dropdown-menu .dropdown-item:hover {
+  background-color: orange !important;
+  color: white !important;
 }

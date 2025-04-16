@@ -5,7 +5,7 @@ import { Modal, Button } from "antd";
 import "./Layout.css";
 import Cart from "../Cart/Cart.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse, faHome, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faBars } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
   const { cart, getTotalItems } = useContext(CartContext);
@@ -35,11 +35,8 @@ const Header = () => {
     navigate("/reservation", { state: { cart, showCart: true } });
   };
 
-  // Hàm xử lý khi click vào liên kết trong menu
   const handleNavLinkClick = () => {
-    // Lấy phần tử nav collapse
     const navCollapse = document.getElementById("ftco-nav");
-    // Nếu đang mở (class "show" được thêm vào) thì thu lại menu
     if (navCollapse && navCollapse.classList.contains("show")) {
       navCollapse.classList.remove("show");
     }
@@ -47,23 +44,12 @@ const Header = () => {
 
   return (
     <>
-      <nav
-        className="navbar navbar-expand-lg navbar-light bg-white ftco-navbar-light"
-        id="ftco-navbar"
-      >
+      <nav className="navbar navbar-expand-lg navbar-light bg-white ftco-navbar-light" id="ftco-navbar">
         <div className="container">
           <Link to="/" className="navbar-brand">
-            <img
-              src="images/blacklogo.png"
-              alt="Logo"
-              style={{
-                height: "auto",
-                width: "100px",
-              }}
-            />
+            <img src="images/blacklogo.png" alt="Logo" style={{ height: "auto", width: "100px" }} />
           </Link>
 
-          {/* Nút Menu - Đã sửa */}
           <button
             className="navbar-toggler"
             type="button"
@@ -83,70 +69,74 @@ const Header = () => {
                   <FontAwesomeIcon icon={faHouse} size="2x" />
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link to="/" className="nav-link" onClick={handleNavLinkClick}>
-                  GIỚI THIỆU
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/Menu" className="nav-link" onClick={handleNavLinkClick}>
-                  KHÓA HỌC
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/Blog" className="nav-link" onClick={handleNavLinkClick}>
-                  TIN TỨC
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/" className="nav-link" onClick={handleNavLinkClick}>
-                  LIÊN HỆ
-                </Link>
-              </li>
+
               <li className="nav-item dropdown">
-               <a
-                className="nav-link dropdown-toggle"
-                href="#"
-                id="lessonDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                >
-                GIÁO ÁN
-                </a>
-                <ul className="dropdown-menu" aria-labelledby="lessonDropdown">
-                <li>
-                <a
-                className="dropdown-item"
-                href="https://lms.viengiaoducantoan.edu.vn/login/canvas"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleNavLinkClick}
-                >
-                Giáo án điện tử
-                </a>
+                <a className="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">VỀ CHÚNG TÔI</a>
+                <ul className="dropdown-menu">
+                  <li><Link to="/History" className="dropdown-item">Lịch sử hình thành</Link></li>
+                  <li><Link to="/#" className="dropdown-item">Cơ sở pháp lý</Link></li>
+                  <li><Link to="/#" className="dropdown-item">Tầm nhìn - Sứ mệnh</Link></li>
+                  <li><Link to="/#" className="dropdown-item">Đội ngũ giảng viên</Link></li>
+                  <li><Link to="/#" className="dropdown-item">Văn hóa doanh nghiệp</Link></li>
+                  <li><Link to="/#" className="dropdown-item">Nguyên tắc hoạt động</Link></li>
+                </ul>
               </li>
-    <li>
-      <Link to="/authentication" className="dropdown-item" onClick={handleNavLinkClick}>
-        Admin
-      </Link>
-    </li>
-  </ul>
-</li>
+
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle" href="#" id="courseDropdown" role="button" data-bs-toggle="dropdown">KHÓA HỌC</a>
+                <ul className="dropdown-menu">
+                  <li><Link to="/Menu" className="dropdown-item">An toàn học đường</Link></li>
+                  <li><Link to="/courses/labor-safety" className="dropdown-item">An toàn lao động</Link></li>
+                  <li><Link to="/courses/family-safety" className="dropdown-item">An toàn gia đình</Link></li>
+                </ul>
+              </li>
+
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle" href="#" id="lessonDropdown" role="button" data-bs-toggle="dropdown">GIÁO ÁN</a>
+                <ul className="dropdown-menu">
+                  <li><Link to="/" className="dropdown-item">Giáo án Mầm Non</Link></li>
+                  <li><Link to="/lessons/tieuhoc" className="dropdown-item">Giáo án Tiểu Học</Link></li>
+                  <li><Link to="/lessons/thcs" className="dropdown-item">Giáo án THCS</Link></li>
+                  <li><Link to="/lessons/thpt" className="dropdown-item">Giáo án THPT</Link></li>
+                  <li><Link to="/authentication" className="dropdown-item">Admin</Link></li>
+                </ul>
+              </li>
+
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle" href="#" id="partnerDropdown" role="button" data-bs-toggle="dropdown">ĐỐI TÁC</a>
+                <ul className="dropdown-menu">
+                  <li><Link to="/partners/bac" className="dropdown-item">Miền Bắc</Link></li>
+                  <li><Link to="/partners/trung" className="dropdown-item">Miền Trung</Link></li>
+                  <li><Link to="/partners/nam" className="dropdown-item">Miền Nam</Link></li>
+                </ul>
+              </li>
+
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle" href="#" id="libraryDropdown" role="button" data-bs-toggle="dropdown">THƯ VIỆN</a>
+                <ul className="dropdown-menu">
+                  <li><Link to="/gallery/images" className="dropdown-item">Thư viện ảnh</Link></li>
+                  <li><Link to="/gallery/videos" className="dropdown-item">Thư viện video</Link></li>
+                </ul>
+              </li>
+
+              <li className="nav-item">
+                <Link to="/Blog" className="nav-link">TIN TỨC</Link>
+              </li>
+
+              <li className="nav-item">
+                <Link to="/contact" className="nav-link">LIÊN HỆ</Link>
+              </li>
             </ul>
           </div>
         </div>
       </nav>
+
       <Modal
         title="GIỎ HÀNG"
         visible={isCartModalOpen}
         onCancel={closeCartModal}
         footer={[
-          <Button
-            key="reservation"
-            type="primary"
-            onClick={handleReservationWithCart}
-          >
+          <Button key="reservation" type="primary" onClick={handleReservationWithCart}>
             Đặt bàn với thực đơn này
           </Button>,
         ]}

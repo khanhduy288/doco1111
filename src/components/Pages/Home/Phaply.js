@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const History = () => {
+const Phaply = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +13,7 @@ const History = () => {
         const res = await fetch(API_URL);
         const data = await res.json();
         const filtered = data.filter(
-          (post) => post.category === "lich-su-hinh-thanh"
+          (post) => post.category === "co-so-phap-ly" 
         );
         setPosts(filtered);
       } catch (error) {
@@ -30,7 +30,7 @@ const History = () => {
     <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-center">
       <div className="w-full max-w-3xl bg-white shadow-lg rounded-xl p-8">
         <h1 className="text-3xl font-bold text-blue-800 mb-8 text-center">
-         Lịch sử hình thành
+         Cơ Sở Pháp Lý
         </h1>
 
         {loading ? (
@@ -65,4 +65,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default Phaply;

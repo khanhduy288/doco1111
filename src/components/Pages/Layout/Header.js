@@ -74,7 +74,7 @@ const Header = () => {
                 <a className="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">VỀ CHÚNG TÔI</a>
                 <ul className="dropdown-menu">
                   <li><Link to="/History" className="dropdown-item">Lịch sử hình thành</Link></li>
-                  <li><Link to="/#" className="dropdown-item">Cơ sở pháp lý</Link></li>
+                  <li><Link to="/Phaply" className="dropdown-item">Cơ sở pháp lý</Link></li>
                   <li><Link to="/#" className="dropdown-item">Tầm nhìn - Sứ mệnh</Link></li>
                   <li><Link to="/#" className="dropdown-item">Đội ngũ giảng viên</Link></li>
                   <li><Link to="/#" className="dropdown-item">Văn hóa doanh nghiệp</Link></li>

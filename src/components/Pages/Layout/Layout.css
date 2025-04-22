@@ -25,7 +25,7 @@ Modal {
 
 #ftco-nav .navbar-nav .nav-item .nav-link {
   color: rgb(241, 102, 9) !important;
-  font-weight: bold;
+
 }
 
 .navbar-toggler {
@@ -40,8 +40,8 @@ Modal {
 }
 
 .nav-link {
-  font-size: 17px !important;
-  color: #333;
+  font-size: 14px !important;
+  color: #eb4c25;
   font-weight: bold !important;
   transition: all 0.3s ease-in-out;
 }
@@ -102,7 +102,7 @@ Modal {
 }
 
 .ftco-footer-social li svg {
-  font-size: 24px;
+  font-size: 18px;
   color: white;
 }
 

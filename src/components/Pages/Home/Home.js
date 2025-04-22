@@ -221,7 +221,7 @@ const Home = () => {
       </div>
     </div>
     <div className="row">
-      <div className="col-md-6 col-lg-4">
+      <div className="col-md-6 col-lg-4" style={{ marginBottom: "20px" }}>
         <div className="staff">
           <div className="img" style={{ backgroundImage: "url(images/chef-4.jpg)" }} />
           <div className="text px-4 pt-2">
@@ -238,7 +238,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="col-md-6 col-lg-4">
+      <div className="col-md-6 col-lg-4" style={{ marginBottom: "20px" }}>
         <div className="staff">
           <div className="img" style={{ backgroundImage: "url(images/chef-2.jpg)" }} />
           <div className="text px-4 pt-2">
@@ -255,7 +255,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="col-md-6 col-lg-4">
+      <div className="col-md-6 col-lg-4" style={{ marginBottom: "20px" }}>
         <div className="staff">
           <div className="img" style={{ backgroundImage: "url(images/chef-3.jpg)" }} />
           <div className="text px-4 pt-2">

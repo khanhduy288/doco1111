@@ -125,3 +125,46 @@ Modal {
   background-color: orange !important;
   color: white !important;
 }
+/* Định dạng cho các phần trong footer */
+.ftco-footer {
+  background-color: #343a40;
+  color: #fff;
+}
+
+.ftco-footer .ftco-heading-2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.ftco-footer .list-unstyled a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.ftco-footer .list-unstyled a:hover {
+  text-decoration: underline;
+}
+
+.ftco-footer .ftco-footer-social a {
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0 10px;
+}
+
+.ftco-footer .ftco-footer-social a:hover {
+  color: #f39c12;
+}
+
+footer .bg-secondary {
+  background-color: #6c757d;
+}
+
+footer .container {
+  max-width: 1200px;
+}
+
+footer .text-center p {
+  margin: 0;
+  font-size: 0.9rem;
+}

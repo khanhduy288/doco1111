@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../Cart/CartContext.js";
-import { Modal, Button } from "antd";
+import { Modal, Button, Badge, notification } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import "./Layout.css";
 import Cart from "../Cart/Cart.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faBars, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+import { FaUser } from "react-icons/fa";
 
 const Header = () => {
   const { cart, getTotalItems } = useContext(CartContext);
@@ -14,6 +16,7 @@ const Header = () => {
 
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [userName, setUserName] = useState(null);
+  const [walletAddress, setWalletAddress] = useState(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("SEPuser"));
@@ -22,24 +25,41 @@ const Header = () => {
     }
   }, []);
 
-  const openCartModal = () => {
-    setIsCartModalOpen(true);
-  };
-
-  const closeCartModal = () => {
-    setIsCartModalOpen(false);
-  };
+  const openCartModal = () => setIsCartModalOpen(true);
+  const closeCartModal = () => setIsCartModalOpen(false);
 
   const handleReservationWithCart = () => {
     closeCartModal();
-    navigate("/reservation", { state: { cart, showCart: true } });
+    navigate("/checkout", { state: { cart, showCart: true } });
   };
 
-  const handleNavLinkClick = () => {
-    const navCollapse = document.getElementById("ftco-nav");
-    if (navCollapse && navCollapse.classList.contains("show")) {
-      navCollapse.classList.remove("show");
+  const handleConnectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setWalletAddress(accounts[0]);
+        notification.success({
+          message: "Wallet Connected",
+          description: `Connected to ${truncateAddress(accounts[0])}`,
+        });
+      } catch (error) {
+        console.error("Error connecting wallet:", error);
+      }
+    } else {
+      window.open("https://metamask.io/download.html", "_blank");
     }
+  };
+
+  const handleDisconnectWallet = () => {
+    setWalletAddress(null);
+    notification.info({
+      message: "Wallet Disconnected",
+      description: "You have disconnected your wallet.",
+    });
+  };
+
+  const truncateAddress = (address) => {
+    return address.slice(0, 6) + "..." + address.slice(-4);
   };
 
   return (
@@ -47,7 +67,11 @@ const Header = () => {
       <nav className="navbar navbar-expand-lg navbar-light bg-white ftco-navbar-light" id="ftco-navbar">
         <div className="container">
           <Link to="/" className="navbar-brand">
-            <img src="images/blacklogo.png" alt="Logo" style={{ height: "auto", width: "100px" }} />
+            <img
+              src="/images/logo.png"
+              alt="Logo"
+              style={{ height: "auto", width: "100px", borderRadius: "50%" }}
+            />
           </Link>
 
           <button
@@ -63,68 +87,49 @@ const Header = () => {
           </button>
 
           <div className="collapse navbar-collapse" id="ftco-nav">
-            <ul className="navbar-nav ml-auto">
-              <li className="nav-item active">
-                <Link to="/" className="nav-link" onClick={handleNavLinkClick}>
-                  <FontAwesomeIcon icon={faHouse} size="2x" />
+            <ul className="navbar-nav ml-auto align-items-center">
+              <li className="nav-item">
+                <Link to="/" className="nav-link">
+                  <FontAwesomeIcon icon={faHouse} className="mr-1" /> Home
                 </Link>
               </li>
-
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown">VỀ CHÚNG TÔI</a>
-                <ul className="dropdown-menu">
-                  <li><Link to="/History" className="dropdown-item">Lịch sử hình thành</Link></li>
-                  <li><Link to="/Phaply" className="dropdown-item">Cơ sở pháp lý</Link></li>
-                  <li><Link to="/#" className="dropdown-item">Tầm nhìn - Sứ mệnh</Link></li>
-                  <li><Link to="/#" className="dropdown-item">Đội ngũ giảng viên</Link></li>
-                  <li><Link to="/#" className="dropdown-item">Văn hóa doanh nghiệp</Link></li>
-                  <li><Link to="/#" className="dropdown-item">Nguyên tắc hoạt động</Link></li>
-                </ul>
-              </li>
-
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" id="courseDropdown" role="button" data-bs-toggle="dropdown">KHÓA HỌC</a>
-                <ul className="dropdown-menu">
-                  <li><Link to="/Menu" className="dropdown-item">An toàn học đường</Link></li>
-                  <li><Link to="/courses/labor-safety" className="dropdown-item">An toàn lao động</Link></li>
-                  <li><Link to="/courses/family-safety" className="dropdown-item">An toàn gia đình</Link></li>
-                </ul>
-              </li>
-
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" id="lessonDropdown" role="button" data-bs-toggle="dropdown">GIÁO ÁN</a>
-                <ul className="dropdown-menu">
-                  <li><Link to="/" className="dropdown-item">Giáo án Mầm Non</Link></li>
-                  <li><Link to="/lessons/tieuhoc" className="dropdown-item">Giáo án Tiểu Học</Link></li>
-                  <li><Link to="/lessons/thcs" className="dropdown-item">Giáo án THCS</Link></li>
-                  <li><Link to="/lessons/thpt" className="dropdown-item">Giáo án THPT</Link></li>
-                  <li><Link to="/authentication" className="dropdown-item">Admin</Link></li>
-                </ul>
-              </li>
-
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" id="partnerDropdown" role="button" data-bs-toggle="dropdown">ĐỐI TÁC</a>
-                <ul className="dropdown-menu">
-                  <li><Link to="/partners/bac" className="dropdown-item">Miền Bắc</Link></li>
-                  <li><Link to="/partners/trung" className="dropdown-item">Miền Trung</Link></li>
-                  <li><Link to="/partners/nam" className="dropdown-item">Miền Nam</Link></li>
-                </ul>
-              </li>
-
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" id="libraryDropdown" role="button" data-bs-toggle="dropdown">THƯ VIỆN</a>
-                <ul className="dropdown-menu">
-                  <li><Link to="/gallery/images" className="dropdown-item">Thư viện ảnh</Link></li>
-                  <li><Link to="/gallery/videos" className="dropdown-item">Thư viện video</Link></li>
-                </ul>
-              </li>
-
               <li className="nav-item">
-                <Link to="/Blog" className="nav-link">TIN TỨC</Link>
+                <Link to="/products" className="nav-link">Products</Link>
               </li>
-
               <li className="nav-item">
-                <Link to="/contact" className="nav-link">LIÊN HỆ</Link>
+                <Link to="/about" className="nav-link">About Us</Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/contact" className="nav-link">Contact</Link>
+              </li>
+              <li className="nav-item">
+                <Badge count={totalItems} size="small" offset={[4, 0]}>
+                  <Button onClick={openCartModal} type="text">
+                    <FontAwesomeIcon icon={faShoppingCart} style={{ fontSize: "20px", color: "#ff6600" }} />
+                  </Button>
+                </Badge>
+              </li>
+              <li className="nav-item ml-2 d-flex align-items-center">
+                {walletAddress ? (
+                  <>
+                    <span className="nav-link d-flex align-items-center">
+                      <FaUser size={20} style={{ marginRight: "6px", color: "orange" }} />
+                      {truncateAddress(walletAddress)}
+                    </span>
+                    <LogoutOutlined
+                      onClick={handleDisconnectWallet}
+                      style={{
+                        color: "red",
+                        fontSize: "20px",
+                        marginLeft: "10px",
+                        cursor: "pointer"
+                      }}
+                      title="Disconnect Wallet"
+                    />
+                  </>
+                ) : (
+                  <Button type="primary" onClick={handleConnectWallet}>Connect Wallet</Button>
+                )}
               </li>
             </ul>
           </div>
@@ -132,13 +137,13 @@ const Header = () => {
       </nav>
 
       <Modal
-        title="GIỎ HÀNG"
-        visible={isCartModalOpen}
+        title="Your Shopping Cart"
+        open={isCartModalOpen}
         onCancel={closeCartModal}
         footer={[
-          <Button key="reservation" type="primary" onClick={handleReservationWithCart}>
-            Đặt bàn với thực đơn này
-          </Button>,
+          <Button key="checkout" type="primary" onClick={handleReservationWithCart}>
+            Proceed to Checkout
+          </Button>
         ]}
         width={700}
       >

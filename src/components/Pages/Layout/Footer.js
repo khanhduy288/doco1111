@@ -1,87 +1,73 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faPhone, faGlobe, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faPhone, faGlobe, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { faInstagram, faFacebook, faYoutube } from "@fortawesome/free-brands-svg-icons";
 
 const Footer = () => {
   return (
     <>
-  <footer className="ftco-footer ftco-no-pb ftco-section">
-    <div className="container">
-      <div className="row mb-5">
-        {/* Cột logo & mạng xã hội */}
-        <div className="col-md-6 col-lg-3 d-flex flex-column align-items-between">
-          <div className="ftco-footer-widget mb-4 text-between">
-            <h2 className="ftco-heading-2">Taste.it</h2>
-            <ul className="ftco-footer-social list-unstyled mt-3 d-flex justify-content-center">
-              <li className="mr-3">
-              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-              <FontAwesomeIcon icon={faInstagram} />
-              </a>
-              </li>                                     
-              <li className="mr-3">
-              <a href="https://www.facebook.com/visafe.edu.vn" target="_blank" rel="noopener noreferrer">
-              <FontAwesomeIcon icon={faFacebook} />
-              </a>
-              </li>
-              <li className="mr-3">
-              <a href="https://www.youtube.com/@safedu-antoanviet" target="_blank" rel="noopener noreferrer">
-              <FontAwesomeIcon icon={faYoutube} />
-              </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Cột hình ảnh */}
-        <div className="col-md-6 col-lg-3">
-          <div className="ftco-footer-widget mb-4">
-            <h2 className="ftco-heading-2">Hình Ảnh</h2>
-            <div className="thumb d-sm-flex">
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillhoahoan.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skilldiengiat.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillbatcoc.jpg)" }}></a>
+      <footer className="ftco-footer bg-dark text-white py-5">
+        <div className="container">
+          <div className="row">
+            {/* Column for Company Info */}
+            <div className="col-md-4 mb-4">
+              <h5 className="ftco-heading-2">About Us</h5>
+              <p>We are a global brand offering top quality products with fast and reliable shipping worldwide.</p>
             </div>
-            <div className="thumb d-flex">
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillcapcuu.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skilltunoi.jpg)" }}></a>
-              <a href="#" className="thumb-menu img" style={{ backgroundImage: "url(images/skillngodoc.jpg)" }}></a>
+
+            {/* Column for Customer Service */}
+            <div className="col-md-4 mb-4">
+              <h5 className="ftco-heading-2">Customer Service</h5>
+              <ul className="list-unstyled">
+                <li><a href="#" className="text-white">Contact Us</a></li>
+                <li><a href="#" className="text-white">FAQ</a></li>
+                <li><a href="#" className="text-white">Shipping Info</a></li>
+                <li><a href="#" className="text-white">Returns & Exchanges</a></li>
+              </ul>
+            </div>
+
+            {/* Column for Contact Info */}
+            <div className="col-md-4 mb-4">
+              <h5 className="ftco-heading-2">Contact Us</h5>
+              <ul className="list-unstyled">
+                <li><FontAwesomeIcon icon={faEnvelope} /> Email: support@shopname.com</li>
+                <li><FontAwesomeIcon icon={faPhone} /> Phone: +1 (123) 456-7890</li>
+                <li><FontAwesomeIcon icon={faGlobe} /> Website: www.shopname.com</li>
+                <li><FontAwesomeIcon icon={faMapMarkerAlt} /> Address: 123 Main Street, City, Country</li>
+              </ul>
             </div>
           </div>
-        </div>
 
-        {/* Cột thông tin liên hệ */}
-        <div className="col-md-6 col-lg-3">
-          <div className="ftco-footer-widget mb-4">
-            <h2 className="ftco-heading-2">Liên Hệ</h2>
-            <ul className="list-unstyled">
-            <li>
-            <FontAwesomeIcon icon={faEnvelope} /> Email: vp.vienkhgdat@gmail.com
-            </li>
-            <li>
-            <FontAwesomeIcon icon={faPhone} /> Số điện thoại: 098 522 1159
-            </li>
-            <li>
-            <FontAwesomeIcon icon={faGlobe} /> Website: viengiaoducantoan.edu.vn
-            </li>
-            <li>
-            <FontAwesomeIcon icon={faMapMarkerAlt} /> A2 D6, Ngõ 5, Thọ Tháp, Dịch Vọng, Cầu Giấy, Hà Nội
-            </li>
-            </ul>
+          <div className="row mt-4">
+            <div className="col-12 text-center">
+              <ul className="ftco-footer-social list-unstyled d-flex justify-content-center">
+                <li className="mr-3">
+                  <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+                    <FontAwesomeIcon icon={faInstagram} className="text-white" />
+                  </a>
+                </li>
+                <li className="mr-3">
+                  <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+                    <FontAwesomeIcon icon={faFacebook} className="text-white" />
+                  </a>
+                </li>
+                <li className="mr-3">
+                  <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
+                    <FontAwesomeIcon icon={faYoutube} className="text-white" />
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    {/* Dòng chữ bản quyền */}
-    <div className="container-fluid px-0 bg-primary py-3">
-      <div className="row no-gutters">
-        <div className="col-md-12 text-center">
-          <p className="mb-0">SAFEDU VN</p>
+        {/* Copyright Section */}
+        <div className="bg-secondary py-3">
+          <div className="container text-center">
+            <p className="mb-0">&copy; 2025 ShopName - All Rights Reserved</p>
+          </div>
         </div>
-      </div>
-    </div>
-  </footer>
+      </footer>
     </>
   );
 };

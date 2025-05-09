@@ -103,6 +103,9 @@ const Header = () => {
                 <Link to="/contact" className="nav-link">Contact</Link>
               </li>
               <li className="nav-item">
+                <Link to="/authentication" className="nav-link">Sign in</Link>
+              </li>
+              <li className="nav-item">
                 <Badge count={totalItems} size="small" offset={[4, 0]}>
                   <Button onClick={openCartModal} type="text">
                     <FontAwesomeIcon icon={faShoppingCart} style={{ fontSize: "20px", color: "#ff6600" }} />

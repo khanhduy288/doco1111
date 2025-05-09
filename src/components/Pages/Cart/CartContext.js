@@ -5,37 +5,37 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  const addToCart = (dish) => {
+  const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingDish = prevCart.find((item) => item.dishId === dish.dishId);
-      if (existingDish) {
+      const existingProduct = prevCart.find((item) => item.id === product.id);
+      if (existingProduct) {
         return prevCart.map((item) =>
-          item.dishId === dish.dishId
+          item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        return [...prevCart, { ...dish, quantity: 1 }];
+        return [...prevCart, { ...product, quantity: 1 }];
       }
     });
   };
 
-  const removeItem = (dishId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.dishId !== dishId));
+  const removeItem = (id) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (dishId, amount) => {
-    setCart((prevCart) => {
-      return prevCart
+  const updateQuantity = (id, amount) => {
+    setCart((prevCart) =>
+      prevCart
         .map((item) => {
-          if (item.dishId === dishId) {
+          if (item.id === id) {
             const newQuantity = Math.min(Math.max(item.quantity + amount, 0), 50);
             return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
           }
           return item;
         })
-        .filter(Boolean);
-    });
+        .filter(Boolean)
+    );
   };
 
   const clearCart = () => {

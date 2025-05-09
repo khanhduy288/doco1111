@@ -60,6 +60,7 @@ import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
 import PostForm from "./components/Pages/Home/PostForm.js";
 import History from "./components/Pages/Home/History.js";
 import Phaply from "./components/Pages/Home/Phaply.js";
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const ProtectedAdminLayout = withAuth(["Admin"])(AdminLayout);
@@ -73,14 +74,16 @@ function App() {
   return (
     <ReservationProvider>
       <CartProvider>
+      <ToastContainer />
         <Router>
           <Routes>
             <Route path="/authentication" element={<LoginSignup />} />
-            <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
             <Route path="/postform" element={<PostForm />} /> {/* Đây nè */}
+            <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
             <Route path="/forgetPassword" element={<ForgetPassword />} />
             <Route path="/resetPassword*" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
+        
 
             <Route path="/admin" element={<ProtectedAdminLayout />}>
               <Route path="dish" element={<AllDish />} />

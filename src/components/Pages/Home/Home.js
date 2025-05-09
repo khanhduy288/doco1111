@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import './Home.css'; // Tạo file này để thêm CSS responsive
+import './Home.css'; 
 import { Button, Row, Col } from 'antd';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useContext } from 'react';
-import { CartContext } from '../Cart/CartContext'; // Cập nhật đúng đường dẫn nếu cần
+import { CartContext } from '../Cart/CartContext'; 
+import { Link } from 'react-router-dom'; // Import Link từ react-router-dom
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart } = useContext(CartContext);
-
 
   useEffect(() => {
     const getProducts = async () => {
@@ -35,7 +35,6 @@ const Home = () => {
   const handleAddToCart = (product) => {
     addToCart(product);
     toast.success(`${product.name} added to cart!`);
-    // Thêm logic lưu vào cart context hoặc localStorage tại đây nếu cần
   };
 
   const handleBuyNow = async (product) => {
@@ -43,34 +42,32 @@ const Home = () => {
       toast.error("Vui lòng cài đặt MetaMask!");
       return;
     }
-  
+
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const sender = accounts[0];
-  
+
       const tx = {
         from: sender,
-        to: "0x65D7d2381b18AB6FbAA980f1EB550672Af50710b", // 🛑 thay địa chỉ người bán
+        to: "0x65D7d2381b18AB6FbAA980f1EB550672Af50710b",
         value: `0x${(product.price * 1e18).toString(16)}`,
-        gas: '0x5208', // hoặc để trống để MetaMask tự tính
+        gas: '0x5208', 
       };
-  
+
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [tx],
       });
-  
+
       toast.success(`TX thành công: ${txHash}`);
     } catch (error) {
       console.error(error);
       toast.error("Giao dịch bị huỷ hoặc lỗi.");
     }
   };
-  
 
   const handleAuction = (product) => {
     toast.warning(`Enter auction for ${product.name}`);
-    // Điều hướng đến trang đấu giá
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -91,7 +88,13 @@ const Home = () => {
               </div>
               <div className="product-actions">
                 <Button type="primary" block onClick={() => handleBuyNow(product)}>Buy Now</Button>
-                <Button type="dashed" block style={{ margin: '8px 0' }} onClick={() => handleAuction(product)}>Auction</Button>
+                {product.isAuction && (
+                  <Link to={`/auction/${product.id}`} style={{ width: '100%' }}>
+                    <Button type="dashed" block style={{ margin: '8px 0' }}>
+                      Auction
+                    </Button>
+                  </Link>
+                )}
                 <Button type="default" block onClick={() => handleAddToCart(product)}>Add to Cart</Button>
               </div>
             </div>
@@ -100,6 +103,6 @@ const Home = () => {
       </Row>
     </div>
   );
-};
+};  
 
 export default Home;

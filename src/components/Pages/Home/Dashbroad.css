@@ -178,7 +178,12 @@ ul {
   margin-left: 20px;
   line-height: 1.6;
 }
-
+.auction-product-image {
+  width: 100%;
+  max-width: 300px; /* Thay đổi giá trị này để thu nhỏ ảnh */
+  height: auto;
+  margin-bottom: 16px;
+}
 /* Responsive cho mobile */
 @media (max-width: 768px) {
   .sidebar {

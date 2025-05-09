@@ -60,6 +60,11 @@ import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
 import PostForm from "./components/Pages/Home/PostForm.js";
 import History from "./components/Pages/Home/History.js";
 import Phaply from "./components/Pages/Home/Phaply.js";
+import AuctionPage from './components/Pages/Home/AuctionPage.js'; // đường dẫn đúng với bạn
+
+
+
+
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -147,6 +152,8 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="/menu" element={<Menu />} />
+              <Route path="/auction" element={<AuctionPage />} />
+              <Route path="/auction/:id" element={<AuctionPage />} />
               <Route path="/history" element={<History />} />
               <Route path="/phaply" element={<Phaply />} />
               <Route path="/details/:id" element={<DishDetails />} />

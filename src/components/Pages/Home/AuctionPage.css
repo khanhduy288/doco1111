@@ -1,0 +1,46 @@
+.auction-page {
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.product-info {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.product-header img {
+  max-width: 100%;
+  border-radius: 8px;
+  height: auto;
+}
+
+.product-info h2 {
+  margin-top: 10px;
+  font-size: 24px;
+}
+
+.auction-details {
+  margin-top: 20px;
+}
+
+.bidding-history ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.bidding-history li {
+  margin-bottom: 10px;
+}
+
+.loading {
+  font-size: 20px;
+  text-align: center;
+}
+.auction-product-image {
+  max-width: 100% !important;
+  width: 300px !important;
+  height: auto !important;
+  margin-bottom: 16px;
+}

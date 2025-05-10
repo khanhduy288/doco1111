@@ -6,62 +6,76 @@ import 'react-toastify/dist/ReactToastify.css';
 import './AuctionPage.css';
 
 const AuctionPage = () => {
-  const { id } = useParams(); // Lấy id từ URL
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [walletAddress, setWalletAddress] = useState(""); // thêm state lưu địa chỉ ví
   const [bidAmount, setBidAmount] = useState("");
   const [biddingHistory, setBiddingHistory] = useState([]);
   const [currentBid, setCurrentBid] = useState(0);
   const [highestBidder, setHighestBidder] = useState("");
 
-  // Fetch thông tin sản phẩm khi component được mount
+  // Fetch thông tin sản phẩm
   useEffect(() => {
     const fetchProductInfo = async () => {
       try {
         const response = await fetch(`https://63e1d6414324b12d963f5108.mockapi.io/api/v11/laptop/${id}`);
         if (!response.ok) throw new Error("Không thể tải thông tin sản phẩm");
         const data = await response.json();
-        setProduct(data); // Cập nhật thông tin sản phẩm vào state
+        setProduct(data);
         setCurrentBid(data.currentBid || 0);
         setHighestBidder(data.highestBidder || "");
-        setBiddingHistory(data.biddingHistory || []);  // Lưu lịch sử đấu giá từ sản phẩm
+        setBiddingHistory(data.biddingHistory || []);
       } catch (err) {
-        console.error("Lỗi khi tải sản phẩm:", err);
-        toast.error("Có lỗi xảy ra khi tải thông tin sản phẩm.");
+        toast.error("Có lỗi khi tải thông tin sản phẩm.");
       }
     };
 
     fetchProductInfo();
   }, [id]);
 
-  // Cập nhật thông tin sản phẩm sau khi người dùng đặt giá
+  // Fetch địa chỉ ví từ API khác
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const response = await fetch("https://681de07ac1c291fa66320473.mockapi.io/addressqr/wallet/1");
+        if (!response.ok) throw new Error("Không thể lấy địa chỉ ví");
+        const data = await response.json();
+        setWalletAddress(data.address  || ""); // Lưu địa chỉ ví vào state
+      } catch (error) {
+        toast.error("Không thể lấy địa chỉ ví.");
+      }
+    };
+
+    fetchWallet();
+  }, []);
+
+  // Gửi PUT cập nhật sản phẩm
   const updateProduct = async (updatedProduct) => {
     try {
-      console.log("Cập nhật sản phẩm với dữ liệu:", updatedProduct);
       const response = await fetch(`https://63e1d6414324b12d963f5108.mockapi.io/api/v11/laptop/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedProduct),
       });
 
-      if (!response.ok) {
-        console.error("Cập nhật sản phẩm thất bại:", await response.text());
-        throw new Error("Không thể cập nhật sản phẩm");
-      }
-      
+      if (!response.ok) throw new Error("Không thể cập nhật sản phẩm");
+
       const data = await response.json();
-      console.log("Sản phẩm sau khi cập nhật:", data);
-      setProduct(data); // Cập nhật lại sản phẩm trong state sau khi update
+      setProduct(data);
     } catch (err) {
-      console.error("Lỗi cập nhật sản phẩm:", err);
       toast.error("Cập nhật sản phẩm thất bại.");
     }
   };
 
+  // Xử lý đặt giá
   const handleBid = async () => {
     if (!window.ethereum) {
       toast.error("Vui lòng cài đặt MetaMask!");
+      return;
+    }
+
+    if (!walletAddress) {
+      toast.error("Chưa có địa chỉ ví của người bán.");
       return;
     }
 
@@ -79,34 +93,39 @@ const AuctionPage = () => {
 
       const tx = {
         from: sender,
-        to: product.walletAddress, // Địa chỉ ví người bán
-        value: `0x${(bidAmount * 1e18).toString(16)}`,
+        to: walletAddress,
+        value: `0x${(parseFloat(bidAmount) * 1e18).toString(16)}`,
         gas: '0x5208',
       };
+
+      toast.info("Đang gửi giao dịch...");
 
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [tx],
       });
 
-      toast.success(`Đặt giá thành công! Giao dịch: ${txHash}`);
-      setCurrentBid(parseFloat(bidAmount)); // Cập nhật lại mức giá cao nhất
-      setHighestBidder(sender); // Cập nhật lại người thắng
-      setBidAmount(""); // Xóa input bid
-      // Cập nhật lịch sử đấu giá sau khi đặt giá mới
-      setBiddingHistory([...biddingHistory, { bidder: sender, amount: bidAmount }]);
+      toast.success(`Giao dịch thành công: ${txHash}`);
 
-      // Cập nhật thông tin sản phẩm mới sau khi đặt giá
+      const updatedHistory = [...biddingHistory, { bidder: sender, amount: bidAmount }];
+
       const updatedProduct = {
         ...product,
         currentBid: parseFloat(bidAmount),
         highestBidder: sender,
+        biddingHistory: updatedHistory,
       };
-      
-      await updateProduct(updatedProduct); // Cập nhật sản phẩm với giá và người thắng mới
+
+      setCurrentBid(parseFloat(bidAmount));
+      setHighestBidder(sender);
+      setBiddingHistory(updatedHistory);
+      setBidAmount("");
+
+      await updateProduct(updatedProduct);
+      toast.success("Cập nhật sản phẩm thành công.");
     } catch (error) {
-      console.error("Lỗi giao dịch:", error);
       toast.error("Giao dịch thất bại.");
+      console.error("Lỗi giao dịch:", error);
     }
   };
 

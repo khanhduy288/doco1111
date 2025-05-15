@@ -61,6 +61,7 @@ import PostForm from "./components/Pages/Home/PostForm.js";
 import History from "./components/Pages/Home/History.js";
 import Phaply from "./components/Pages/Home/Phaply.js";
 import AuctionPage from './components/Pages/Home/AuctionPage.js'; // đường dẫn đúng với bạn
+import DashboardMember from './components/Pages/Home/DashboardMember.jsx'; // đường dẫn đúng với bạn
 
 
 
@@ -85,6 +86,7 @@ function App() {
             <Route path="/authentication" element={<LoginSignup />} />
             <Route path="/postform" element={<PostForm />} /> {/* Đây nè */}
             <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
+            <Route path="/dashboard-member" element={<DashboardMember />} /> {/* Đây nè */}
             <Route path="/forgetPassword" element={<ForgetPassword />} />
             <Route path="/resetPassword*" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />

@@ -20,7 +20,7 @@ const PRODUCT_API = "https://63e1d6414324b12d963f5108.mockapi.io/api/v11/laptop"
 const WALLET_API = "https://681de07ac1c291fa66320473.mockapi.io/addressqr/wallet";
 const ETHERSCAN_API_KEY = "K2IPH3NSF9MB2FZ4CCP4FBK14ESWRTCVMM";
 
-const Dashboard = () => {
+const DashboardMember = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [pendingUsers, setPendingUsers] = useState([]);
@@ -185,7 +185,7 @@ const handleReject = async (userId) => {
     <div className="dashboard-container">
       <header className="header">
         <FontAwesomeIcon icon={faBars} onClick={toggleNav} className="toggle-button" />
-        <div className="logo">Dashboard</div>
+        <div className="logo">Dashboard Member</div>
       </header>
 
       <div className={`sidebar ${isNavOpen ? "open" : ""}`}>
@@ -332,4 +332,4 @@ const handleReject = async (userId) => {
   );
 };
 
-export default Dashboard;
+export default DashboardMember;

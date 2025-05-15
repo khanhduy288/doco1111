@@ -20,6 +20,7 @@ const LoginSignup = () => {
     email: "",
     phoneNumber: "",
     dob: "",
+    status:"pending"
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -126,135 +127,148 @@ const LoginSignup = () => {
     return null;
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-  
-    if (!username) {
-      toast.error("Tên đăng nhập không được để trống.");
+const handleLogin = async (event) => {
+  event.preventDefault();
+
+  if (!username) {
+    toast.error("Tên đăng nhập không được để trống.");
+    return;
+  }
+
+  const passwordError = validatePassword(password);
+  if (passwordError) {
+    toast.error(passwordError);
+    return;
+  }
+
+  try {
+    // Gọi cả hai API
+    const [adminRes, userRes] = await Promise.all([
+      axios.get("https://6437c88f0c58d3b14579192a.mockapi.io/api/tour/login"),
+      axios.get("https://65682fed9927836bd9743814.mockapi.io/api/singup/signup")
+    ]);
+
+    const adminUsers = adminRes.data;
+    const normalUsers = userRes.data;
+
+    // Kiểm tra tài khoản admin
+    const admin = adminUsers.find(
+      (u) =>
+        (u.userName === username || u.username === username) &&
+        u.password === password
+    );
+
+    if (admin) {
+      localStorage.setItem("SEPuser", JSON.stringify(admin));
+      if (rememberMe) {
+        localStorage.setItem("rememberedUsername", username);
+      } else {
+        localStorage.removeItem("rememberedUsername");
+      }
+      toast.success("Đăng nhập thành công (Admin)!");
+      navigate("/dashboard");
       return;
     }
-  
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      toast.error(passwordError);
-      return;
-    }
-  
-    try {
-      const response = await axios.get(
-        "https://6437c88f0c58d3b14579192a.mockapi.io/api/tour/login"
-      );
-  
-      const users = response.data;
-  
-      // Tìm người dùng phù hợp
-      const user = users.find(
-        (u) =>
-          (u.userName === username || u.username === username) &&
-          u.password === password
-      );
-  
-      if (user) {
-        // Giả lập lưu token và user (vì API không có token thật)
+
+    // Kiểm tra tài khoản người dùng thường
+    const user = normalUsers.find(
+      (u) =>
+        (u.userName === username || u.username === username || u.email === username) &&
+        u.passWord === password
+    );
+
+    if (user) {
+      if (user.status === "approved") {
         localStorage.setItem("SEPuser", JSON.stringify(user));
-        if (rememberMe) {
-          localStorage.setItem("rememberedUsername", username);
-        } else {
-          localStorage.removeItem("rememberedUsername");
-        }
-  
-        toast.success("Đăng nhập thành công!");
-        navigate("/dashboard");
+        toast.success("Đăng nhập thành công (Thành viên)!");
+        navigate("/dashboard-member");
       } else {
-        toast.error("Tên đăng nhập hoặc mật khẩu không đúng.");
+        toast.error("Tài khoản của bạn chưa được phê duyệt.");
       }
-    } catch (error) {
-      console.error("Login failed:", error);
-      toast.error("Lỗi khi đăng nhập. Vui lòng thử lại sau.");
+    } else {
+      toast.error("Tên đăng nhập hoặc mật khẩu không đúng.");
     }
-  };
+  } catch (error) {
+    console.error("Login failed:", error);
+    toast.error("Lỗi khi đăng nhập. Vui lòng thử lại sau.");
+  }
+};
+
   
 
-  const handleSignup = async (event) => {
-    event.preventDefault();
+const handleSignup = async (event) => {
+  event.preventDefault();
 
-    if (signupData.phoneNumber.length !== 10) {
-      toast.error("Số điện thoại phải có 10 ký tự.");
-      return;
-    }
+  // Kiểm tra số điện thoại hợp lệ
+  if (signupData.phoneNumber.length !== 10) {
+    toast.error("Số điện thoại phải có 10 ký tự.");
+    return;
+  }
 
-    const passwordError = validatePassword(signupData.passWord);
-    if (passwordError) {
-      toast.error(passwordError);
-      return;
-    }
+  // Kiểm tra mật khẩu hợp lệ
+  const passwordError = validatePassword(signupData.passWord);
+  if (passwordError) {
+    toast.error(passwordError);
+    return;
+  }
 
-    if (signupData.passWord !== confirmPassword) {
-      toast.error("Mật khẩu và xác nhận mật khẩu không khớp.");
-      return;
-    }
+  // Kiểm tra xác nhận mật khẩu
+  if (signupData.passWord !== confirmPassword) {
+    toast.error("Mật khẩu và xác nhận mật khẩu không khớp.");
+    return;
+  }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(signupData.email)) {
-      toast.error("Định dạng email không hợp lệ.");
-      return;
-    }
+  // Kiểm tra định dạng email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(signupData.email)) {
+    toast.error("Định dạng email không hợp lệ.");
+    return;
+  }
 
-    try {
-      // Kiểm tra sự tồn tại của username và email
-      const checkResponse = await axios.get(
-        `https://projectsep490g64summer24backend.azurewebsites.net/api/User/check-user-exists?userName=${signupData.userName}&email=${signupData.email}`
-      );
+  // Thêm trường dob với ngày thực hiện đăng ký
+  const currentDate = new Date().toISOString(); // Định dạng ngày tháng theo ISO
 
-      if (checkResponse.data.success) {
-        // Username và email khả dụng, tiếp tục với quá trình gửi OTP
-        const formattedPhoneNumber = formatPhoneNumber(signupData.phoneNumber);
-
-        ensureRecaptchaExists();
-
-        if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new RecaptchaVerifier(
-            auth,
-            "recaptcha-container",
-            {
-              size: "invisible",
-              callback: (response) => {
-                console.log("reCAPTCHA solved:", response);
-              },
-            }
-          );
-        }
-
-        const appVerifier = window.recaptchaVerifier;
-        try {
-          const confirmationResult = await signInWithPhoneNumber(
-            auth,
-            formattedPhoneNumber,
-            appVerifier
-          );
-          setConfirmationResult(confirmationResult);
-          setShowOtpInput(true);
-          toast.success("Mã OTP đã được gửi thành công!");
-        } catch (error) {
-          console.error("Lỗi khi gửi mã OTP:", error);
-          toast.error("Lỗi khi gửi mã OTP. Vui lòng thử lại.");
-          resetRecaptcha();
-        }
-      } else {
-        toast.error("Tên đăng nhập hoặc email đã được sử dụng.");
-      }
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra thông tin đăng ký:", error);
-      if (error.response && error.response.data) {
-        toast.error(
-          error.response.data.message ||
-            "Có lỗi xảy ra khi kiểm tra thông tin đăng ký."
-        );
-      } else {
-        toast.error("Không thể kết nối đến server. Vui lòng thử lại sau.");
-      }
-    }
+  // Thêm dob vào dữ liệu đăng ký
+  const signupDataWithDob = { 
+    ...signupData,
+    dob: currentDate 
   };
+
+  try {
+    // Kiểm tra username và email đã tồn tại chưa
+    const checkResponse = await axios.get(
+      `https://65682fed9927836bd9743814.mockapi.io/api/singup/signup`
+    );
+
+    // Kiểm tra xem userName đã tồn tại chưa
+    const existingUser = checkResponse.data.find(
+      (user) => user.userName === signupData.userName
+    );
+
+    if (existingUser) {
+      toast.error("Tên đăng nhập đã được sử dụng.");
+      return;
+    }
+
+    // Gửi dữ liệu đăng ký đến API khác
+    const registerResponse = await axios.post(
+      'https://65682fed9927836bd9743814.mockapi.io/api/singup/signup',
+      signupDataWithDob
+    );
+
+    if (registerResponse.status === 200 || registerResponse.status === 201) {
+      toast.success("Đăng ký thành công! Vui lòng chờ xét duyệt.");
+    } else {
+      toast.error("Đăng ký không thành công. Vui lòng thử lại.");
+    }
+  } catch (error) {
+    console.error("Lỗi trong quá trình đăng ký:", error);
+    toast.error(
+      error.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau."
+    );
+  }
+};
+
 
   const handleVerifyOtp = async (event) => {
     event.preventDefault();
@@ -452,7 +466,7 @@ const LoginSignup = () => {
               </div>
             </form>
             <form
-              onSubmit={showOtpInput ? handleVerifyOtp : handleSignup}
+              onSubmit={handleSignup}
               className={`signup ${!isLoginActive ? "active" : ""}`}
             >
               <div className="row">

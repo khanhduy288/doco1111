@@ -118,6 +118,18 @@ nav#menu ul li.active {
     top: 0;
     left: 0;
 }
+.match-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .match-card {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
 
 body {
     font-family: Roboto, sans-serif;

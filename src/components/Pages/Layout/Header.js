@@ -94,13 +94,10 @@ const Header = () => {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/products" className="nav-link">Products</Link>
+                <Link to="/menu" className="nav-link">Bet</Link>
               </li>
               <li className="nav-item">
-                <Link to="/about" className="nav-link">About Us</Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/contact" className="nav-link">Contact</Link>
+                <Link to="/guide" className="nav-link">Support</Link>
               </li>
               <li className="nav-item">
                 <Link to="/authentication" className="nav-link">Sign in</Link>

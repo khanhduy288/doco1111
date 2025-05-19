@@ -1,104 +1,209 @@
-import "animate.css/animate.min.css"; 
-import WOW from "wow.js";
-import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faBook } from "@fortawesome/free-solid-svg-icons";
-import "./Menu.css";
-
-const courses = [
-  { id: 1, name: "KN phòng tránh, xử lý tình huống ngạt nước, đuối nước", videoUrl: "https://www.youtube.com/embed/HPQQLljVqWA", isIframe: true },
-  { id: 2, name: "KN phòng chống và xử lý khi xảy ra tai nạn giao thông", videoUrl: "https://www.youtube.com/embed/W6hBSwJrDWw", isIframe: true },
-  { id: 3, name: "KN phòng chống và xử lý khi có hỏa hoạn", videoUrl: "https://www.youtube.com/embed/MKpUTbNN0Hk", isIframe: true },
-  { id: 4, name: "KN phòng chống bắt cóc, xâm hại", videoUrl: "https://www.youtube.com/embed/Bik0_zhqilE", isIframe: true },
-  { id: 5, name: "KN phòng chống bạo lực học đường", videoUrl: "https://www.youtube.com/embed/joITY53EDIw", isIframe: true },
-  { id: 6, name: "KN phòng chống và xử lý khi bị hóc, sặc dị vật đường thở", videoUrl: "https://www.youtube.com/embed/QOAxau0A9fY", isIframe: true },
-  { id: 7, name: "KN sơ cấp cứu ban đầu theo tiêu chuẩn WHO", videoUrl: "https://www.youtube.com/embed/-Y20kTigDNw", isIframe: true },
-  { id: 8, name: "An toàn không gian mạng", videoUrl: "https://www.youtube.com/embed/l5ULVA7mJ1k", isIframe: true },
-  { id: 9, name: "KN phòng chống và xử lý khi xảy ra tai nạn điện", videoUrl: "https://www.youtube.com/embed/gexX3yC1YtI", isIframe: true },
-  { id: 10, name: "KN phòng chống ma túy và các chất gây nghiện", videoUrl: "https://www.youtube.com/embed/VFOGe_ns3L8", isIframe: true },
-  { id: 11, name: "KN phòng chống ngộ độc thực phẩm", videoUrl: "https://www.youtube.com/embed/nFg9S_Tj86I", isIframe: true },
-  { id: 12, name: "KN phòng chống và xử lý khi bị động vật tấn công", videoUrl: "https://www.youtube.com/embed/QjSIzE73Hz4", isIframe: true }
-];
+import React, { useState, useEffect } from "react";
 
 const Menu = () => {
+  const [matches, setMatches] = useState([]);
+  const [expandedMatchId, setExpandedMatchId] = useState(null);
+  const [currentAccount, setCurrentAccount] = useState(null);
+  const [bettingLoading, setBettingLoading] = useState(false);
+
+  // Load danh sách trận đấu
   useEffect(() => {
-    new WOW().init();
+    fetch("https://68271b3b397e48c913189c7d.mockapi.io/football")
+      .then((res) => res.json())
+      .then((data) => setMatches(data))
+      .catch(() => alert("Lỗi tải dữ liệu trận đấu"));
   }, []);
 
-  const [selectedCourse, setSelectedCourse] = useState(courses[0]);
+  // Kết nối ví MetaMask
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert("Vui lòng cài đặt MetaMask để đặt cược!");
+      return;
+    }
+    try {
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setCurrentAccount(accounts[0]);
+    } catch (err) {
+      alert("Kết nối ví thất bại");
+    }
+  };
+
+  // Đặt cược
+  const placeBet = async (matchId, team) => {
+    if (!currentAccount) {
+      alert("Vui lòng kết nối ví MetaMask trước khi cược");
+      return;
+    }
+    setBettingLoading(true);
+    const betData = {
+      matchId,
+      team,
+      amount: 0.01, // ví dụ số tiền cược mặc định
+      userWallet: currentAccount,
+      timestamp: new Date().toISOString(),
+    };
+    try {
+      const res = await fetch(
+        "https://68271b3b397e48c913189c7d.mockapi.io/football/bets",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(betData),
+        }
+      );
+      if (res.ok) {
+        alert("Đặt cược thành công!");
+      } else {
+        alert("Đặt cược thất bại, thử lại sau");
+      }
+    } catch (error) {
+      alert("Lỗi khi gửi cược");
+    }
+    setBettingLoading(false);
+  };
 
   return (
     <>
-      <section style={{ backgroundColor: "white", color: "gold" }}>
-        <div className="container text-center">
-          <h1>Danh sách khóa học</h1>
-          <p className="breadcrumbs">
-            <span>
-              <a href="index.html">
-                Trang chủ <FontAwesomeIcon icon={faHome} />
-              </a>
-            </span>
-            <span>
-              Khóa học <FontAwesomeIcon icon={faBook} />
-            </span>
-          </p>
-        </div>
-      </section>
+      <style>{`
+        .container {
+          max-width: 900px;
+          margin: auto;
+          padding: 10px;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .match-card {
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          padding: 15px;
+          margin-bottom: 15px;
+          cursor: pointer;
+          background-color: #fafafa;
+          transition: background-color 0.3s ease;
+        }
+        .match-card:hover {
+          background-color: #f0f0f0;
+        }
+        .match-header {
+          font-weight: bold;
+          font-size: 1.2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .bet-options {
+          margin-top: 10px;
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .bet-btn {
+          flex: 1 1 30%;
+          padding: 10px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+        .bet-btn:disabled {
+          background-color: #aaa;
+          cursor: not-allowed;
+        }
+        .bet-btn:hover:not(:disabled) {
+          background-color: #0056b3;
+        }
+        .wallet-btn {
+          margin-bottom: 20px;
+          padding: 10px 20px;
+          background-color: #28a745;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        .wallet-btn:hover {
+          background-color: #1e7e34;
+        }
+        @media (max-width: 600px) {
+          .bet-btn {
+            flex: 1 1 100%;
+          }
+        }
+      `}</style>
 
-      <section id="courses" className="pt-5 pb-5">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-4">
-              <div className="course-list">
-                {courses.map((course) => (
-                  <div
-                    key={course.id}
-                    className={`course-item ${selectedCourse.id === course.id ? "active" : ""}`}
-                    onClick={() => setSelectedCourse(course)}
-                    style={{
-                      backgroundColor: selectedCourse.id === course.id ? "orange" : "white",
-                      padding: "10px",
-                      borderRadius: "5px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    {course.name}
-                  </div>
-                ))}
-              </div>
+      <div className="container">
+        <h1 className="header">Danh sách kèo cược bóng đá</h1>
+
+        {!currentAccount ? (
+          <button className="wallet-btn" onClick={connectWallet}>
+            Kết nối ví MetaMask
+          </button>
+        ) : (
+          <p>Đã kết nối ví: {currentAccount}</p>
+        )}
+
+        {matches.length === 0 && <p>Đang tải dữ liệu trận đấu...</p>}
+
+        {matches.map((match) => (
+          <div
+            key={match.id}
+            className="match-card"
+            onClick={() =>
+              setExpandedMatchId(expandedMatchId === match.id ? null : match.id)
+            }
+          >
+            <div className="match-header">
+              <span>
+                {match.team1} vs {match.team2}
+              </span>
+              <span>{new Date(match.time).toLocaleString()}</span>
             </div>
 
-            <div className="col-md-8">
-              <div className="course-details text-center">
-                <h3>{selectedCourse.name}</h3>
-                {selectedCourse.isIframe ? (
-                  <iframe
-                    className="video-iframe"
-                    src={selectedCourse.videoUrl}
-                    title="Video bài học"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                ) : (
-                  <video
-                    key={selectedCourse.id}
-                    width="80%"
-                    controls
-                    style={{
-                      borderRadius: "15px",
-                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)"
-                    }}
-                  >``
-                    <source src={selectedCourse.videoUrl} type="video/mp4" />
-                    Trình duyệt của bạn không hỗ trợ video.
-                  </video>
-                )}
+            {expandedMatchId === match.id && (
+              <div className="bet-options">
+                <button
+                  disabled={bettingLoading}
+                  className="bet-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    placeBet(match.id, match.team1);
+                  }}
+                >
+                  Cược {match.team1} ({match.odds.team1})
+                </button>
+                <button
+                  disabled={bettingLoading}
+                  className="bet-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    placeBet(match.id, "draw");
+                  }}
+                >
+                  Cược Hòa ({match.odds.draw})
+                </button>
+                <button
+                  disabled={bettingLoading}
+                  className="bet-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    placeBet(match.id, match.team2);
+                  }}
+                >
+                  Cược {match.team2} ({match.odds.team2})
+                </button>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
     </>
   );
 };

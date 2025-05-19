@@ -1,76 +1,84 @@
 import "animate.css/animate.min.css";
 import WOW from "wow.js";
 import { useEffect } from "react";
+import './Contact.css'; // ✅ import CSS riêng
 
 const Contact = () => {
   useEffect(() => {
     new WOW().init();
   }, []);
+
   return (
     <>
       <section
         className="hero-wrap hero-wrap-2"
-        style={{ backgroundImage: 'url("images/bg_5.jpg")' }}
+        style={{ backgroundImage: 'url("images/bg_1.jpg")' }}
         data-stellar-background-ratio="0.5"
       >
         <div className="overlay" />
         <div className="container">
           <div className="row no-gutters slider-text align-items-end justify-content-center">
-            <div className="col-md-9 wow animate__animated animate__fadeUp text-center mb-5">
-              <h1 className="mb-2 bread">Liên hệ với chúng tôi</h1>
+            <div className="col-md-9 wow animate__animated animate__fadeInUp text-center mb-5">
+              <h1 className="mb-2 bread">How to Create "Boat" & Earn Commission</h1>
               <p className="breadcrumbs">
                 <span className="mr-2">
-                  <a href="index.html">
-                    Trang chủ <i className="fa fa-chevron-right" />
+                  <a href="/">
+                    Home <i className="fa fa-chevron-right" />
                   </a>
                 </span>{" "}
                 <span>
-                  Liên hệ với chúng tôi <i className="fa fa-chevron-right" />
+                  User Guide <i className="fa fa-chevron-right" />
                 </span>
               </p>
             </div>
           </div>
         </div>
       </section>
-      <section className="ftco-section contact-section bg-light">
+
+      <section className="ftco-section contact-section bg-light guide-section">
         <div className="container">
-          <div className="row d-flex contact-info">
+          <div className="row mb-5">
             <div className="col-md-12">
-              <h2 className="h4 font-weight-bold">Thông tin liên hệ</h2>
-            </div>
-            <div className="w-100" />
-            <div className="col-md-3 mb-2 d-flex">
-              <div className="dbox">
-                <p>
-                  <span>Địa chỉ 1:</span>  A2 D6, Ngõ 5, Thọ Tháp, Dịch Vọng, Cầu Giấy, Hà Nội
-                </p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-2 d-flex">
-              <div className="dbox">
-                <p>
-                  <span>Số điện thoại:</span> 
-                  <a href="tel://1234567920"> 098 522 1159</a>
-                </p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-2 d-flex">
-              <div className="dbox">
-                <p>
-                  <span>Email:</span>{" "}
-                  <a href="mailto:info@yoursite.com">vp.vienkhgdat@gmail.com</a>
-                </p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-2 d-flex">
-              <div className="dbox">
-                <p>
-                  <span>Fanpage</span>{" "}
-                  <a href="https://www.facebook.com/visafe.edu.vn" target="_blank">
-                  https://www.facebook.com/visafe.edu.vn
-                  </a>
-                </p>
-              </div>
+              <h2>How to Register and Earn Revenue by Creating "Boat"</h2>
+
+              <h5>Step 1: Register an Account</h5>
+              <p>
+                Go to the registration page and sign up for a free account. <br />
+                After registering, you will start at 1-star level, earning <strong>1% revenue</strong> from your created "Boat".
+              </p>
+
+              <h5>Step 2: Create "Boat" to Increase Your Star Level and Earnings</h5>
+              <ul>
+                <li>Create 5 Boats → Upgrade to 2 stars → Earn 2% revenue</li>
+                <li>Create 10 Boats → Upgrade to 3 stars → Earn 3% revenue</li>
+                <li>Create 20 Boats → Upgrade to 4 stars → Earn 4% revenue</li>
+                <li>Create 50 Boats → Upgrade to 5 stars → Earn 5% revenue</li>
+              </ul>
+
+              <h5>Step 3: Share to Attract Customers</h5>
+              <p>
+                After creating a "Boat", share it on social media platforms (Facebook, TikTok, Telegram, etc...). <br />
+                The more people join your "Boat", the more revenue you earn!
+              </p>
+
+              <h4 className="mt-5">Rules</h4>
+
+              <h6>1. Revenue Payout</h6>
+              <p>
+                All revenue will be paid out on the <strong>20th of each month</strong>.
+              </p>
+
+              <h6>2. No Cheating Allowed</h6>
+              <p>
+                Any form of fraud or manipulation will result in <strong>account termination and forfeiture of all earnings</strong>.
+              </p>
+
+              <h6>3. 5-Star Responsibility</h6>
+              <p>
+                When you reach 5 stars, your account becomes a <strong>"Boat" referee</strong>. <br />
+                You are responsible for monitoring and evaluating the outcome of your created "Boat". <br />
+                ⚠️ <strong>Your judgment must be accurate.</strong> False or biased results may lead to account suspension.
+              </p>
             </div>
           </div>
         </div>

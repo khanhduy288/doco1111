@@ -1,0 +1,78 @@
+/* Guide.css */
+
+.guide-section {
+  padding: 2rem 1rem;
+  color: #333;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.guide-section h2 {
+  font-size: 1.6rem;
+  color: #f58220;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.guide-section h5 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.guide-section h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+  color: #222;
+}
+
+.guide-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.guide-section ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.guide-section strong {
+  color: #e65100;
+}
+
+.breadcrumbs {
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.breadcrumbs a {
+  color: #ff9900;
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Mobile */
+@media screen and (max-width: 576px) {
+  .guide-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .guide-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .guide-section h5 {
+    font-size: 1.1rem;
+  }
+
+  .guide-section h6 {
+    font-size: 1rem;
+  }
+}

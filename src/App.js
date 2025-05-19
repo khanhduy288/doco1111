@@ -162,7 +162,7 @@ function App() {
               <Route path="/reservation" element={<Reservation />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blogDetails/:id" element={<BlogDetails />} />
-              <Route path="/contact" element={<Contact />} />
+              <Route path="/guide" element={<Contact />} />
               <Route
                 path="/reservationDetail"
                 element={<ReservationDetail />}

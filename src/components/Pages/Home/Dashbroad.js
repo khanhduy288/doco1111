@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
+import { BrowserProvider, parseEther } from "ethers";
 import {
   faBox,
   faChartLine,
@@ -15,7 +16,6 @@ import './Dashbroad.css';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const PRODUCT_API = "https://63e1d6414324b12d963f5108.mockapi.io/api/v11/laptop";
 const WALLET_API = "https://681de07ac1c291fa66320473.mockapi.io/addressqr/wallet";
 const ETHERSCAN_API_KEY = "K2IPH3NSF9MB2FZ4CCP4FBK14ESWRTCVMM";
@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [pendingUsers, setPendingUsers] = useState([]);
+  const [approvedUsers, setApprovedUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: "", price: "", image: "", description: "" });  
   const [isEditing, setIsEditing] = useState(false);
@@ -34,14 +35,19 @@ const Dashboard = () => {
   const [walletAPIAddress, setWalletAPIAddress] = useState("");
   const [isSavingWallet, setIsSavingWallet] = useState(false);
   const navigate = useNavigate();
-
+  const [isConnected, setIsConnected] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
   const toggleNav = () => setIsNavOpen(!isNavOpen);
 
-  useEffect(() => {
+useEffect(() => {
   if (activeTab === "products") fetchProducts();
-  if (["transactions", "settings"].includes(activeTab)) fetchWallet();
+  if (["transactions", "settings"].includes(activeTab)) {
+    fetchWallet();
+    checkWalletConnection(); // Thêm dòng này
+  }
   if (activeTab === "approval") fetchPendingUsers();
-  }, [activeTab]);
+  if (activeTab === "member") fetchApprovedUsers();
+}, [activeTab]);
 
 
   const fetchProducts = async () => {
@@ -61,6 +67,55 @@ const Dashboard = () => {
     setForm({ name: "", price: "", image: "", description: "" });
     fetchProducts();
   };
+
+  const checkWalletConnection = async () => {
+  if (window.ethereum) {
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    setIsConnected(accounts.length > 0);
+  } else {
+    setIsConnected(false);
+  }
+};
+  
+const handlePaymentToUser = async (user) => {
+  try {
+    console.log("Ví của user:", user.walletAddress);
+    console.log("Balance của user:", user.balance);
+
+    if (!window.ethereum) {
+      toast.error("MetaMask chưa được cài đặt!");
+      return;
+    }
+
+    const recipientAddress = user.walletAddress;
+    const amount = Number(user.balance);
+
+    if (!recipientAddress || isNaN(amount) || amount <= 0) {
+      toast.warning("Thông tin không hợp lệ!");
+      return;
+    }
+
+    const provider = new BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    const tx = await signer.sendTransaction({
+      to: recipientAddress,
+      value: parseEther(amount.toString()),
+    });
+
+    await tx.wait();
+
+    toast.success(`Đã thanh toán ${amount}$ cho ${user.fullName || user.username}`);
+
+    setApprovedUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, balance: 0 } : u))
+    );
+  } catch (err) {
+    console.error(err);
+    toast.error("Thanh toán thất bại!");
+  }
+};
+
 
   const handleEdit = (product) => {
     setIsEditing(true);
@@ -92,6 +147,17 @@ const Dashboard = () => {
     setPendingUsers(pending);
   } catch (error) {
     console.error("Lỗi khi lấy danh sách đăng ký:", error);
+  }
+};
+
+const fetchApprovedUsers = async () => {
+  try {
+    const res = await fetch("https://65682fed9927836bd9743814.mockapi.io/api/singup/signup");
+    const data = await res.json();
+    const approved = data.filter((user) => user.status === "approved");
+    setApprovedUsers(approved);
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách thành viên đã duyệt:", error);
   }
 };
 
@@ -152,6 +218,22 @@ const Dashboard = () => {
   }
 };
 
+const connectWallet = async () => {
+  try {
+    if (!window.ethereum) {
+      alert("Vui lòng cài đặt MetaMask!");
+      return;
+    }
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    if (accounts.length > 0) {
+      setIsConnected(true);
+      setWalletAPIAddress(accounts[0]); // Tự động điền vào input nếu muốn
+    }
+  } catch (error) {
+    console.error("Lỗi kết nối ví:", error);
+  }
+};
+
 const handleReject = async (userId) => {
   try {
     await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userId}`, {
@@ -181,6 +263,8 @@ const handleReject = async (userId) => {
     }
   };
 
+  
+
   return (
     <div className="dashboard-container">
       <header className="header">
@@ -195,6 +279,7 @@ const handleReject = async (userId) => {
           <div className="menu-link" onClick={() => setActiveTab("revenue")}> <FontAwesomeIcon icon={faChartLine} /><span>Revenue</span> </div>
           <div className="menu-link" onClick={() => setActiveTab("transactions")}> <FontAwesomeIcon icon={faFileInvoice} /><span>Transactions</span> </div>
           <div className="menu-link" onClick={() => setActiveTab("approval")}> <FontAwesomeIcon icon={faUserCheck} /><span>Approval</span></div>
+          <div className="menu-link" onClick={() => setActiveTab("member")}> <FontAwesomeIcon icon={faUserCheck} /><span>Member</span></div>
           <div className="menu-link" onClick={() => setActiveTab("settings")}> <FontAwesomeIcon icon={faCog} /><span>Settings</span> </div>
           <div className="menu-link" onClick={() => navigate("/")}> <FontAwesomeIcon icon={faSignOutAlt} /><span>Logout</span> </div>
         </div>
@@ -316,17 +401,73 @@ const handleReject = async (userId) => {
   </>
 )}
 
+{activeTab === "member" && (
+  <>
+    <h2>Danh sách Member</h2>
+    {approvedUsers.length === 0 ? (
+      <p>Chưa có Member.</p>
+    ) : (
+      <table>
+        <thead>
+          <tr>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>SĐT</th>
+            <th>WalletAddress</th>
+            <th>Level</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {approvedUsers.map((user) => (
+            <tr key={user.id}>
+              <td>{user.fullName || user.username}</td>
+              <td>{user.email}</td>
+              <td>{user.phoneNumber}</td>
+              <td>{user.walletAddress}</td>
+              <td>{user.level} ⭐</td>
+              <td>
+              {user.balance}$
+              <br />
+              <button
+              onClick={() => handlePaymentToUser(user)}
+              disabled={isPaying}
+              >
+              Thanh toán
+              </button>
+              </td>              
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </>
+)}
 
-        {activeTab === "settings" && (
-          <>
-            <h2>Settings</h2>
-            <label>Wallet Address:</label>
-            <input type="text" value={walletAPIAddress} onChange={e => setWalletAPIAddress(e.target.value)} />
-            <button onClick={saveWalletAddress} disabled={isSavingWallet}>
-              {isSavingWallet ? "Saving..." : "Save"}
-            </button>
-          </>
-        )}
+
+{activeTab === "settings" && (
+  <>
+    <h2>Settings</h2>
+
+<p>
+  <strong>MetaMask status:</strong> {isConnected ? "✅ Đã kết nối" : "❌ Chưa kết nối"}
+</p>
+{!isConnected && (
+  <button onClick={connectWallet} style={{ marginBottom: "10px" }}>
+    Kết nối ví
+  </button>
+)}
+    <label>Wallet Address:</label>
+    <input
+      type="text"
+      value={walletAPIAddress}
+      onChange={(e) => setWalletAPIAddress(e.target.value)}
+    />
+    <button onClick={saveWalletAddress} disabled={isSavingWallet}>
+      {isSavingWallet ? "Saving..." : "Save"}
+    </button>
+  </>
+)}
       </div>
     </div>
   );

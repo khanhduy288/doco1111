@@ -204,27 +204,23 @@ const handleClaim = async (bet) => {
     const tx = await claimContract.claim(betIdNum, amountInWei);
     await tx.wait();
 
-    // ✅ Claim thành công, cập nhật trạng thái trong API
-await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
-  method: "PATCH",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ status: "claimed" }),
-})
-.then((res) => {
-  if (!res.ok) {
-    throw new Error(`HTTP error! status: ${res.status}`);
-  }
-  return res.json();
-})
-.catch((error) => {
-  console.error("Lỗi khi cập nhật trạng thái claim:", error);
-  alert("Lỗi khi cập nhật trạng thái claim: " + error.message);
-});
+    // Claim thành công, cập nhật status bằng PUT (gửi toàn bộ bet với status mới)
+    const updatedBet = { ...bet, status: "claimed" };
 
+    const res = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedBet),
+    });
 
-    // ✅ Cập nhật lại giao diện
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const data = await res.json();
+
+    // Cập nhật lại giao diện
     const updatedBets = bets.map((b) =>
       b.id === bet.id
         ? {
@@ -242,6 +238,7 @@ await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
     alert("Claim thất bại: " + (error?.reason || error?.message || "Lỗi không xác định"));
   }
 };
+
 
 
   useEffect(() => {

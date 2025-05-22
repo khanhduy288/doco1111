@@ -178,6 +178,11 @@ ul {
   margin-left: 20px;
   line-height: 1.6;
 }
+.user-info-header {
+  font-size: 0.9rem;
+  margin-left: 10px;
+  color: #fff; /* hoặc màu tùy bạn */
+}
 .auction-product-image {
   width: 100%;
   max-width: 300px; /* Thay đổi giá trị này để thu nhỏ ảnh */

@@ -181,7 +181,7 @@ const handleLogin = async (event) => {
       if (user.status === "approved") {
         localStorage.setItem("SEPuser", JSON.stringify(user));
         toast.success("Đăng nhập thành công (Thành viên)!");
-        navigate("/dashboard-member");
+        navigate(`/dashboard-member/${user.id}`);
       } else {
         toast.error("Tài khoản của bạn chưa được phê duyệt.");
       }

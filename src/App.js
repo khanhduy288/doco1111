@@ -86,7 +86,7 @@ function App() {
             <Route path="/authentication" element={<LoginSignup />} />
             <Route path="/postform" element={<PostForm />} /> {/* Đây nè */}
             <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
-            <Route path="/dashboard-member" element={<DashboardMember />} /> {/* Đây nè */}
+            <Route path="/dashboard-member/:id" element={<DashboardMember />} />
             <Route path="/forgetPassword" element={<ForgetPassword />} />
             <Route path="/resetPassword*" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
@@ -160,7 +160,7 @@ function App() {
               <Route path="/phaply" element={<Phaply />} />
               <Route path="/details/:id" element={<DishDetails />} />
               <Route path="/reservation" element={<Reservation />} />
-              <Route path="/blog" element={<Blog />} />
+              <Route path="/loguser" element={<Blog />} />
               <Route path="/blogDetails/:id" element={<BlogDetails />} />
               <Route path="/guide" element={<Contact />} />
               <Route

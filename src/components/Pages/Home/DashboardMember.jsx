@@ -114,7 +114,7 @@ useEffect(() => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"",claim:"", time: "" });
+    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"pendding",status2:"pendding",claim:"", time: "", status:"pendding" });
     fetchBets();
   };
 
@@ -130,7 +130,7 @@ useEffect(() => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"", time: "" });
+    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"", time: "",status:"pending" });
     setIsEditing(false);
     fetchBets();
   };

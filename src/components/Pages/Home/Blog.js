@@ -5,13 +5,18 @@ import { parseUnits } from "ethers";
 import "./Blog.css"
 import axios from "axios"; // Giả sử dùng axios để gọi API
 
-const CLAIM_CONTRACT_ADDRESS = "0x85761474e9953F0A8B61b7a4f4A9B33b95F3e432"; // Thay bằng địa chỉ smart contract của bạn
+const CLAIM_CONTRACT_ADDRESS = "0x2Ce7C90e023c95A310bbAA1bC44A280082dC3e9f"; // Thay bằng địa chỉ smart contract của bạn
 const CLAIM_CONTRACT_ABI = [
 	{
 		"inputs": [
 			{
 				"internalType": "uint256",
 				"name": "betId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "betTime",
 				"type": "uint256"
 			},
 			{
@@ -64,9 +69,9 @@ const CLAIM_CONTRACT_ABI = [
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "bytes32",
 				"name": "",
-				"type": "uint256"
+				"type": "bytes32"
 			}
 		],
 		"name": "claimed",
@@ -175,8 +180,8 @@ const handleClaim = async (bet) => {
     return;
   }
 
-  if (bet.status !== "won") {
-    alert("Chỉ có thể claim khi cược thắng.");
+  if (bet.status !== "won" && bet.status !== "refund") {
+    alert("Chỉ có thể claim khi cược thắng hoặc refund.");
     return;
   }
 
@@ -187,24 +192,29 @@ const handleClaim = async (bet) => {
 
   try {
     const betIdNum = Number(bet.id);
-    const rawAmount = Number(bet.claim);
+    const betTimeNum = Math.floor(new Date(bet.timestamp).getTime() / 1000); // chuyển thời gian ISO sang timestamp giây
 
-    if (isNaN(betIdNum) || isNaN(rawAmount)) {
-      alert("ID hoặc số tiền cược không hợp lệ");
+    let rawAmount;
+    if (bet.status === "won") {
+      rawAmount = Number(bet.claim);
+    } else if (bet.status === "refund") {
+      rawAmount = Number(bet.refund);
+    }
+
+    if (isNaN(betIdNum) || isNaN(betTimeNum) || isNaN(rawAmount)) {
+      alert("ID, thời gian cược hoặc số tiền không hợp lệ");
       return;
     }
 
-    const amountInWei = parseUnits(bet.claim.toString(), 18);
+    const amountInWei = parseUnits(rawAmount.toString(), 18);
 
     const provider = new BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const claimContract = new Contract(CLAIM_CONTRACT_ADDRESS, CLAIM_CONTRACT_ABI, signer);
 
-    // Gửi giao dịch claim đến smart contract
-    const tx = await claimContract.claim(betIdNum, amountInWei);
+    const tx = await claimContract.claim(betIdNum, betTimeNum, amountInWei);
     await tx.wait();
 
-    // Claim thành công, cập nhật status bằng PUT (gửi toàn bộ bet với status mới)
     const updatedBet = { ...bet, status: "claimed" };
 
     const res = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
@@ -220,12 +230,11 @@ const handleClaim = async (bet) => {
     }
     const data = await res.json();
 
-    // Cập nhật lại giao diện
     const updatedBets = bets.map((b) =>
       b.id === bet.id
         ? {
             ...b,
-            claim: `${bet.claim} claimed`,
+            claim: `${rawAmount} claimed`,
             status: "claimed",
           }
         : b
@@ -238,6 +247,8 @@ const handleClaim = async (bet) => {
     alert("Claim thất bại: " + (error?.reason || error?.message || "Lỗi không xác định"));
   }
 };
+
+
 
 
 
@@ -338,7 +349,7 @@ const handleClaim = async (bet) => {
                           {bet.claim ? parseFloat(bet.claim).toFixed(6) : "-"}
                         </td>
                         <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
-                          {bet.status === "won" ? (
+                            {(bet.status === "won" || bet.status === "refund") ? (
                             <button
                               onClick={() => handleClaim(bet)}
                               style={{

@@ -60,13 +60,29 @@ body {
 }
 
 .navbar-collapse {
-  transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transition: max-height 0.8s ease-in-out, opacity 0.8s ease-in-out;
+  overflow: hidden;
 }
 
 /* Brand Logo */
 .navbar-brand img {
   border: 2px solid #ff6600;
   border-radius: 50%;
+}
+
+/* Dropdown animation */
+.nav-item.dropdown .dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  will-change: transform, opacity;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0px);
 }
 
 /* Cart icon badge */

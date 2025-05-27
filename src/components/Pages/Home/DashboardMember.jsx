@@ -32,7 +32,7 @@ const DashboardMember = () => {
   const [isEditingBet, setIsEditingBet] = useState(false);
   const [editBetId, setEditBetId] = useState(null);
   const [bets, setBets] = useState([]);
-  const [form, setForm] = useState({ name: "", teamA: "", teamB: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"",claim:"", time: "" });  
+  const [form, setForm] = useState({ name: "", teamA: "", teamB: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"",claim:"", time: "",iframe:"" });  
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [user, setUser] = useState(null);
@@ -114,14 +114,14 @@ useEffect(() => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"pendding",status2:"pendding",claim:"", time: "", status:"pendding" });
+    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"pendding",status2:"pendding",claim:"", time: "", status:"pendding", iframe:"" });
     fetchBets();
   };
 
   const handleEdit = (bet) => {
     setIsEditing(true);
     setEditId(bet.id);
-    setForm({ name: bet.name, teamA: bet.team1, teamB: bet.team2, option1: bet.option1,option2: bet.option2,rate1:bet.rate1,rate2:bet.rate2,status1:bet.status1, status2:bet.status2, time: bet.countdown });
+    setForm({ name: bet.name, teamA: bet.team1, teamB: bet.team2, option1: bet.option1,option2: bet.option2,rate1:bet.rate1,rate2:bet.rate2,status1:bet.status1, status2:bet.status2, time: bet.countdown, iframe: bet.iframe });
   };
 
   const handleUpdate = async () => {
@@ -130,7 +130,7 @@ useEffect(() => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"", time: "",status:"pending" });
+    setForm({ name: "", team1: "", team2: "", option1: "",option2:"",rate1:"",rate2:"",status1:"",status2:"", time: "",status:"pending", iframe:"" });
     setIsEditing(false);
     fetchBets();
   };
@@ -337,6 +337,7 @@ const saveAccountInfo = async () => {
         <option value="won">Won</option>
         <option value="lost">Lost</option>
       </select>
+      <input name="iframe" placeholder="Iframe"  value={form.iframe} onChange={handleChange} />
       {isEditing ? (
         <button onClick={handleUpdate}>Update</button>
       ) : (

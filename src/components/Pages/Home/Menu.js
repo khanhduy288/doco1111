@@ -615,6 +615,23 @@ h1 {
 .wallet-btn:hover {
   background-color: #1e7e34;
 }
+.view-video-btn {
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  color: white;
+  font-weight: 600;
+  background: linear-gradient(90deg, #ff3b3b 0%, #6e6e6e 100%);
+  box-shadow: 0 4px 8px rgba(255, 59, 59, 0.4);
+  transition: background 0.3s ease;
+  flex: 1;
+  min-width: 150px;
+}
+
+.view-video-btn:hover {
+  background: linear-gradient(90deg, #d32f2f 0%, #4a4a4a 100%);
+}
 
 @media (max-width: 768px) {
   .bet-row {
@@ -665,6 +682,39 @@ h1 {
 
 {expandedMatchId === match.id && (
   <div className="bet-options" onClick={(e) => e.stopPropagation()}>
+    {/* Phần nút chuyển hướng thay cho video */}
+    {match.iframe && (
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "20px",
+          flexWrap: "wrap"
+        }}
+      >
+        {match.iframe.split(",").map((link, i) => (
+          <button
+            className="view-video-btn"
+            key={i}
+            style={{
+              padding: "10px 20px",
+              cursor: "pointer",
+              borderRadius: "6px",
+              border: "1px solid #007bff",
+              backgroundColor: "#007bff",
+              color: "white",
+              flex: "1",
+              minWidth: "150px"
+            }}
+            onClick={() => window.open(link.trim(), "_blank")}
+          >
+            Link {i + 1}
+          </button>
+        ))}
+      </div>
+    )}
+
+    {/* Phần cược như cũ */}
     <div className="bet-row">
       {[{ team: match.option1, rate: match.rate1, sum: match.sum1 },
         { team: match.option2, rate: match.rate2, sum: match.sum2 }
@@ -711,6 +761,9 @@ h1 {
     />
   </div>
 )}
+
+
+
 
 
 

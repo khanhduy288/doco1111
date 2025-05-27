@@ -369,7 +369,7 @@ const handleSignup = async (event) => {
       <ToastContainer />
       <div className="wrapper">
         <Link to="/" className="">
-          Trở về trang chủ
+          Back home
         </Link>
         <div className="form-container">
           <div className="slide-controls">

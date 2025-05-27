@@ -8,6 +8,8 @@ import Cart from "../Cart/Cart.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse, faBars, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { FaUser } from "react-icons/fa";
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
 
 const Header = () => {
   const { cart, getTotalItems } = useContext(CartContext);
@@ -64,7 +66,7 @@ const Header = () => {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-white ftco-navbar-light" id="ftco-navbar">
+      <nav className="navbar navbar-expand-lg navbar-light ftco-navbar-light" id="ftco-navbar" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="container">
           <Link to="/" className="navbar-brand">
             <img

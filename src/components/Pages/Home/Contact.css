@@ -1,16 +1,20 @@
-/* Guide.css */
+/* Guide.css - Phiên bản nền tối, chữ trắng */
 
 .guide-section {
   padding: 2rem 1rem;
-  color: #333;
+  color: #eee; /* chữ trắng sáng */
+  background-color: #222831; /* nền xám đen nhẹ */
   font-family: 'Segoe UI', sans-serif;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 .guide-section h2 {
   font-size: 1.6rem;
-  color: #f58220;
+  color: #f58220; /* cam tươi làm điểm nhấn */
   font-weight: bold;
   margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
 }
 
 .guide-section h5 {
@@ -18,45 +22,157 @@
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #444;
+  color: #ffa726; /* cam sáng hơn */
 }
 
 .guide-section h6 {
   font-size: 1rem;
   font-weight: 600;
   margin-top: 1.2rem;
-  color: #222;
+  color: #ffb74d; /* cam nhạt */
 }
 
 .guide-section p {
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 1rem;
+  color: #ddd; /* chữ hơi nhạt */
 }
 
 .guide-section ul {
   list-style: disc;
   padding-left: 1.5rem;
   margin-bottom: 1rem;
+  color: #eee;
 }
 
 .guide-section strong {
-  color: #e65100;
+  color: #ff9800; /* cam sáng nổi bật */
 }
 
 .breadcrumbs {
   font-size: 0.95rem;
-  color: #ccc;
+  color: #bbb;
 }
 
 .breadcrumbs a {
-  color: #ff9900;
+  color: #ffb74d;
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 .breadcrumbs a:hover {
+  color: #ffa726;
   text-decoration: underline;
 }
+
+body {
+  background-color: #222831 !important;
+  color: #eee;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+}
+
+#root, .App, .container {
+  background-color: #222831;
+  color: #eee;
+}
+
+html, body {
+  background-color: #222831 !important;
+  color: #eee !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Override cho section có nhiều class này */
+.ftco-section.contact-section.bg-light.guide-section {
+  background-color: #222831 !important;  /* nền xám đen */
+  color: #eee !important;                 /* chữ trắng sáng */
+  padding: 2rem 1rem !important;          /* padding rõ ràng */
+  border-radius: 12px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Các thẻ trong section */
+.ftco-section.contact-section.bg-light.guide-section h2 {
+  color: #f58220 !important; /* cam tươi điểm nhấn */
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+}
+
+.ftco-section.contact-section.bg-light.guide-section h5 {
+  color: #ffa726 !important; /* cam sáng */
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ftco-section.contact-section.bg-light.guide-section h6 {
+  color: #ffb74d !important; /* cam nhạt */
+  font-weight: 600;
+  margin-top: 1.2rem;
+}
+
+.ftco-section.contact-section.bg-light.guide-section p {
+  color: #ddd !important;    /* chữ hơi nhạt */
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.ftco-section.contact-section.bg-light.guide-section ul {
+  color: #eee !important;
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ftco-section.contact-section.bg-light.guide-section strong {
+  color: #ff9800 !important; /* cam sáng nổi bật */
+}
+
+/* Breadcrumbs nếu có */
+.breadcrumbs {
+  color: #bbb !important;
+  font-size: 0.95rem;
+}
+
+.breadcrumbs a {
+  color: #ffb74d !important;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumbs a:hover {
+  color: #ffa726 !important;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media screen and (max-width: 576px) {
+  .ftco-section.contact-section.bg-light.guide-section {
+    padding: 1.5rem 1rem !important;
+  }
+
+  .ftco-section.contact-section.bg-light.guide-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .ftco-section.contact-section.bg-light.guide-section h5 {
+    font-size: 1.1rem;
+  }
+
+  .ftco-section.contact-section.bg-light.guide-section h6 {
+    font-size: 1rem;
+  }
+}
+
 
 /* Responsive Mobile */
 @media screen and (max-width: 576px) {

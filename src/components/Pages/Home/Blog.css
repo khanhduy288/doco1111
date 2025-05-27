@@ -8,6 +8,189 @@
   animation: spin 1s linear infinite;
   margin: 0 auto;
 }
+
+section {
+  background-color: #2c2f33; /* xám đậm */
+  padding: 5%;
+  min-height: 100vh;
+  color: #eee; /* chữ trắng sáng */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #23272a; /* nền xám đậm hơn */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+h1.text-center {
+  color: #1abc9c; /* xanh lá sáng cho tiêu đề */
+  margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+button {
+  background-color: #1abc9c; /* xanh lá dễ nhìn */
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: #16a085;
+}
+
+button:disabled {
+  background-color: #44bd32;
+  cursor: not-allowed;
+}
+
+.spinner {
+  border: 5px solid #444;
+  border-top: 5px solid #1abc9c;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #eee;
+}
+
+thead th {
+  border-bottom: 2px solid #555;
+  padding: 12px 10px;
+  text-align: left;
+  color: #1abc9c;
+  background-color: #2c3e50; /* xanh xám đậm */
+}
+
+tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #444;
+  vertical-align: middle;
+  color: #ddd;
+}
+
+tbody tr:hover {
+  background-color: #34495e;
+}
+
+a {
+  color: #1abc9c;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button.claim-btn {
+  background-color: #27ae60; /* xanh lá đậm */
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+button.claim-btn:hover {
+  background-color: #219150;
+}
+
+p {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #eee;
+}
+
+b {
+  color: #f0f0f0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #eee;
+  background-color: #2c3e50; /* nền bảng xanh xám đậm */
+}
+
+thead {
+  background-color: #34495e; /* nền đầu bảng tối hơn */
+}
+
+thead th {
+  border-bottom: 2px solid #555;
+  padding: 12px 10px;
+  text-align: left;
+  color: #1abc9c;
+}
+
+tbody tr {
+  background-color: #2c3e50; /* nền hàng */
+  transition: background-color 0.25s ease;
+}
+
+tbody tr:hover {
+  background-color: #3b5360; /* nền hover cho hàng */
+}
+
+tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #444;
+  color: #ddd;
+}
+
+a {
+  color: #1abc9c;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Màu chữ số phân trang bình thường */
+.ant-pagination-item a {
+  color: white !important;
+}
+
+/* Màu chữ số phân trang khi active */
+.ant-pagination-item.ant-pagination-item-active a {
+  color: rgb(12, 12, 12) !important;
+}
+
+/* Nếu muốn đổi cả màu chữ số khi hover */
+.ant-pagination-item a:hover {
+  color: white !important;
+}
+
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

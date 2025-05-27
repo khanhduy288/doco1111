@@ -23,11 +23,11 @@ const Contact = () => {
               <p className="breadcrumbs">
                 <span className="mr-2">
                   <a href="/">
-                    Home <i className="fa fa-chevron-right" />
+                    Home 
                   </a>
                 </span>{" "}
                 <span>
-                  User Guide <i className="fa fa-chevron-right" />
+                  User Guide 
                 </span>
               </p>
             </div>
@@ -61,7 +61,7 @@ const Contact = () => {
                 The more people join your "Boat", the more revenue you earn!
               </p>
 
-              <h4 className="mt-5">Rules</h4>
+              <h5>Rules</h5>
 
               <h6>1. Revenue Payout</h6>
               <p>

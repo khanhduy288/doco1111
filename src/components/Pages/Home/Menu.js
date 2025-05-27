@@ -401,11 +401,60 @@ const placeBet = async (matchId, team, rate) => {
   return (
     <>
       <style>{`
-       .container {
-  max-width: 900px;
-  margin: auto;
-  padding: 10px;
+body {
+  background-color: #e1e8f0; /* nền xám xanh nhẹ, dễ chịu cho mắt */
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  min-height: 100vh;
 }
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  background-color: #1e1e1e; /* Nền chính */
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+  text-align: center;
+  color: #00bcd4; /* Màu xanh nổi bật nhưng hài hòa */
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
+/* Nút kết nối ví */
+.wallet-btn {
+  background-color:rgb(226, 91, 38) !important;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.wallet-btn:hover {
+  background-color: #66bb6a;
+}
+
+/* Thông báo ví đã kết nối */
+.container p {
+  font-size: 14px;
+  background-color: #2e2e2e;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border-left: 4px solid #00bcd4;
+}
+
 
 .header {
   text-align: center;
@@ -413,115 +462,144 @@ const placeBet = async (matchId, team, rate) => {
 }
 
 .match-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  background: #1e1e1e; /* Nền xám đậm cho đồng bộ với .match-header */
+  border: 1px solid #333; /* Viền mờ tinh tế */
+  border-radius: 12px;
   padding: 20px;
-  margin-bottom: 20px;
-  background-color: #fff;
-  transition: box-shadow 0.3s ease;
-  cursor: pointer;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: #ffffff; /* chữ trắng */
 }
 
 .match-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
 .match-header {
-  font-weight: bold;
-  font-size: 1.2rem;
+  background-color: #2c2c2c; /* nền xám đậm */
+  color: #ffffff; /* chữ trắng */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border-left: 5px solid #f39c12; /* viền nhấn bên trái */
+  transition: background-color 0.3s ease;
+}
+
+.match-header span {
+  flex: 1;
+  text-align: center;
+}
+
+/* Nhấn mạnh tên đội */
+.match-header span:first-child {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+/* Nhấn mạnh countdown */
+.match-header span:last-child {
+  font-size: 16px;
+  color: #f1c40f; /* màu vàng nhẹ cho thời gian */
 }
 
 .bet-options {
-  background-color: #f9fafb;
+  background-color: #2b2b2b; /* Nền xám đậm */
   padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  border-radius: 12px;
+  margin-top: 15px;
+  color: #fff;
+  border: 1px solid #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .bet-row {
   display: flex;
-  gap: 20px;
-  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 .bet-column {
   flex: 1;
-  min-width: 45%;
-  background-color: #ffffff;
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  min-width: 240px;
+  background-color: #3a3a3a;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #555;
 }
 
 .bet-btn {
-  background-color: #2563eb;
+  background-color: #c0392b;
   color: #fff;
-  padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease;
   width: 100%;
-  max-width: 180px;
 }
 
-.bet-btn:hover:not(:disabled) {
-  background-color: #1d4ed8;
+.bet-btn:hover {
+  background-color: #e74c3c;
 }
 
 .bet-btn:disabled {
-  background-color: #a5b4fc;
+  background-color: #888;
   cursor: not-allowed;
 }
 
 .bet-sum {
+  margin-top: 10px;
   font-size: 14px;
-  color: #4b5563;
-  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.bet-sum strong {
+  color: #f1c40f;
 }
 
 .bet-list {
-  width: 100%;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 8px;
-  max-height: 160px;
+  margin-top: 10px;
+  font-size: 13px;
+  max-height: 100px;
   overflow-y: auto;
-  font-size: 14px;
+  background-color: #2d2d2d;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
 }
 
 .bet-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px 0;
-  color: #374151;
+  color: #ddd;
+  margin-bottom: 4px;
 }
 
 .wallet {
-  font-family: monospace;
-  color: #9ca3af;
+  color: #aaa;
+  font-style: italic;
 }
 
 .bet-input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  font-size: 16px;
-  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #1e1e1e;
+  color: #fff;
+  font-size: 14px;
 }
+
 
 .wallet-btn {
   margin-bottom: 20px;

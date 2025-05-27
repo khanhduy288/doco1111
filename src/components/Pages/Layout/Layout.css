@@ -1,53 +1,39 @@
-.fa-cart-shopping {
-  position: relative;
-  display: inline-block;
+/* Font và nền tổng thể */
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
 }
 
-.badge {
-  position: absolute;
-  top: -15px;
-  right: -15px;
-  padding: 3px 6px;
-  border-radius: 50%;
-  background-color: red;
-  color: white;
-  font-size: 0.7em;
-}
-
-Modal {
-  width: 600px;
-}
-
-#ftco-nav {
-  background-color: white !important;
-  color: rgb(230, 86, 20) !important;
-}
-
-#ftco-nav .navbar-nav .nav-item .nav-link {
-  color: rgb(241, 102, 9) !important;
-
-}
-
-.navbar-toggler {
-  border-color: rgb(243, 66, 12) !important;
-}
-
+/* Container */
 .container {
-  background: white !important;
+  background: #121212 !important;
+  color: #ffffff !important;
   padding: 0 !important;
   margin: 0 auto;
   width: 100%;
 }
 
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #333;
+}
+
+/* Navbar link */
 .nav-link {
   font-size: 14px !important;
-  color: #eb4c25;
+  color: #cccccc !important;
   font-weight: bold !important;
   transition: all 0.3s ease-in-out;
 }
 
 .nav-link:hover {
-  color: #ff6600;
+  color: #ffffff !important;
   transform: scale(1.1);
   text-decoration: underline;
 }
@@ -61,13 +47,15 @@ Modal {
   color: #ff6600;
 }
 
+/* Navbar toggler */
 .navbar-toggler {
   border: none;
   background: transparent;
 }
 
-.navbar-toggler i {
-  color: orange !important;
+.navbar-toggler i,
+.navbar-toggler .fa-bars {
+  color: #ff6600 !important;
   font-size: 24px;
 }
 
@@ -75,59 +63,56 @@ Modal {
   transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 
-.navbar {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  background-color: #000;
-}
-
-.ftco-footer-social li {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
+/* Brand Logo */
+.navbar-brand img {
+  border: 2px solid #ff6600;
   border-radius: 50%;
-  background-color: red;
 }
 
-.ftco-footer-social li a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+/* Cart icon badge */
+.fa-cart-shopping {
+  position: relative;
+  display: inline-block;
 }
 
-.ftco-footer-social li svg {
-  font-size: 18px;
-  color: white;
-}
-
-/* Dropdown hiển thị khi hover */
-.nav-item.dropdown:hover .dropdown-menu {
-  display: block;
-  margin-top: 0;
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  background-color: #fff;
-}
-
-/* Hiệu ứng hover cho dropdown item */
-.dropdown-menu .dropdown-item {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* ✅ Hover nền cam và chữ trắng */
-.dropdown-menu .dropdown-item:hover {
-  background-color: orange !important;
+.badge,
+.ant-badge-count {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  background-color: #ff6600 !important;
   color: white !important;
+  font-size: 0.7em;
 }
-/* Định dạng cho các phần trong footer */
+
+/* Modal */
+.modal-content,
+Modal {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+  width: 600px;
+}
+
+.ant-modal-title {
+  color: #ffffff !important;
+}
+
+/* Button */
+.ant-btn-primary {
+  background-color: #ff6600 !important;
+  border: none;
+  color: #fff;
+}
+
+.ant-btn-primary:hover {
+  background-color: #ff8533 !important;
+}
+
+/* Footer */
 .ftco-footer {
-  background-color: #343a40;
+  background-color: #1e1e1e;
   color: #fff;
 }
 
@@ -162,9 +147,46 @@ footer .bg-secondary {
 
 footer .container {
   max-width: 1200px;
+  background-color: #121212 !important;
+  color: #ffffff !important;
 }
 
 footer .text-center p {
   margin: 0;
   font-size: 0.9rem;
+}
+
+/* Social icon trong footer */
+.ftco-footer-social li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ff6600;
+}
+
+.ftco-footer-social li svg {
+  font-size: 18px;
+  color: white;
+}
+
+/* Dropdown hover */
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  background-color: #1e1e1e;
+}
+
+.dropdown-menu .dropdown-item {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  color: #cccccc !important;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: orange !important;
+  color: white !important;
 }

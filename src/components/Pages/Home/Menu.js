@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Button, Row, Col } from "antd";
+import { Link } from "react-router-dom";
+import"./Menu.css";
+
+
 
 const Menu = () => {
   const [matches, setMatches] = useState([]);
@@ -12,6 +17,27 @@ const Menu = () => {
   const [now, setNow] = useState(Date.now());
   const [betsByMatchId, setBetsByMatchId] = useState({});
   const [allBets, setAllBets] = useState([]);
+  const BET_API = "https://68271b3b397e48c913189c7d.mockapi.io/football";
+  const [user, setUser] = useState(null);
+  const [showCreateBetForm, setShowCreateBetForm] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const settledMatchIds = useRef([]); 
+
+  const [form, setForm] = useState({
+    name: "",
+    team1: "",
+    team2: "",
+    option1: "",
+    option2: "",
+    rate1: "1.85",
+    rate2: "1.85",
+    status1: "pending",
+    status2: "pending",
+    claim: "",
+    time: "",
+    iframe: "",
+    countdown: "",
+  });
 
 
   useEffect(() => {
@@ -19,7 +45,107 @@ const Menu = () => {
       setNow(Date.now());
     }, 1000);
     return () => clearInterval(timer);
+
+    
+
   }, []);
+
+  
+  useEffect(() => {
+
+    const storedUser = localStorage.getItem("SEPuser");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+  }, []);
+
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      if ((name === "rate1" || name === "rate2") && parseFloat(value) > 1.9) {
+        return;
+      }
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+const handleCreate = async (e) => {
+  e.preventDefault();
+
+  const requiredFields = [
+    "name", "team1", "team2",
+    "option1", "option2",
+    "rate1", "rate2",
+    "status1", "status2"
+  ];
+
+  for (const field of requiredFields) {
+    if (!form[field] || form[field].toString().trim() === "") {
+      toast.error(`Vui lòng nhập đầy đủ trường: ${field}`);
+      return;
+    }
+  }
+
+  const now = Date.now();
+
+  // Kiểm tra trùng lặp với các trận còn countdown > now
+  const isDuplicate = matches.some(match => 
+    new Date(match.countdown).getTime() > now &&
+    match.name.trim().toLowerCase() === form.name.trim().toLowerCase() &&
+    match.team1.trim().toLowerCase() === form.team1.trim().toLowerCase() &&
+    match.team2.trim().toLowerCase() === form.team2.trim().toLowerCase()
+  );
+
+  if (isDuplicate) {
+    toast.error("Kèo đã tồn tại với name, team1, team2 trùng nhau và chưa hết thời gian countdown.");
+    return;
+  }
+
+  const payload = {
+    ...form,
+    time: new Date().toISOString(),
+    sum1: 0,
+    sum2: 0,
+    status: "pending"
+  };
+
+  try {
+    const res = await fetch(BET_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Create failed");
+
+    toast.success("Tạo kèo thành công!");
+
+    // Reset form
+    setForm({
+      name: "",
+      team1: "",
+      team2: "",
+      option1: "",
+      option2: "",
+      rate1: "1.85",
+      rate2: "1.85",
+      status1: "pending",
+      status2: "pending",
+      claim: "",
+      time: "",
+      iframe: "",
+      countdown: "",
+    });
+
+    setShowCreateBetForm(false);
+  } catch (error) {
+    toast.error("Tạo kèo thất bại, vui lòng thử lại.");
+  }
+};
+
+
+  
 
   useEffect(() => {
     fetch("https://68271b3b397e48c913189c7d.mockapi.io/football")
@@ -68,8 +194,12 @@ useEffect(() => {
   const checkForExpiredMatches = async () => {
     const nowTime = Date.now();
 
+    // Lọc những trận hết giờ, chưa settled và chưa xử lý trong ref
     const expiredMatches = matches.filter(
-      (m) => new Date(m.countdown).getTime() <= nowTime && m.status !== "settled"
+      (m) =>
+        new Date(m.countdown).getTime() <= nowTime &&
+        m.status !== "settled" &&
+        !settledMatchIds.current.includes(m.id)
     );
 
     for (const match of expiredMatches) {
@@ -98,7 +228,6 @@ useEffect(() => {
           totalRefunded += refundAmount;
 
           if (refundAmount === betAmount) {
-            // Hoàn toàn bộ bet
             await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -109,8 +238,6 @@ useEffect(() => {
             });
             refundBets.push({ ...bet, status: "refund", refund: refundAmount });
           } else {
-            // Tách bet: 1 phần refund, 1 phần giữ lại pending
-            // Cập nhật bet hiện tại thành phần giữ lại
             await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -119,7 +246,6 @@ useEffect(() => {
               }),
             });
 
-            // Tạo bet mới cho phần refund
             const newRefundBet = {
               matchId: bet.matchId,
               team: bet.team,
@@ -148,6 +274,9 @@ useEffect(() => {
           body: JSON.stringify({ status: "settled" }),
         });
 
+        // Đánh dấu trận đã xử lý
+        settledMatchIds.current.push(match.id);
+
         if (refundBets.length > 0) {
           toast.info(`Đã hoàn tiền ${refundBets.length} đơn cược lệch kèo ở trận ${match.team1} vs ${match.team2}`);
         }
@@ -159,8 +288,12 @@ useEffect(() => {
 
   const interval = setInterval(() => {
     const hasUnsettled = matches.some(
-      (m) => new Date(m.countdown).getTime() <= Date.now() && m.status !== "settled"
+      (m) =>
+        new Date(m.countdown).getTime() <= Date.now() &&
+        m.status !== "settled" &&
+        !settledMatchIds.current.includes(m.id)
     );
+
     if (hasUnsettled) {
       checkForExpiredMatches();
     }
@@ -168,6 +301,7 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [matches]);
+
 
 
 const fetchBetsByMatch = async (matchId) => {
@@ -258,9 +392,8 @@ const switchToBSC = async () => {
 
 
 
-
-const placeBet = async (matchId, team, rate) => {
-  console.log("placeBet is called with", matchId, team, "Rate:", rate);
+const placeBet = async (matchId, team, rate, matchName) => {
+  console.log("placeBet is called with", matchId, team, "Rate:", rate, matchName);
 
   if (!currentAccount) {
     toast.warning("Vui lòng kết nối ví MetaMask trước.");
@@ -288,7 +421,7 @@ const placeBet = async (matchId, team, rate) => {
 
       window.ethereum.once("chainChanged", async () => {
         setTimeout(() => {
-          placeBet(matchId, team, rate);
+          placeBet(matchId, team, rate, matchName);
         }, 1000);
       });
 
@@ -330,6 +463,7 @@ const placeBet = async (matchId, team, rate) => {
       matchId,
       team,
       amount: Number(betAmount),
+      matchName,
       userWallet: userAddress,
       token: "USDT",
       timestamp: new Date().toISOString(),
@@ -353,7 +487,6 @@ const placeBet = async (matchId, team, rate) => {
     // 2. Cập nhật sum1 hoặc sum2 vào /matches
     const matchRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${matchId}`);
     const matchData = await matchRes.json();
-
     let updatedMatch = { ...matchData };
     const betValue = Number(betAmount);
 
@@ -391,261 +524,110 @@ const placeBet = async (matchId, team, rate) => {
   setBettingLoading(false);
 };
 
-
-
-
-
-
-
-
   return (
     <>
-      <style>{`
-body {
-  background-color: #e1e8f0; /* nền xám xanh nhẹ, dễ chịu cho mắt */
-  margin: 0;
-  padding: 0;
-  font-family: 'Roboto', sans-serif;
-  color: #333;
-  min-height: 100vh;
-}
-
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 30px 20px;
-  background-color: #1e1e1e; /* Nền chính */
-  color: #f5f5f5;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
-}
-
-h1 {
-  text-align: center;
-  color: #00bcd4; /* Màu xanh nổi bật nhưng hài hòa */
-  font-size: 2rem;
-  margin-bottom: 30px;
-}
-
-/* Nút kết nối ví */
-.wallet-btn {
-  background-color:rgb(226, 91, 38) !important;
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-bottom: 20px;
-}
-
-.wallet-btn:hover {
-  background-color: #66bb6a;
-}
-
-/* Thông báo ví đã kết nối */
-.container p {
-  font-size: 14px;
-  background-color: #2e2e2e;
-  padding: 10px 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  border-left: 4px solid #00bcd4;
-}
-
-
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.match-card {
-  background: #1e1e1e; /* Nền xám đậm cho đồng bộ với .match-header */
-  border: 1px solid #333; /* Viền mờ tinh tế */
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  color: #ffffff; /* chữ trắng */
-}
-
-.match-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-}
-
-.match-header {
-  background-color: #2c2c2c; /* nền xám đậm */
-  color: #ffffff; /* chữ trắng */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 20px;
-  border-left: 5px solid #f39c12; /* viền nhấn bên trái */
-  transition: background-color 0.3s ease;
-}
-
-.match-header span {
-  flex: 1;
-  text-align: center;
-}
-
-/* Nhấn mạnh tên đội */
-.match-header span:first-child {
-  font-weight: 600;
-  font-size: 20px;
-}
-
-/* Nhấn mạnh countdown */
-.match-header span:last-child {
-  font-size: 16px;
-  color: #f1c40f; /* màu vàng nhẹ cho thời gian */
-}
-
-.bet-options {
-  background-color: #2b2b2b; /* Nền xám đậm */
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 15px;
-  color: #fff;
-  border: 1px solid #444;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.bet-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.bet-column {
-  flex: 1;
-  min-width: 240px;
-  background-color: #3a3a3a;
-  border-radius: 10px;
-  padding: 15px;
-  border: 1px solid #555;
-}
-
-.bet-btn {
-  background-color: #c0392b;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  width: 100%;
-}
-
-.bet-btn:hover {
-  background-color: #e74c3c;
-}
-
-.bet-btn:disabled {
-  background-color: #888;
-  cursor: not-allowed;
-}
-
-.bet-sum {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #ccc;
-}
-
-.bet-sum strong {
-  color: #f1c40f;
-}
-
-.bet-list {
-  margin-top: 10px;
-  font-size: 13px;
-  max-height: 100px;
-  overflow-y: auto;
-  background-color: #2d2d2d;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-}
-
-.bet-item {
-  display: flex;
-  justify-content: space-between;
-  color: #ddd;
-  margin-bottom: 4px;
-}
-
-.wallet {
-  color: #aaa;
-  font-style: italic;
-}
-
-.bet-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #555;
-  background-color: #1e1e1e;
-  color: #fff;
-  font-size: 14px;
-}
-
-
-.wallet-btn {
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.wallet-btn:hover {
-  background-color: #1e7e34;
-}
-.view-video-btn {
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 6px;
-  border: none;
-  color: white;
-  font-weight: 600;
-  background: linear-gradient(90deg, #ff3b3b 0%, #6e6e6e 100%);
-  box-shadow: 0 4px 8px rgba(255, 59, 59, 0.4);
-  transition: background 0.3s ease;
-  flex: 1;
-  min-width: 150px;
-}
-
-.view-video-btn:hover {
-  background: linear-gradient(90deg, #d32f2f 0%, #4a4a4a 100%);
-}
-
-@media (max-width: 768px) {
-  .bet-row {
-    flex-direction: column;
-  }
-
-  .bet-column {
-    min-width: 100%;
-  }
-}
-
-      `}</style>
-
       <ToastContainer position="top-right" autoClose={3000} />
+      {/* Nút toggle menu */}
+      {user && (
+        <button
+          className="sidebar-toggle-btn"
+          onClick={() => setSidebarOpen((v) => !v)}
+          aria-label={sidebarOpen ? "Đóng menu" : "Mở menu"}
+          title={sidebarOpen ? "Đóng menu" : "Mở menu"}
+        >
+          {sidebarOpen ? "×" : "☰"}
+        </button>
+      )}
+
+      {/* Sidebar menu */}
+      {user && sidebarOpen && (
+        <nav className="sidebar-menu">
+          <h3>Menu</h3>
+          <ul>
+            <li>
+              <Button
+                type="primary"
+                block
+                onClick={() => setShowCreateBetForm((v) => !v)}
+              >
+                {showCreateBetForm ? "Đóng form tạo kèo" : "Tạo Kèo"}
+              </Button>
+            </li>
+            <li>
+              <Link to="/">
+                <Button block>Trang Chủ</Button>
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
+
+      <div
+        className="home container"
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "20px",
+          paddingLeft: user && sidebarOpen ? "220px" : "20px",
+          transition: "padding-left 0.3s ease",
+          boxSizing: "border-box",
+          position: "relative",
+          zIndex: 0,
+        }}
+      ></div>
+{showCreateBetForm && (
+          <form className="form" onSubmit={handleCreate} noValidate>
+            <input name="name" placeholder="Match Name" value={form.name} onChange={handleChange} />
+            <input name="team1" placeholder="Team 1" value={form.team1} onChange={handleChange} />
+            <input name="team2" placeholder="Team 2" value={form.team2} onChange={handleChange} />
+            <input name="option1" placeholder="Option 1" value={form.option1} onChange={handleChange} />
+            <input name="option2" placeholder="Option 2" value={form.option2} onChange={handleChange} />
+            <input
+              name="rate1"
+              placeholder="Rate 1"
+              type="number"
+              step="0.01"
+              max="1.90"
+              value={form.rate1}
+              onChange={handleChange}
+            />
+            <input
+              name="rate2"
+              placeholder="Rate 2"
+              type="number"
+              step="0.01"
+              max="1.90"
+              value={form.rate2}
+              onChange={handleChange}
+            />
+            <select name="countdown" value={form.countdown} onChange={handleChange}>
+  <option value="">Chọn thời gian đếm ngược</option>
+  {Array.from({ length: 17 }, (_, i) => i + 1).map((minute) => {
+    const futureTime = new Date(Date.now() + minute * 60000).toISOString();
+    return (
+      <option key={minute} value={futureTime}>
+        {minute} phút
+      </option>
+    );
+  })}
+</select>
+
+            <select name="status1" value={form.status1} onChange={handleChange}>
+              <option value="pending">Pending</option>
+              <option value="won">Won</option>
+              <option value="lost">Lost</option>
+            </select>
+            <select name="status2" value={form.status2} onChange={handleChange}>
+              <option value="pending">Pending</option>
+              <option value="won">Won</option>
+              <option value="lost">Lost</option>
+            </select>
+            <input name="iframe" placeholder="Iframe" value={form.iframe} onChange={handleChange} />
+            <button type="submit" className="btn btn-primary">
+              Create Bet
+            </button>
+          </form>
+        )}  
 
       <div className="container">
   {!currentAccount ? (
@@ -723,7 +705,7 @@ h1 {
           <button
             disabled={bettingLoading}
             className="bet-btn"
-            onClick={() => placeBet(match.id, option.team, option.rate)}
+            onClick={() => placeBet(match.id, option.team, option.rate, option.name)}
           >
             Bet on {option.team} ({option.rate})
           </button>
@@ -761,12 +743,6 @@ h1 {
     />
   </div>
 )}
-
-
-
-
-
-
         </div>
       );
     })}

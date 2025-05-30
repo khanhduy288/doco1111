@@ -178,10 +178,21 @@ const handleLogin = async (event) => {
     );
 
     if (user) {
-      if (user.status === "approved") {
+      if (user.status !== "approvedd") {
+        // Lưu user và token (nếu có) vào localStorage
         localStorage.setItem("SEPuser", JSON.stringify(user));
+        if (user.token) {
+          localStorage.setItem("token", user.token);
+        }
+
+        if (rememberMe) {
+          localStorage.setItem("rememberedUsername", username);
+        } else {
+          localStorage.removeItem("rememberedUsername");
+        }
+
         toast.success("Đăng nhập thành công (Thành viên)!");
-        navigate(`/dashboard-member/${user.id}`);
+        navigate("/"); // Chuyển về trang chủ
       } else {
         toast.error("Tài khoản của bạn chưa được phê duyệt.");
       }
@@ -193,6 +204,7 @@ const handleLogin = async (event) => {
     toast.error("Lỗi khi đăng nhập. Vui lòng thử lại sau.");
   }
 };
+
 
   
 

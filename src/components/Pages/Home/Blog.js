@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Pagination } from "antd";
 import { BrowserProvider, Contract } from "ethers";
 import { parseUnits } from "ethers";
 import "./Blog.css"
 import axios from "axios"; // Giả sử dùng axios để gọi API
 
+
+const REFUND_COUNTDOWN_SECONDS = 30; // 50 phút
 const CLAIM_CONTRACT_ADDRESS = "0x2Ce7C90e023c95A310bbAA1bC44A280082dC3e9f"; // Thay bằng địa chỉ smart contract của bạn
 const CLAIM_CONTRACT_ABI = [
 	{
@@ -116,12 +118,47 @@ const CLAIM_CONTRACT_ABI = [
 const SYSTEM_WALLET_API = "https://681de07ac1c291fa66320473.mockapi.io/addressqr/wallet";
 
 const Blog = () => {
+
+
+const greenBtnStyle = {
+  backgroundColor: "#28a745",
+  color: "white",
+  border: "none",
+  padding: "6px 12px",
+  borderRadius: "4px",
+  cursor: "pointer",
+};
+
+const blueBtnStyle = {
+  backgroundColor: "#007bff",
+  color: "white",
+  border: "none",
+  padding: "6px 12px",
+  borderRadius: "4px",
+  cursor: "pointer",
+};
+
+
+
+
   const [currentAccount, setCurrentAccount] = useState(null);
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [systemWallet, setSystemWallet] = useState(null);
   const pageSize = 6;
+const [showContinueModal, setShowContinueModal] = useState(false);
+const [selectedRefund, setSelectedRefund] = useState(null);
+const [matchList, setMatchList] = useState([]); // Dữ liệu trận đấu
+const [selectedMatch, setSelectedMatch] = useState(null);
+const [selectedOption, setSelectedOption] = useState(null);
+const [betList, setBetList] = useState([]);
+const [countdownMap, setCountdownMap] = useState({});
+const betListRef = useRef([]);
+const [, forceUpdate] = useState(0);
+
+
+
 
   const fetchSystemWallet = async () => {
     try {
@@ -134,6 +171,201 @@ const Blog = () => {
       console.error("Lỗi lấy ví hệ thống:", error);
     }
   };
+
+
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setCountdownMap((prevMap) => {
+      const updatedMap = { ...prevMap };
+      const now = Date.now();
+
+      betList.forEach((bet) => {
+        if (bet.countdownEnd && bet.status === "refund") {
+          const remaining = Math.max(0, Math.floor((bet.countdownEnd - now) / 1000));
+          updatedMap[bet.id] = remaining;
+        }
+      });
+
+      return updatedMap;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [betList]);
+
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCountdownMap((prev) => {
+      const newMap = {};
+
+      betListRef.current.forEach((bet) => {
+        if (bet.status === "refund" && bet.countdownEnd) {
+          const remaining = Math.max(0, Math.floor((bet.countdownEnd - Date.now()) / 1000));
+          if (remaining > 0) {
+            newMap[bet.id] = remaining;
+          }
+        }
+      });
+
+      return newMap;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+  useEffect(() => {
+  betListRef.current = betList;
+}, [betList]);
+
+useEffect(() => {
+  // Set lưu trữ id bets đã auto-bet để tránh lặp
+  const processedBets = new Set();
+
+  const interval = setInterval(async () => {
+    try {
+      const now = Date.now();
+
+      const updatedBetList = await Promise.all(
+        betListRef.current.map(async (bet) => {
+          if (bet.status === "refund") {
+            if (!bet.countdownEnd) {
+              // Tạo countdownEnd nếu chưa có
+              const matchRes = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
+              const matches = await matchRes.json();
+              const upcoming = matches.filter(m => new Date(m.countdown) > new Date());
+
+              if (upcoming.length > 0) {
+                const countdownEnd = now + REFUND_COUNTDOWN_SECONDS * 1000;
+
+                const putRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ countdownEnd }),
+                });
+
+                if (putRes.ok) {
+                  return { ...bet, countdownEnd };
+                } else {
+                  console.error("PUT countdownEnd failed:", await putRes.text());
+                }
+              }
+              return bet;
+            }
+
+            // Kiểm tra nếu đã auto bet rồi thì bỏ qua
+            if (bet.hasAutoBet) {
+              return bet;
+            }
+
+            // Nếu đã xử lý trong phiên interval này rồi thì bỏ qua (tránh lặp)
+            if (processedBets.has(bet.id)) {
+              return bet;
+            }
+
+            // Nếu countdown hết và chưa auto bet
+            if (bet.countdownEnd && now >= bet.countdownEnd && !bet.hasAutoBet) {
+              processedBets.add(bet.id); // đánh dấu đã xử lý
+
+              const matchRes = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
+              const matches = await matchRes.json();
+              const liveMatches = matches.filter(m => new Date(m.countdown) > new Date());
+
+              if (liveMatches.length > 0) {
+                const match = liveMatches[Math.floor(Math.random() * liveMatches.length)];
+                const option = Math.random() < 0.5 ? "option1" : "option2";
+                const team = option === "option1" ? match.team1 : match.team2;
+                const rate = option === "option1" ? match.rate1 : match.rate2;
+                const claim = (bet.refund || bet.amount) * rate;
+
+                // Gửi cược mới
+                await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    matchId: match.id,
+                    matchName: match.name,
+                    team,
+                    amount: bet.refund || bet.amount,
+                    userWallet: bet.userWallet,
+                    token: "USDT",
+                    timestamp: new Date().toISOString(),
+                    status: "pending",
+                    claim,
+                    countdownEnd: null,
+                  }),
+                });
+
+                // Cập nhật bet cũ thành done + hasAutoBet
+                const putRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ status: "done", hasAutoBet: true }),
+                });
+
+                if (!putRes.ok) {
+                  console.error("PUT update bet done failed:", await putRes.text());
+                }
+
+                // Cập nhật local ngay
+                const updatedBet = { ...bet, status: "done", hasAutoBet: true };
+                const newBetList = betListRef.current.map(b => (b.id === bet.id ? updatedBet : b));
+                setBetList(newBetList);
+                betListRef.current = newBetList;
+
+                return updatedBet;
+              }
+            }
+          }
+          return bet;
+        })
+      );
+
+      setBetList(updatedBetList);
+      betListRef.current = updatedBetList;
+    } catch (error) {
+      console.error("Lỗi auto-bet refund:", error);
+    }
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
+ // ← Không có [betList]
+
+
+ useEffect(() => {
+  const fetchBets = async () => {
+    const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet");
+    const data = await res.json();
+
+    setBetList(data);
+    betListRef.current = data;
+  };
+
+  fetchBets();
+}, []);
+
+
+
+useEffect(() => {
+  // Giả sử bạn load từ API
+  const fetchMatches = async () => {
+    try {
+      const response = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet"); // hoặc lấy từ props/context
+      const data = await response.json();
+      setMatchList(data);
+    } catch (err) {
+      console.error("Lỗi khi load match list:", err);
+    }
+  };
+
+  fetchMatches();
+}, []);
+
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -248,6 +480,90 @@ const handleClaim = async (bet) => {
   }
 };
 
+const handleContinue = async (bet, isWon = false) => {
+  console.log("handleContinue gọi, chuẩn bị show modal");
+
+  // Gán thêm cờ isWon để xử lý trong handleContinueBet
+  setSelectedRefund({
+    ...bet,
+    isWon: isWon,
+    refund: isWon ? bet.claim : bet.refund, // Sử dụng claim nếu là thắng, ngược lại dùng refund
+  });
+
+  try {
+    const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
+    const data = await res.json();
+    const upcomingMatches = data.filter(match => new Date(match.countdown) > new Date());
+
+    setMatchList(upcomingMatches);
+    setShowContinueModal(true);
+    console.log("showContinueModal set true");
+  } catch (error) {
+    alert("Lỗi khi lấy danh sách trận đấu");
+    console.error(error);
+  }
+};
+
+
+
+
+
+const handleContinueBet = async () => {
+  if (!selectedMatch || !selectedOption) {
+    alert("Vui lòng chọn trận và tùy chọn cược.");
+    return;
+  }
+
+  const amount = selectedRefund?.isWon ? selectedRefund.claim : selectedRefund.refund;
+  const rate = selectedOption === "option1" ? selectedMatch.rate1 : selectedMatch.rate2;
+  const team = selectedOption === "option1" ? selectedMatch.team1 : selectedMatch.team2;
+
+  try {
+    const newBet = {
+      matchId: selectedMatch.id,
+      matchName: selectedMatch.name,
+      team,
+      amount,
+      claim: amount * rate, // ✅ tính giá trị claim
+      userWallet: currentAccount,
+      token: "USDT",
+      timestamp: new Date().toISOString(),
+      status: "pending",
+    };
+
+    const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newBet),
+    });
+
+    if (!res.ok) throw new Error("Tạo cược thất bại");
+
+    // ✅ Cập nhật đơn gốc thành "done"
+    await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${selectedRefund.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "done" }),
+    });
+
+    alert("Cược tiếp thành công");
+    setShowContinueModal(false);
+    setSelectedMatch(null);
+    setSelectedOption(null);
+    setSelectedRefund(null);
+    fetchBets(); // reload
+  } catch (error) {
+    alert("Lỗi khi cược tiếp: " + error.message);
+  }
+};
+
+
+const formatCountdown = (endTime) => {
+  const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+  const mins = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  return `${mins}m ${secs}s`;
+};
 
 
 
@@ -278,117 +594,253 @@ const handleClaim = async (bet) => {
   const startIndex = (currentPage - 1) * pageSize;
   const currentBets = bets.slice(startIndex, startIndex + pageSize);
 
-  return (
-    <section style={{ padding: "5%" }}>
-      <div className="container">
-        <h1 className="text-center mb-4">Lịch Sử Cược</h1>
+return (
+  <section style={{ padding: "5%" }}>
+    <div className="container">
+      <h1 className="text-center mb-4">Lịch Sử Cược</h1>
 
-        {!currentAccount ? (
-          <div className="text-center">
-            <button
-              onClick={connectWallet}
-              style={{
-                padding: "10px 20px",
-                fontSize: "16px",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              Kết nối ví MetaMask
-            </button>
-          </div>
-        ) : (
-          <>
-            <p>
-              Ví đang kết nối: <b>{currentAccount}</b>
-            </p>
+      {!currentAccount ? (
+        <div className="text-center">
+          <button
+            onClick={connectWallet}
+            style={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            Kết nối ví MetaMask
+          </button>
+        </div>
+      ) : (
+        <>
+          <p>
+            Ví đang kết nối: <b>{currentAccount}</b>
+          </p>
 
-            {loading ? (
-  <div style={{ textAlign: "center", margin: "40px 0" }}>
-    <div className="spinner" />
-    <p>Đang tải dữ liệu cược...</p>
-  </div>
-) : bets.length === 0 ? (
-  <p>Không tìm thấy lịch sử cược cho ví này.</p>
-) : (
+          {loading ? (
+            <div style={{ textAlign: "center", margin: "40px 0" }}>
+              <div className="spinner" />
+              <p>Đang tải dữ liệu cược...</p>
+            </div>
+          ) : bets.length === 0 ? (
+            <p>Không tìm thấy lịch sử cược cho ví này.</p>
+          ) : (
+            <>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Match ID</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Match Name</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Team</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Amount (USDT)</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Status</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Time</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>TxHash</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Claim (USDT)</th>
+                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentBets.map((bet) => (
+                    <tr key={bet.id}>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.matchId}</td>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.matchName}</td>                      
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.team}</td>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.amount}</td>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.status}</td>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+                        {new Date(bet.timestamp).toLocaleString()}
+                      </td>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+                        <a
+                          href={`https://bscscan.com/tx/${bet.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {bet.txHash?.slice(0, 10)}...
+                        </a>
+                      </td>
+                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+                        {bet.claim ? parseFloat(bet.claim).toFixed(6) : "-"}
+                      </td>
+<td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+  {bet.status === "won" ? (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <button onClick={() => handleClaim(bet)} style={greenBtnStyle}>Claim</button>
+      <button onClick={() => handleContinue(bet, true)} style={blueBtnStyle}>Continue</button>
+    </div>
+  ) : bet.status === "refund" ? (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "start", gap: "4px" }}>
+      {countdownMap[bet.id] != null ? (
+        <div style={{ color: "red", fontWeight: "bold" }}>
+          ⏳ {countdownMap[bet.id]}s to auto bet!
+        </div>
+      ) : (
+        <div style={{ color: "gray" }}>⏳ Waiting...</div>
+      )}
+      <button
+        onClick={() => handleContinue(bet, false)}
+        title="You have limited time to continue. Otherwise, the system will bet randomly!"
+        style={blueBtnStyle}
+      >
+        Continue
+      </button>
+    </div>
+  ) : (
+    "-"
+  )}
+</td>
 
-              <>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Match ID</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Team</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Amount (USDT)</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Status</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Time</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>TxHash</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Claim (USDT)</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Action</th>
+
+
                     </tr>
-                  </thead>
-                  <tbody>
-                    {currentBets.map((bet) => (
-                      <tr key={bet.id}>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.matchId}</td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.team}</td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.amount}</td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.status}</td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
-                          {new Date(bet.timestamp).toLocaleString()}
-                        </td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
-                          <a
-                            href={`https://bscscan.com/tx/${bet.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {bet.txHash?.slice(0, 10)}...
-                          </a>
-                        </td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
-                          {bet.claim ? parseFloat(bet.claim).toFixed(6) : "-"}
-                        </td>
-                        <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
-                            {(bet.status === "won" || bet.status === "refund") ? (
-                            <button
-                              onClick={() => handleClaim(bet)}
-                              style={{
-                                backgroundColor: "#28a745",
-                                color: "white",
-                                border: "none",
-                                padding: "6px 12px",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Claim
-                            </button>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  ))}
+                </tbody>
+              </table>
 
-                {bets.length > pageSize && (
-                  <div style={{ marginTop: "20px", textAlign: "center" }}>
-                    <Pagination
-                      current={currentPage}
-                      pageSize={pageSize}
-                      total={bets.length}
-                      onChange={(page) => setCurrentPage(page)}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
-    </section>
-  );
+              {bets.length > pageSize && (
+                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                  <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={bets.length}
+                    onChange={(page) => setCurrentPage(page)}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* Modal popup chọn kèo cược tiếp */}
+{showContinueModal && (
+  <div
+    className="modal-overlay"
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      className="modal-content"
+      style={{
+        backgroundColor: "white",
+        padding: "20px",
+        borderRadius: "8px",
+        width: "400px",
+        maxWidth: "90%",
+        color: "black",
+      }}
+    >
+<h3
+  style={{
+    color: "white",
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "16px",
+    borderBottom: "1px solid rgba(255,255,255,0.2)",
+    paddingBottom: "8px",
+  }}
+>
+  Chọn trận để cược tiếp
+</h3>
+      <select
+        value={selectedMatch ? selectedMatch.id : ""}
+        onChange={e => {
+          const match = matchList.find(m => m.id === e.target.value);
+          setSelectedMatch(match);
+          setSelectedOption(null); // reset option khi đổi trận
+        }}
+        style={{ width: "100%", padding: "8px", marginBottom: "10px", color: "black" }}
+      >
+        <option value="">-- Chọn trận --</option>
+        {matchList.map(match => (
+          <option key={match.id} value={match.id}>
+            {match.name} - {match.option1} / {match.option2}
+          </option>
+        ))}
+      </select>
+
+{selectedMatch && (
+  <select
+    value={selectedOption || ""}
+    onChange={e => setSelectedOption(e.target.value)}
+    style={{ width: "100%", padding: "8px", marginBottom: "10px", color: "black" }}
+  >
+    <option value="">-- Chọn tùy chọn cược --</option>
+    <option value="option1">
+      {selectedMatch.option1} (Tỉ lệ: {selectedMatch.rate1})
+    </option>
+    <option value="option2">
+      {selectedMatch.option2} (Tỉ lệ: {selectedMatch.rate2})
+    </option>
+  </select>
+)}
+
+<div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
+  <button
+    onClick={handleContinueBet}
+    disabled={!selectedMatch || !selectedOption}
+    style={{
+      backgroundColor: !selectedMatch || !selectedOption ? "#6c757d" : "#007bff",
+      color: "white",
+      border: "none",
+      padding: "4px 8px",
+      fontSize: "14px",
+      borderRadius: "4px",
+      cursor: !selectedMatch || !selectedOption ? "not-allowed" : "pointer",
+      opacity: !selectedMatch || !selectedOption ? 0.65 : 1,
+      transition: "background-color 0.2s",
+      marginRight: "8px",
+    }}
+    onMouseOver={e => {
+      if (selectedMatch && selectedOption)
+        e.currentTarget.style.backgroundColor = "#0056b3";
+    }}
+    onMouseOut={e => {
+      if (selectedMatch && selectedOption)
+        e.currentTarget.style.backgroundColor = "#007bff";
+    }}
+  >
+    Cược tiếp
+  </button>
+
+  <button
+    onClick={() => setShowContinueModal(false)}
+    style={{
+      backgroundColor: "#dc3545",
+      color: "white",
+      border: "none",
+      padding: "4px 8px",
+      fontSize: "14px",
+      borderRadius: "4px",
+      cursor: "pointer",
+      transition: "background-color 0.2s",
+    }}
+    onMouseOver={e => (e.currentTarget.style.backgroundColor = "#c82333")}
+    onMouseOut={e => (e.currentTarget.style.backgroundColor = "#dc3545")}
+  >
+    Hủy
+  </button>
+</div>
+    </div>
+  </div>
+)}
+    </div>
+  </section>
+);
+
 };
 
 export default Blog;

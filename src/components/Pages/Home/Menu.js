@@ -22,6 +22,7 @@ const Menu = () => {
   const [showCreateBetForm, setShowCreateBetForm] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const settledMatchIds = useRef([]); 
+  const [systemMessage, setSystemMessage] = useState('Loading...');
 
   const [form, setForm] = useState({
     name: "",
@@ -165,6 +166,19 @@ useEffect(() => {
     };
   }
 }, []);
+
+
+  useEffect(() => {
+    fetch('/api/system-message')
+      .then(res => res.json())
+      .then(data => {
+        setSystemMessage(data.message || 'No new announcements.');
+      })
+      .catch(() => {
+        setSystemMessage('Failed to load system message.');
+      });
+  }, []);
+
 
 useEffect(() => {
   if (expandedMatchId && !betsByMatchId[expandedMatchId]) {
@@ -522,6 +536,8 @@ const placeBet = async (matchId, team, rate, matchName) => {
   }
 
   setBettingLoading(false);
+  console.log("Đặt cược vào trận:", matchName);
+
 };
 
   return (
@@ -550,12 +566,12 @@ const placeBet = async (matchId, team, rate, matchName) => {
                 block
                 onClick={() => setShowCreateBetForm((v) => !v)}
               >
-                {showCreateBetForm ? "Đóng form tạo kèo" : "Tạo Kèo"}
+                {showCreateBetForm ? "Open Create Form" : "Create Bet"}
               </Button>
             </li>
             <li>
-              <Link to="/">
-                <Button block>Trang Chủ</Button>
+              <Link to="/result">
+                <Button block>Result</Button>
               </Link>
             </li>
           </ul>
@@ -630,6 +646,17 @@ const placeBet = async (matchId, team, rate, matchName) => {
         )}  
 
       <div className="container">
+    <div className="ads-section">
+      <a href="/guide" className="ad-box">
+        <strong>Newbie Guide:</strong> Learn how to place bets and join easily.
+      </a>
+      <a href="/guide" className="ad-box">
+        <strong>System Announcement:</strong> {systemMessage}
+      </a>
+      <a href="/guide" className="ad-box">
+        <strong>Exclusive Offer:</strong> Get up to 5% bonus as a member!
+      </a>
+    </div>
   {!currentAccount ? (
     <button className="wallet-btn" onClick={connectWallet}>
       Kết nối ví MetaMask
@@ -697,46 +724,50 @@ const placeBet = async (matchId, team, rate, matchName) => {
     )}
 
     {/* Phần cược như cũ */}
-    <div className="bet-row">
-      {[{ team: match.option1, rate: match.rate1, sum: match.sum1 },
-        { team: match.option2, rate: match.rate2, sum: match.sum2 }
-      ].map((option, idx) => (
-        <div key={idx} className="bet-column">
-          <button
-            disabled={bettingLoading}
-            className="bet-btn"
-            onClick={() => placeBet(match.id, option.team, option.rate, option.name)}
-          >
-            Bet on {option.team} ({option.rate})
-          </button>
-          <div className="bet-sum">
-            Total bet: <strong>{Number(option.sum || 0).toFixed(2)} USDT</strong>
-          </div>
+<div className="bet-row">
+  {[
+    { team: match.option1, rate: match.rate1, sum: match.sum1 },
+    { team: match.option2, rate: match.rate2, sum: match.sum2 }
+  ].map((option, idx) => (
+    <div key={idx} className="bet-column">
+      <button
+        disabled={bettingLoading}
+        className="bet-btn"
+        onClick={() =>
+          placeBet(match.id, option.team, option.rate, match.name) // 👈 thêm match.name vào đây
+        }
+      >
+        Bet on {option.team} ({option.rate})
+      </button>
+      <div className="bet-sum">
+        Total bet: <strong>{Number(option.sum || 0).toFixed(3)} USDT</strong>
+      </div>
 
-          <div className="bet-list">
-            {allBets
-              .filter(
-                (bet) =>
-                  bet.matchId === match.id.toString() &&
-                  bet.team === option.team
-              )
-              .map((bet, index) => (
-                <div key={index} className="bet-item">
-                  <span>{bet.amount} {bet.token}</span>
-                  <span className="wallet">{bet.userWallet.slice(0, 6)}...</span>
-                </div>
-              ))}
-          </div>
-        </div>
-      ))}
+      <div className="bet-list">
+        {allBets
+          .filter(
+            (bet) =>
+              bet.matchId === match.id.toString() &&
+              bet.team === option.team
+          )
+          .map((bet, index) => (
+            <div key={index} className="bet-item">
+              <span>{bet.amount} {bet.token}</span>
+              <span className="wallet">{bet.userWallet.slice(0, 6)}...</span>
+            </div>
+          ))}
+      </div>
     </div>
+  ))}
+</div>
+
 
     <input
       type="number"
       step="0.001"
       min="0.001"
       className="bet-input"
-      placeholder="Enter bet amount (ETH)"
+      placeholder="Enter bet amount (USDT)"
       value={betAmount}
       onChange={(e) => setBetAmount(e.target.value)}
       disabled={bettingLoading}

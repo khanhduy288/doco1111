@@ -1,134 +1,108 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
-const PostForm = () => {
-  const [category, setCategory] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [image, setImage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const ResultSettlement = () => {
+  const [matches, setMatches] = useState([]);
+  const now = Date.now();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Fetch danh sách trận từ API
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
+        const data = await res.json();
 
-    const data = {
-      category,
-      title,
-      content,
-      image, // image là chuỗi link
+        // Lọc các trận countdown > now
+        const activeMatches = data.filter(match => Number(match.countdown) > now);
+        setMatches(activeMatches);
+      } catch (err) {
+        console.error("Lỗi tải danh sách trận:", err);
+      }
     };
 
-    try {
-      const response = await fetch("https://6437c88f0c58d3b14579192a.mockapi.io/api/tour/contentvkhat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+    fetchMatches();
+  }, [now]);
 
-      if (!response.ok) {
-        throw new Error("Lỗi khi gửi bài viết");
+  // Hàm phân định kết quả
+  const settleMatchResult = async (matchId, matchName, resultTeam) => {
+    try {
+      // 1. Lấy tất cả cược
+      const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet");
+      const allBets = await res.json();
+
+      // 2. Lọc các đơn cược của trận đó
+      const relatedBets = allBets.filter(
+        (bet) => bet.matchId === matchId || bet.matchName === matchName
+      );
+
+      // 3. Cập nhật status cho từng đơn
+      for (let bet of relatedBets) {
+        const status = bet.team === resultTeam ? "won" : "lose";
+
+        await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
       }
 
-      const result = await response.json();
-      console.log("Đăng bài thành công:", result);
-      alert("🎉 Đăng bài thành công!");
-
-      // Reset form
-      setCategory("");
-      setTitle("");
-      setContent("");
-      setImage("");
-    } catch (error) {
-      console.error("Lỗi:", error);
-      alert("❌ Đăng bài thất bại, vui lòng thử lại.");
-    } finally {
-      setIsSubmitting(false);
+      toast.success(`✅ Đã chốt kết quả: ${resultTeam} thắng`);
+    } catch (err) {
+      console.error("Lỗi phân định:", err);
+      toast.error("❌ Lỗi khi cập nhật kết quả.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-3xl font-bold text-center text-blue-800 mb-8 flex items-center justify-center gap-2">
-          📝 Đăng bài viết
-        </h2>
+    <div style={{ padding: "20px", background: "#1f1f1f", color: "#fff" }}>
+      <h2 style={{ marginBottom: "20px", color: "#ff4d4f" }}>🎯 Kết Quả Trận Đấu</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Category */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">📂 Chọn hạng mục</label>
-            <select
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-            >
-              <option value="">-- Chọn --</option>
-              <option value="lich-su-hinh-thanh">Lịch sử hình thành</option>
-              <option value="co-so-phap-ly">Cơ sở pháp lý</option>
-              <option value="tam-nhin-su-menh">Tầm nhìn – Sứ mệnh</option>
-              <option value="doi-ngu-giang-vien">Đội ngũ giảng viên</option>
-              <option value="van-hoa-doanh-nghiep">Văn hóa doanh nghiệp</option>
-              <option value="nguyen-tac-hoat-dong">Nguyên tắc hoạt động</option>
-            </select>
+      {matches.length === 0 ? (
+        <p>Không có trận nào đang hoạt động.</p>
+      ) : (
+        matches.map((match) => (
+          <div key={match.id} style={{
+            border: "1px solid #333",
+            padding: "16px",
+            borderRadius: "12px",
+            marginBottom: "16px",
+            background: "#2b2b2b"
+          }}>
+            <h3>{match.name}</h3>
+            <p>⏱ Countdown: {Math.floor((match.countdown - now) / 1000)}s</p>
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <button
+                style={{
+                  padding: "8px 16px",
+                  background: "#ff4d4f",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer"
+                }}
+                onClick={() => settleMatchResult(match.id, match.name, match.option1)}
+              >
+                ✅ {match.option1} thắng
+              </button>
+              <button
+                style={{
+                  padding: "8px 16px",
+                  background: "#ff7a45",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer"
+                }}
+                onClick={() => settleMatchResult(match.id, match.name, match.option2)}
+              >
+                ✅ {match.option2} thắng
+              </button>
+            </div>
           </div>
-
-          {/* Title */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">📝 Tiêu đề</label>
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Nhập tiêu đề bài viết..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Content */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">✏️ Nội dung</label>
-            <textarea
-              className="w-full p-3 border border-gray-300 rounded-xl h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Viết nội dung bài viết tại đây..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            ></textarea>
-          </div>
-
-          {/* Image */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">🖼️ Link hình ảnh</label>
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://link-to-image.jpg"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Submit */}
-          <div className="text-center pt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`${
-                isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-              } text-white font-bold py-3 px-6 rounded-full transition duration-300`}
-            >
-              {isSubmitting ? "Đang gửi..." : "🚀 Đăng bài"}
-            </button>
-          </div>
-        </form>
-      </div>
+        ))
+      )}
     </div>
   );
 };
 
-export default PostForm;
+export default ResultSettlement;

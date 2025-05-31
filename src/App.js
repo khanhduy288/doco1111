@@ -59,7 +59,7 @@ import WaiterChangePassword from "./components/Pages/Role/WaiterRole/Pages/Waite
 import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
 import PostForm from "./components/Pages/Home/PostForm.js";
 import History from "./components/Pages/Home/History.js";
-import Phaply from "./components/Pages/Home/Phaply.js";
+import ResultSettlement from "./components/Pages/Home/ResultSettlement";
 import AuctionPage from './components/Pages/Home/AuctionPage.js'; // đường dẫn đúng với bạn
 import DashboardMember from './components/Pages/Home/DashboardMember.jsx'; // đường dẫn đúng với bạn
 
@@ -157,7 +157,7 @@ function App() {
               <Route path="/auction" element={<AuctionPage />} />
               <Route path="/auction/:id" element={<AuctionPage />} />
               <Route path="/history" element={<History />} />
-              <Route path="/phaply" element={<Phaply />} />
+              <Route path="/result" element={<ResultSettlement />} />
               <Route path="/details/:id" element={<DishDetails />} />
               <Route path="/reservation" element={<Reservation />} />
               <Route path="/loguser" element={<Blog />} />

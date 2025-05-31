@@ -230,6 +230,40 @@ h1 {
   background: linear-gradient(90deg, #d32f2f 0%, #4a4a4a 100%);
 }
 
+.ads-section {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background-color: #121212; /* nền xám đen nhẹ */
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ad-box {
+  background: linear-gradient(135deg, #8e2de2, #ff6a00); /* màu tím đỏ cam dịu hơn */
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(255, 106, 0, 0.25);
+  transition: all 0.3s ease;
+  min-width: 260px;
+  max-width: 320px;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 500;
+  text-decoration: none;
+  display: block;
+}
+
+.ad-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.35);
+  background: linear-gradient(135deg, #7b1fa2, #ff8a00); /* hover chuyển màu nhẹ */
+  text-decoration: underline;
+}
+
+
+
 @media (max-width: 768px) {
   .bet-row {
     flex-direction: column;

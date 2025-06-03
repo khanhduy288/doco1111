@@ -11,38 +11,217 @@ export default function MatchResultDecider() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [winningTeam, setWinningTeam] = useState("");
   const countdownIntervals = useRef({});
+  const [currentUserId, setCurrentUserId] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const storedUser = localStorage.getItem("SEPuser");
+    if (storedUser) {
       try {
-        const [matchesRes, betsRes] = await Promise.all([
-          fetch(`${API_BASE}/football`),
-          fetch(`${API_BASE}/bet`),
-        ]);
-        const matchesData = await matchesRes.json();
-        const betsData = await betsRes.json();
-
-        const oneHourAgo = Date.now() - 3600 * 1000;
-
-        // Lọc trận với countdown > now - 1 hour
-        const filteredMatches = matchesData.filter((match) => {
-          if (!match.countdown) return false;
-          const countdownTime = Date.parse(match.countdown);
-          return !isNaN(countdownTime) && countdownTime > oneHourAgo;
-        });
-
-        setMatches(filteredMatches);
-        setBets(betsData);
-      } catch (err) {
-        console.error("Failed to load data:", err);
-        toast.error("Failed to load data from server.");
+        const parsed = JSON.parse(storedUser);
+        setCurrentUserId(parsed.id);
+      } catch (e) {
+        console.error("Invalid SEPuser format", e);
       }
-    };
-
-    fetchData();
+    }
   }, []);
 
-  // Countdown state per match
+useEffect(() => {
+  const interval = setInterval(async () => {
+    if (!matches.length || !bets.length) return;
+
+    // Lấy các cược đang xử lý
+const processingBets = bets.filter(
+  (bet) => bet.status?.startsWith("processing") && bet.processStart
+);
+
+
+    if (processingBets.length === 0) return;
+
+    const now = Date.now();
+
+    // Các cược đã đủ 3 phút để quyết định kết quả
+    const betsReadyToFinalize = processingBets.filter((bet) => {
+      const start = Date.parse(bet.processStart);
+      return now - start >= 180000; // 3 phút
+    });
+
+    if (betsReadyToFinalize.length === 0) return;
+
+    // Lưu matchId đã cập nhật
+    const updatedMatchIds = new Set();
+
+    // Duyệt các cược để cập nhật status won/lose dựa trên winningTeam của match
+    await Promise.all(
+      betsReadyToFinalize.map(async (bet) => {
+        const match = matches.find((m) => m.id.toString() === bet.matchId.toString());
+        if (!match || !match.winningTeam) {
+          console.warn(`Match or winningTeam not found for bet ${bet.id}`);
+          return;
+        }
+
+        // So sánh để gán trạng thái cược
+        const winning = bet.team === match.winningTeam ? "won" : "lose";
+        console.log(`Bet ${bet.id} team: ${bet.team}, match winningTeam: ${match.winningTeam}, status: ${winning}`);
+
+        // Cập nhật cược
+        await fetch(`${API_BASE}/bet/${bet.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...bet, status: winning }),
+        });
+
+        updatedMatchIds.add(bet.matchId);
+      })
+    );
+
+    // Sau khi cập nhật tất cả cược, cập nhật trạng thái status1, status2 cho trận đấu
+for (const matchId of updatedMatchIds) {
+  const relatedBets = bets.filter((b) => b.matchId.toString() === matchId.toString());
+  // Kiểm tra tất cả cược đã được quyết định
+  const allDone = relatedBets.every((b) => !b.status?.startsWith("processing"));
+
+  if (allDone) {
+    const match = matches.find((m) => m.id.toString() === matchId.toString());
+    if (!match || !match.option1 || !match.option2 || !match.winningTeam) continue;
+
+    // Phân định status1, status2 dựa trên winningTeam
+    const status1 = match.winningTeam === match.option1 ? "won" : "lose";
+    const status2 = match.winningTeam === match.option2 ? "won" : "lose";
+
+    // Cập nhật trận đấu với trạng thái status1, status2
+    await fetch(`${API_BASE}/football/${match.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...match, status1, status2 }),
+    });
+
+    // Tính tổng cược
+    const sum1 = parseFloat(match.sum1) || 0;
+    const sum2 = parseFloat(match.sum2) || 0;
+    const totalBet = sum1 + sum2;
+
+    // Lấy thông tin người tạo kèo
+    const creatorId = match.creatorId;
+    const userRes = await fetch(`${API_BASE}/user/${creatorId}`);
+    const user = await userRes.json();
+
+    if (user) {
+      const level = parseFloat(user.level) || 1;
+      const reward = (totalBet / 2) * (level / 100);
+
+      // Cập nhật số dư và số lượng kèo đã tạo
+      await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...user,
+          balance: (parseFloat(user.balance) || 0) + reward,
+          matchesCreated: (parseInt(user.matchesCreated) || 0) + 1,
+        }),
+      });
+    }
+  }
+}
+
+    // Refresh dữ liệu mới
+    const refreshedBetsRes = await fetch(`${API_BASE}/bet`);
+    const refreshedBets = await refreshedBetsRes.json();
+    setBets(refreshedBets);
+
+    const refreshedMatchesRes = await fetch(`${API_BASE}/football`);
+    const refreshedMatches = await refreshedMatchesRes.json();
+    setMatches(refreshedMatches);
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [bets, matches]);
+
+
+
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const userData = localStorage.getItem("SEPuser");
+      const user = userData ? JSON.parse(userData) : null;
+
+      if (!user || !user.id) {
+        console.error("Không có thông tin người dùng");
+        toast.error("Không tìm thấy thông tin người dùng.");
+        return;
+      }
+
+      const [matchesRes, betsRes] = await Promise.all([
+        fetch(`${API_BASE}/football`),
+        fetch(`${API_BASE}/bet`),
+      ]);
+
+      const matchesData = await matchesRes.json();
+      const betsData = await betsRes.json();
+
+      const oneHourAgo = Date.now() - 3600 * 1000;
+
+      const filteredMatches = matchesData
+        .filter((match) => {
+          if (!match.countdown) return false;
+          const countdownTime = Date.parse(match.countdown);
+          return (
+            !isNaN(countdownTime) &&
+            countdownTime > oneHourAgo &&
+            match.creatorId === user.id // Chỉ lấy kèo của chính user tạo
+          );
+        });
+
+      setMatches(filteredMatches);
+      setBets(betsData);
+    } catch (err) {
+      console.error("Failed to load data:", err);
+      toast.error("Failed to load data from server.");
+    }
+  };
+
+  fetchData();
+}, []);
+
+const isUserLevel5 = () => {
+  const userData = localStorage.getItem("SEPuser");
+  const user = userData ? JSON.parse(userData) : null;
+  return user?.level === 5;
+};
+
+
+
+  const refreshUserInfo = async () => {
+    if (!userInfo?.id) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userInfo.id}`);
+      const data = await res.json();
+
+      // Lưu vào localStorage và state
+      localStorage.setItem('SEPuser', JSON.stringify(data));
+      setUserInfo(data);
+    } catch (error) {
+      console.error('Failed to refresh user info:', error);
+    }
+    setLoading(false);
+  };
+
+  // Tạo chuỗi ⭐ theo level
+  const renderStars = (level) => '⭐'.repeat(level);
+
+
+
+
+  useEffect(() => {
+  const storedUser = localStorage.getItem("SEPuser");
+  if (storedUser) {
+    setUserInfo(JSON.parse(storedUser));
+  }
+}, []);
+
   const [countdowns, setCountdowns] = useState({});
 
   useEffect(() => {
@@ -71,7 +250,6 @@ export default function MatchResultDecider() {
     };
   }, [matches]);
 
-  // Kiểm tra trận đã phân định chưa (có bet nào status khác "pending")
   const isResultFinalized = (match) => {
     return bets.some(
       (bet) =>
@@ -81,68 +259,179 @@ export default function MatchResultDecider() {
     );
   };
 
-  const handleDecideResult = async () => {
-    if (!selectedMatch) {
-      toast.warn("Please select a match first.");
-      return;
-    }
-    if (!winningTeam) {
-      toast.warn("Please select the winning team.");
-      return;
-    }
+const getRemainingProcessingTime = (matchId) => {
+  const processingBet = bets.find(
+    (b) =>
+      b.matchId === matchId &&
+      b.status?.startsWith("processing") && // sửa ở đây
+      b.processStart
+  );
+  if (!processingBet) return 0;
+  const elapsed = Date.now() - Date.parse(processingBet.processStart);
+  return Math.max(0, 180000 - elapsed);
+};
 
-    setLoading(true);
 
-    try {
-      const betsToUpdate = bets.filter(
-        (bet) =>
-          bet.matchId.toString() === selectedMatch.id.toString() &&
-          bet.matchName === selectedMatch.name
-      );
-
-      const updatePromises = betsToUpdate.map((bet) => {
-        const newStatus = bet.team === winningTeam ? "won" : "lose";
-        return fetch(`${API_BASE}/bet/${bet.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...bet, status: newStatus }),
-        });
-      });
-
-      await Promise.all(updatePromises);
-
-      toast.success(`Updated ${betsToUpdate.length} bets based on winning team.`);
-
-      // Cập nhật lại bets trong state
-      const refreshedBetsRes = await fetch(`${API_BASE}/bet`);
-      const refreshedBets = await refreshedBetsRes.json();
-      setBets(refreshedBets);
-
-      setSelectedMatch(null);
-      setWinningTeam("");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update bets status.");
-    }
-
-    setLoading(false);
+  const isUserMatchCreator = (match) => {
+    return match.creatorId?.toString() === currentUserId?.toString();
   };
+
+const handleDecideResult = async () => {
+  if (!selectedMatch) {
+    toast.warn("Please select a match first.");
+    return;
+  }
+  if (!winningTeam) {
+    toast.warn("Please select the winning team.");
+    return;
+  }
+  if (!isUserMatchCreator(selectedMatch)) {
+    toast.error("Chỉ người tạo kèo mới được phân định kết quả.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Cập nhật trận đấu với winningTeam mới
+    await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...selectedMatch, winningTeam }),
+    });
+
+    // Cập nhật các cược liên quan sang trạng thái "processing"
+    const nowISO = new Date().toISOString();
+
+    const betsToUpdate = bets.filter(
+      (bet) =>
+        bet.matchId.toString() === selectedMatch.id.toString() &&
+        bet.matchName === selectedMatch.name
+    );
+
+    const updatePromises = betsToUpdate.map((bet) =>
+      fetch(`${API_BASE}/bet/${bet.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...bet,
+          status: `processing ${winningTeam}`,
+          processStart: nowISO,
+        }),
+      })
+    );
+
+    await Promise.all(updatePromises);
+
+    toast.success(
+      "Match result set. Bets processing will finalize after 3 minutes."
+    );
+
+    // Lấy user từ localStorage
+    const userData = localStorage.getItem("SEPuser");
+    const user = userData ? JSON.parse(userData) : null;
+
+    if (!user || !user.id) {
+      toast.error("Không tìm thấy thông tin người dùng.");
+      setLoading(false);
+      return;
+    }
+
+    // Refetch dữ liệu trận và cược
+    const [matchesRes, betsRes] = await Promise.all([
+      fetch(`${API_BASE}/football`),
+      fetch(`${API_BASE}/bet`),
+    ]);
+    const matchesData = await matchesRes.json();
+    const betsData = await betsRes.json();
+
+    // Lọc các trận của user, countdown > now -1h
+    const oneHourAgo = Date.now() - 3600 * 1000;
+
+    const filteredMatches = matchesData.filter((match) => {
+      if (!match.countdown) return false;
+      const countdownTime = Date.parse(match.countdown);
+      return (
+        !isNaN(countdownTime) &&
+        countdownTime > oneHourAgo &&
+        match.creatorId === user.id
+      );
+    });
+
+    // Lọc bets theo filteredMatches
+    const filteredBets = betsData.filter((bet) =>
+      filteredMatches.some(
+        (match) => match.id.toString() === bet.matchId.toString()
+      )
+    );
+
+    setMatches(filteredMatches);
+    setBets(filteredBets);
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to update match result.");
+  }
+
+  setLoading(false);
+};
+
+
 
   const formatTime = (ms) => {
     if (ms <= 0) return "00:00:00";
     const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600)
-      .toString()
-      .padStart(2, "0");
-    const minutes = Math.floor((totalSeconds % 3600) / 60)
-      .toString()
-      .padStart(2, "0");
+    const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
+    const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, "0");
     const seconds = (totalSeconds % 60).toString().padStart(2, "0");
     return `${hours}:${minutes}:${seconds}`;
   };
 
   return (
     <div style={{ padding: "20px", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
+          <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "10px 15px",
+        marginBottom: "20px",
+        backgroundColor: "#1e1e1e",
+        borderRadius: "8px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+        color: "#ffa726",
+        fontWeight: "600",
+        fontSize: "1rem",
+      }}
+    >
+{userInfo && (
+      <div className="welcome-message text-dark fw-bold my-2 d-flex align-items-center gap-2">
+      <span>
+        Welcome, {userInfo.fullName}! | Level: {userInfo.level} {renderStars(userInfo.level)} | Balance: {userInfo.balance} USDT
+      </span>
+      <button
+        onClick={refreshUserInfo}
+        disabled={loading}
+        title="Refresh"
+        style={{
+          border: 'none',
+          background: 'transparent',
+          fontSize: '18px',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          transform: loading ? 'rotate(360deg)' : 'none',
+          transition: 'transform 0.5s linear',
+        }}
+      >
+        🔄
+      </button>
+    </div>
+)}
+
+      <div style={{ fontSize: "0.9rem", color: "#ccc" }}>
+        {/* Bạn có thể thêm nút logout hoặc profile link ở đây nếu muốn */}
+        {/* Ví dụ: <button style={{ background: "none", border: "none", color: "#ff7043", cursor: "pointer" }}>Logout</button> */}
+      </div>
+    </div>
       <h1 style={{ color: "#ff7043" }}>Match Result Decider</h1>
 
       <h2>Active Matches (Countdown &gt; Now - 1 hour)</h2>
@@ -151,6 +440,15 @@ export default function MatchResultDecider() {
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
         {matches.map((match) => {
           const finalized = isResultFinalized(match);
+          const isCreator = isUserMatchCreator(match);
+
+        const processingBet = bets.find(
+        (b) => b.matchId === match.id && b.status?.startsWith("processing") && b.processStart
+        );
+
+
+
+
           return (
             <li
               key={match.id}
@@ -159,16 +457,18 @@ export default function MatchResultDecider() {
                 padding: "10px",
                 backgroundColor: selectedMatch?.id === match.id ? "#ff7043" : "#333",
                 borderRadius: "6px",
-                cursor: "pointer",
+                cursor: finalized || !isCreator ? "not-allowed" : "pointer",
                 userSelect: "none",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
               onClick={() => {
-                if (!finalized) {
+                if (!finalized && isCreator) {
                   setSelectedMatch(match);
                   setWinningTeam("");
+                } else if (!isCreator) {
+                  toast.warn("Bạn không phải người tạo kèo này.");
                 }
               }}
             >
@@ -177,35 +477,39 @@ export default function MatchResultDecider() {
                 <div>Option 1: {match.option1} | Option 2: {match.option2}</div>
                 <div>Bet sums: {match.sum1 || 0} USDT - {match.sum2 || 0} USDT</div>
                 <div>Countdown: {formatTime(countdowns[match.id] || 0)}</div>
+                <div style={{ fontSize: "0.85rem", color: "#bbb" }}>
+                Creator: {match.creatorId}
+                </div>
+
               </div>
-              <div style={{ fontWeight: "bold", color: finalized ? "#90caf9" : "transparent" }}>
-                {finalized ? "Result Finalized" : ""}
-              </div>
+
+<div style={{ fontWeight: "bold", color: "#90caf9", fontSize: "0.9rem" }}>
+  {processingBet
+    ? `Checking... ${formatTime(getRemainingProcessingTime(match.id))}`
+    : finalized
+    ? `Result Finalized (${match.winningTeam || "?"})`
+    : ""}
+</div>
+
+
+
             </li>
           );
         })}
       </ul>
 
-      <div
-        style={{
-          marginTop: "20px",
-          backgroundColor: "#222",
-          padding: "15px",
-          borderRadius: "8px",
-          maxWidth: "400px",
-        }}
-      >
+      <div style={{ marginTop: "20px", backgroundColor: "#222", padding: "15px", borderRadius: "8px", maxWidth: "400px" }}>
         <h3>Decide Result</h3>
         <p>
-          Selected match:{" "}
-          <strong style={{ color: "#ffab91" }}>
-            {selectedMatch ? selectedMatch.name : "None"}
-          </strong>
+          Selected match: <strong style={{ color: "#ffab91" }}>{selectedMatch ? selectedMatch.name : "None"}</strong>
+        </p>
+        <p style={{ color: "orange", fontSize: "0.9rem" }}>
+          {selectedMatch && !isUserMatchCreator(selectedMatch) ? "Bạn không có quyền phân định kết quả cho kèo này." : ""}
         </p>
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <select
-            disabled={!selectedMatch || isResultFinalized(selectedMatch)}
+            disabled={!selectedMatch || isResultFinalized(selectedMatch) || !isUserMatchCreator(selectedMatch)}
             value={winningTeam}
             onChange={(e) => setWinningTeam(e.target.value)}
             style={{
@@ -215,7 +519,7 @@ export default function MatchResultDecider() {
               border: "1px solid #555",
               backgroundColor: "#333",
               color: "#eee",
-              cursor: selectedMatch && !isResultFinalized(selectedMatch) ? "pointer" : "not-allowed",
+              cursor: selectedMatch && isUserMatchCreator(selectedMatch) ? "pointer" : "not-allowed",
             }}
           >
             <option value="">-- Select Winning Team --</option>
@@ -226,22 +530,34 @@ export default function MatchResultDecider() {
               </>
             )}
           </select>
+
 <button
   onClick={handleDecideResult}
   disabled={
-    loading || !selectedMatch || !winningTeam || isResultFinalized(selectedMatch)
+    loading ||
+    !selectedMatch ||
+    !winningTeam ||
+    isResultFinalized(selectedMatch) ||
+    !isUserMatchCreator(selectedMatch) ||
+    !isUserLevel5() // 🔐 kiểm tra thêm quyền
   }
   style={{
     backgroundColor: "#ff7043",
     border: "none",
-    padding: "6px 12px",      // giảm padding
-    fontSize: "0.9rem",       // giảm font-size
+    padding: "6px 12px",
+    fontSize: "0.9rem",
     color: "#222",
     fontWeight: "bold",
-    cursor:
-      loading || !selectedMatch || !winningTeam || isResultFinalized(selectedMatch)
-        ? "not-allowed"
-        : "pointer",
+    cursor: (
+      loading ||
+      !selectedMatch ||
+      !winningTeam ||
+      isResultFinalized(selectedMatch) ||
+      !isUserMatchCreator(selectedMatch) ||
+      !isUserLevel5() // 🔐 cho cursor
+    )
+      ? "not-allowed"
+      : "pointer",
     borderRadius: "6px",
   }}
 >

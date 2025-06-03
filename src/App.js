@@ -57,7 +57,7 @@ import OwnerChangePassword from "./components/Pages/Role/OwnerRole/Pages/OwnerCh
 import ReceptionistChangePassword from "./components/Pages/Role/ReceptionistRole/Pages/ReceptionistChangePassword.js";
 import WaiterChangePassword from "./components/Pages/Role/WaiterRole/Pages/WaiterChangePassword.js";
 import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
-import PostForm from "./components/Pages/Home/PostForm.js";
+import RevenuePage from "./components/Pages/Home/RevenuePage.js";
 import History from "./components/Pages/Home/History.js";
 import ResultSettlement from "./components/Pages/Home/ResultSettlement";
 import AuctionPage from './components/Pages/Home/AuctionPage.js'; // đường dẫn đúng với bạn
@@ -84,7 +84,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/authentication" element={<LoginSignup />} />
-            <Route path="/postform" element={<PostForm />} /> {/* Đây nè */}
+            <Route path="/Revenuepage" element={<RevenuePage />} /> {/* Đây nè */}
             <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
             <Route path="/dashboard-member/:id" element={<DashboardMember />} />
             <Route path="/forgetPassword" element={<ForgetPassword />} />
@@ -153,6 +153,7 @@ function App() {
 
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
+              
               <Route path="/menu" element={<Menu />} />
               <Route path="/auction" element={<AuctionPage />} />
               <Route path="/auction/:id" element={<AuctionPage />} />

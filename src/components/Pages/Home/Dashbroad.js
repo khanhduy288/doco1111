@@ -341,7 +341,35 @@ const handleReject = async (userId) => {
   </>
 )}
 
-        {activeTab === "revenue" && <><h2>Revenue Reports</h2><p>Coming soon...</p></>}
+{activeTab === "revenue" && (
+  <div style={{ 
+    padding: "20px", 
+    textAlign: "center", 
+    background: "#f5f7fa", 
+    borderRadius: "8px", 
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)" 
+  }}>
+    <h2 style={{ color: "#1890ff", marginBottom: "12px" }}>Revenue Reports</h2>
+    <button
+      onClick={() => navigate("/Revenuepage")}
+      style={{
+        backgroundColor: "#1890ff",
+        color: "#fff",
+        border: "none",
+        padding: "10px 24px",
+        borderRadius: "4px",
+        cursor: "pointer",
+        fontWeight: "600",
+        fontSize: "16px",
+        transition: "background-color 0.3s ease"
+      }}
+      onMouseOver={e => (e.currentTarget.style.backgroundColor = "#40a9ff")}
+      onMouseOut={e => (e.currentTarget.style.backgroundColor = "#1890ff")}
+    >
+      Go to Revenue Page
+    </button>
+  </div>
+)}
 
         {activeTab === "transactions" && (
           <>

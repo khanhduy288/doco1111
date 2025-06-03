@@ -23,6 +23,7 @@ const Menu = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const settledMatchIds = useRef([]); 
   const [systemMessage, setSystemMessage] = useState('Loading...');
+    const [creatorInfo, setCreatorInfo] = useState({ name: "", level: "" });
 
   const [form, setForm] = useState({
     name: "",
@@ -52,6 +53,9 @@ const Menu = () => {
   }, []);
 
   
+  
+
+
   useEffect(() => {
 
     const storedUser = localStorage.getItem("SEPuser");
@@ -71,7 +75,7 @@ const Menu = () => {
         [name]: value,
       }));
     };
-const handleCreate = async (e) => {
+const handleCreate = async (e) => { 
   e.preventDefault();
 
   const requiredFields = [
@@ -90,7 +94,6 @@ const handleCreate = async (e) => {
 
   const now = Date.now();
 
-  // Kiểm tra trùng lặp với các trận còn countdown > now
   const isDuplicate = matches.some(match => 
     new Date(match.countdown).getTime() > now &&
     match.name.trim().toLowerCase() === form.name.trim().toLowerCase() &&
@@ -103,12 +106,22 @@ const handleCreate = async (e) => {
     return;
   }
 
+  // 🔽 Lấy id người tạo từ localStorage
+const member = JSON.parse(localStorage.getItem("SEPuser"));
+  const creatorId = member?.id;
+
+  if (!creatorId) {
+    toast.error("Không tìm thấy thông tin người tạo. Vui lòng đăng nhập lại.");
+    return;
+  }
+
   const payload = {
     ...form,
     time: new Date().toISOString(),
     sum1: 0,
     sum2: 0,
-    status: "pending"
+    status: "pending",
+    creatorId, // 👈 thêm id người tạo vào payload
   };
 
   try {
@@ -122,7 +135,6 @@ const handleCreate = async (e) => {
 
     toast.success("Tạo kèo thành công!");
 
-    // Reset form
     setForm({
       name: "",
       team1: "",
@@ -146,14 +158,31 @@ const handleCreate = async (e) => {
 };
 
 
+
   
 
-  useEffect(() => {
-    fetch("https://68271b3b397e48c913189c7d.mockapi.io/football")
-      .then((res) => res.json())
-      .then((data) => setMatches(data))
-      .catch(() => toast.error("Lỗi tải dữ liệu trận đấu"));
-  }, []);
+useEffect(() => {
+  const fetchMatchesWithCreators = async () => {
+    try {
+      const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
+      const matchesData = await res.json();
+
+      const enrichedMatches = await Promise.all(
+        matchesData.map(async (match) => {
+          const creator = await fetchCreatorInfo(match.creatorId);
+          return { ...match, creator };
+        })
+      );
+
+      setMatches(enrichedMatches);
+    } catch (err) {
+      toast.error("Lỗi tải dữ liệu trận đấu");
+    }
+  };
+
+  fetchMatchesWithCreators();
+}, []);
+
 
 useEffect(() => {
   if (window.ethereum) {
@@ -203,6 +232,10 @@ useEffect(() => {
 
   fetchBets();
 }, []);
+
+
+
+
 
 useEffect(() => {
   const checkForExpiredMatches = async () => {
@@ -315,6 +348,18 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [matches]);
+
+
+const fetchCreatorInfo = async (creatorId) => {
+  try {
+    const res = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`);
+    const data = await res.json();
+    return { name: data.fullName, level: data.level };
+  } catch (err) {
+    console.error("Lỗi lấy thông tin người tạo:", err);
+    return { name: "Không rõ", level: 0 };
+  }
+};
 
 
 
@@ -682,12 +727,20 @@ const placeBet = async (matchId, team, rate, matchName) => {
             setExpandedMatchId(expandedMatchId === match.id ? null : match.id)
           }
         >
-          <div className="match-header">
-            <span>
-              {match.team1} vs {match.team2}
-            </span>
-            <span>{formatCountdown(countdownMs)}</span>
-          </div>
+<div className="match-header">
+  <span>
+    {match.team1} vs {match.team2}
+  </span>
+  <span>{formatCountdown(countdownMs)}</span>
+  <div>
+    👤 {match.creator?.name || "Hidden"} - ⭐ {match.creator?.level || 0}
+  </div>
+  <div>
+    🏁 {match.winningTeam ? match.winningTeam : "In progress"}
+  </div>
+</div>
+
+
 
 {expandedMatchId === match.id && (
   <div className="bet-options" onClick={(e) => e.stopPropagation()}>

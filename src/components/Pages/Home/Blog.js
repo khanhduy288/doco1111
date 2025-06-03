@@ -7,112 +7,65 @@ import axios from "axios"; // Giả sử dùng axios để gọi API
 
 
 const REFUND_COUNTDOWN_SECONDS = 30; // 50 phút
-const CLAIM_CONTRACT_ADDRESS = "0x2Ce7C90e023c95A310bbAA1bC44A280082dC3e9f"; // Thay bằng địa chỉ smart contract của bạn
+const CLAIM_CONTRACT_ADDRESS = "0xe36b97A6D63E903dB7859CCD478c8b032558a295"; // Thay bằng địa chỉ smart contract của bạn
 const CLAIM_CONTRACT_ABI = [
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "betId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "betTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "claim",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_usdt",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "betId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "Claimed",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"name": "claimed",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "usdt",
-		"outputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
+  // ... giữ nguyên ABI như bạn đã cung cấp
+  {
+    inputs: [
+      { internalType: "address", name: "_usdt", type: "address" }
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "user", type: "address" },
+      { indexed: true, internalType: "uint256", name: "betId", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" }
+    ],
+    name: "Claimed",
+    type: "event"
+  },
+  {
+    inputs: [
+      { internalType: "uint256", name: "betId", type: "uint256" },
+      { internalType: "uint256", name: "betTime", type: "uint256" },
+      { internalType: "uint256", name: "amount", type: "uint256" }
+    ],
+    name: "claim",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+    name: "claimed",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "usdt",
+    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
+    name: "withdrawUSDT",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  }
 ];
 
 const SYSTEM_WALLET_API = "https://681de07ac1c291fa66320473.mockapi.io/addressqr/wallet";

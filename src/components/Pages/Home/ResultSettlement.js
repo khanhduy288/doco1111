@@ -292,6 +292,54 @@ const handleDecideResult = async () => {
 
   setLoading(true);
 
+  // Hàm con tính và cập nhật balance cho creator
+const updateCreatorBalance = async (creatorId, sum1, sum2) => {
+  try {
+    // Lấy thông tin user theo creatorId
+    const creatorRes = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`);
+    const creator = await creatorRes.json();
+
+    if (!creator || !creator.level) {
+      toast.error("Không tìm thấy thông tin creator hoặc level.");
+      return;
+    }
+
+    const bonus = Math.min(sum1, sum2) * 0.15 * creator.level / 100;
+
+    // Làm tròn về 6 chữ số sau dấu phẩy để tránh lỗi
+    const newBalance = +(creator.balance + bonus).toFixed(6);
+
+    // Debug log
+    console.log("Cập nhật balance:", {
+      id: creator.id,
+      balanceOld: creator.balance,
+      bonus,
+      newBalance,
+    });
+
+    // Gửi PUT với payload đầy đủ và balance đã làm tròn
+    const updateRes = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...creator,
+        balance: newBalance,
+      }),
+    });
+
+    if (!updateRes.ok) {
+      const errText = await updateRes.text();
+      throw new Error("PUT failed: " + errText);
+    }
+
+    toast.success("Cập nhật số dư cho creator thành công.");
+  } catch (error) {
+    console.error("Lỗi khi cập nhật số dư:", error);
+    toast.error("Cập nhật số dư creator thất bại.");
+  }
+};
+
+
   try {
     // Cập nhật trận đấu với winningTeam mới
     await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
@@ -322,6 +370,9 @@ const handleDecideResult = async () => {
     );
 
     await Promise.all(updatePromises);
+
+    // Cập nhật balance creator
+    await updateCreatorBalance(selectedMatch.creatorId, selectedMatch.sum1, selectedMatch.sum2);
 
     toast.success(
       "Match result set. Bets processing will finalize after 3 minutes."
@@ -367,7 +418,6 @@ const handleDecideResult = async () => {
 
     setMatches(filteredMatches);
     setBets(filteredBets);
-
   } catch (error) {
     console.error(error);
     toast.error("Failed to update match result.");
@@ -375,6 +425,7 @@ const handleDecideResult = async () => {
 
   setLoading(false);
 };
+
 
 
 

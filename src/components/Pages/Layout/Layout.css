@@ -26,10 +26,12 @@ body {
 
 /* Navbar link */
 .nav-link {
-  font-size: 14px !important;
-  color: #cccccc !important;
+  font-size: 17px !important;
+  color: #ccc !important;
+  font-family: 'Montserrat', sans-serif !important;
   font-weight: bold !important;
   transition: all 0.3s ease-in-out;
+  
 }
 
 .nav-link:hover {
@@ -64,11 +66,7 @@ body {
   overflow: hidden;
 }
 
-/* Brand Logo */
-.navbar-brand img {
-  border: 2px solid #ff6600;
-  border-radius: 50%;
-}
+
 
 /* Dropdown animation */
 .nav-item.dropdown .dropdown-menu {
@@ -205,4 +203,17 @@ footer .text-center p {
 .dropdown-menu .dropdown-item:hover {
   background-color: orange !important;
   color: white !important;
+}
+
+.logo-img {
+  width: 120px;
+  height: auto;
+  border-radius: 20%;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
 }

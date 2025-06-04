@@ -13,6 +13,7 @@ export default function MatchResultDecider() {
   const countdownIntervals = useRef({});
   const [currentUserId, setCurrentUserId] = useState("");
   const [userInfo, setUserInfo] = useState(null);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("SEPuser");
@@ -138,6 +139,14 @@ for (const matchId of updatedMatchIds) {
 }, [bets, matches]);
 
 
+useEffect(() => {
+  const timer = setInterval(() => {
+    setTick((prev) => prev + 1); // ép render lại
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+
 
 
 useEffect(() => {
@@ -162,16 +171,16 @@ useEffect(() => {
 
       const oneHourAgo = Date.now() - 3600 * 1000;
 
-      const filteredMatches = matchesData
-        .filter((match) => {
-          if (!match.countdown) return false;
-          const countdownTime = Date.parse(match.countdown);
-          return (
-            !isNaN(countdownTime) &&
-            countdownTime > oneHourAgo &&
-            match.creatorId === user.id // Chỉ lấy kèo của chính user tạo
-          );
-        });
+const filteredMatches = matchesData.filter((match) => {
+  if (!match.countdown) return false;
+  const countdownTime = Date.parse(match.countdown);
+  return (
+    !isNaN(countdownTime) &&
+    countdownTime > oneHourAgo &&
+    (user.level === 6 || match.creatorId === user.id)
+  );
+});
+
 
       setMatches(filteredMatches);
       setBets(betsData);
@@ -184,11 +193,12 @@ useEffect(() => {
   fetchData();
 }, []);
 
-const isUserLevel5 = () => {
+const isUserLevel5OrAdmin = () => {
   const userData = localStorage.getItem("SEPuser");
   const user = userData ? JSON.parse(userData) : null;
-  return user?.level === 5;
+  return user && (user.level === 5 || user.level === 6);
 };
+
 
 
 
@@ -273,7 +283,7 @@ const getRemainingProcessingTime = (matchId) => {
 
 
   const isUserMatchCreator = (match) => {
-    return match.creatorId?.toString() === currentUserId?.toString();
+  return match.creatorId?.toString() === currentUserId?.toString() || userInfo?.level === 6;
   };
 
 const handleDecideResult = async () => {
@@ -285,7 +295,7 @@ const handleDecideResult = async () => {
     toast.warn("Please select the winning team.");
     return;
   }
-  if (!isUserMatchCreator(selectedMatch)) {
+  if (!isUserMatchCreator(selectedMatch) && userInfo?.level !== 6) {
     toast.error("Chỉ người tạo kèo mới được phân định kết quả.");
     return;
   }
@@ -515,7 +525,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
                 alignItems: "center",
               }}
               onClick={() => {
-                if (!finalized && isCreator) {
+                  if (!finalized && (isCreator || userInfo.level === 6)) {
                   setSelectedMatch(match);
                   setWinningTeam("");
                 } else if (!isCreator) {
@@ -560,7 +570,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <select
-            disabled={!selectedMatch || isResultFinalized(selectedMatch) || !isUserMatchCreator(selectedMatch)}
+            disabled={!selectedMatch || isResultFinalized(selectedMatch) || (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6)}
             value={winningTeam}
             onChange={(e) => setWinningTeam(e.target.value)}
             style={{
@@ -584,14 +594,14 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
 
 <button
   onClick={handleDecideResult}
-  disabled={
-    loading ||
-    !selectedMatch ||
-    !winningTeam ||
-    isResultFinalized(selectedMatch) ||
-    !isUserMatchCreator(selectedMatch) ||
-    !isUserLevel5() // 🔐 kiểm tra thêm quyền
-  }
+disabled={
+  loading ||
+  !selectedMatch ||
+  !winningTeam ||
+  isResultFinalized(selectedMatch) ||
+  (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6) ||
+  !isUserLevel5OrAdmin()
+}
   style={{
     backgroundColor: "#ff7043",
     border: "none",
@@ -605,7 +615,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
       !winningTeam ||
       isResultFinalized(selectedMatch) ||
       !isUserMatchCreator(selectedMatch) ||
-      !isUserLevel5() // 🔐 cho cursor
+      !isUserLevel5OrAdmin() // 🔐 cho cursor
     )
       ? "not-allowed"
       : "pointer",

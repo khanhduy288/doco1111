@@ -23,8 +23,9 @@ const Menu = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const settledMatchIds = useRef([]); 
   const [systemMessage, setSystemMessage] = useState('Loading...');
-    const [creatorInfo, setCreatorInfo] = useState({ name: "", level: "" });
-
+  const [creatorInfo, setCreatorInfo] = useState({ name: "", level: "" });
+  const [userInfo, setUserInfo] = useState(null);
+  
   const [form, setForm] = useState({
     name: "",
     team1: "",
@@ -158,7 +159,24 @@ const member = JSON.parse(localStorage.getItem("SEPuser"));
 };
 
 
+  useEffect(() => {
+    // Khi component mount, kiểm tra kích thước màn hình
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        // màn hình desktop (tùy chỉnh ngưỡng 768px)
+        setSidebarOpen(true);
+      } else {
+        // màn hình điện thoại
+        setSidebarOpen(false);
+      }
+    };
 
+    handleResize(); // chạy 1 lần khi mount
+
+    // (Không bắt buộc) nếu muốn menu tự động đóng mở khi resize window
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   
 
 useEffect(() => {
@@ -236,7 +254,6 @@ useEffect(() => {
 
 
 
-
 useEffect(() => {
   const checkForExpiredMatches = async () => {
     const nowTime = Date.now();
@@ -252,8 +269,25 @@ useEffect(() => {
     for (const match of expiredMatches) {
       try {
         const res = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet?matchId=${match.id}`);
+
+        if (!res.ok) {
+          // Nếu fetch lỗi (có thể 404), coi như trận hết countdown mà k có cược => xóa trận
+          setMatches((prev) => prev.filter((m) => m.id !== match.id));
+          settledMatchIds.current.push(match.id);
+          continue;
+        }
+
         const allBets = await res.json();
 
+        // Nếu hết countdown mà không có cược
+        if (allBets.length === 0) {
+          // Xóa trận khỏi danh sách
+          setMatches((prev) => prev.filter((m) => m.id !== match.id));
+          settledMatchIds.current.push(match.id);
+          continue;
+        }
+
+        // Tiếp tục xử lý refund nếu có cược như cũ
         const team1Bets = allBets.filter((b) => b.team === match.option1 && b.status === "pending");
         const team2Bets = allBets.filter((b) => b.team === match.option2 && b.status === "pending");
 
@@ -347,7 +381,8 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, [matches]);
+}, [matches, setMatches]); // nhớ thêm setMatches vào deps nếu bạn khai báo từ state
+
 
 
 const fetchCreatorInfo = async (creatorId) => {
@@ -589,39 +624,70 @@ const placeBet = async (matchId, team, rate, matchName) => {
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       {/* Nút toggle menu */}
-      {user && (
-        <button
-          className="sidebar-toggle-btn"
-          onClick={() => setSidebarOpen((v) => !v)}
-          aria-label={sidebarOpen ? "Đóng menu" : "Mở menu"}
-          title={sidebarOpen ? "Đóng menu" : "Mở menu"}
-        >
-          {sidebarOpen ? "×" : "☰"}
-        </button>
-      )}
+{user && (
+<button
+  className="sidebar-toggle-btn"
+  onClick={() => setSidebarOpen((v) => !v)}
+  aria-label={sidebarOpen ? "Đóng menu" : "Mở menu"}
+  title={sidebarOpen ? "Đóng menu" : "Mở menu"}
+  style={{
+    position: "fixed", // luôn luôn fixed
+    top: "90px",        // vị trí không đổi
+    right: "120px",
+    zIndex: 1100,
+    fontSize: "24px",
+    background: "transparent",
+    border: "none",
+    color: "orange",
+    cursor: "pointer",
+    transition: "transform 0.3s ease",
+  }}
+>
+  {sidebarOpen ? "×" : "☰"}
+</button>
+
+)}
+
 
       {/* Sidebar menu */}
-      {user && sidebarOpen && (
-        <nav className="sidebar-menu">
-          <h3>Menu</h3>
-          <ul>
-            <li>
-              <Button
-                type="primary"
-                block
-                onClick={() => setShowCreateBetForm((v) => !v)}
-              >
-                {showCreateBetForm ? "Open Create Form" : "Create Bet"}
-              </Button>
-            </li>
-            <li>
-              <Link to="/result">
-                <Button block>Result</Button>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      )}
+{user && sidebarOpen && (
+  <nav
+    className="sidebar-menu"
+    style={{
+      position: "fixed",
+      top: 100,
+      left: 0,
+      width: "220px",
+      height: "100vh",
+      backgroundColor: "#1e1e1e",
+      padding: "50px 20px 20px 20px", 
+      boxShadow: "2px 0 5px rgba(0,0,0,0.3)",
+      zIndex: 1000,
+      overflowY: "auto",
+      boxSizing: "border-box",
+      color: "#fff",
+    }}
+  >
+    <h3 style={{ marginTop: 0 }}>Menu</h3>
+    <ul style={{ listStyle: "none", padding: 0 }}>
+      <li style={{ marginBottom: "15px" }}>
+        <Button
+          type="primary"
+          block
+          onClick={() => setShowCreateBetForm((v) => !v)}
+        >
+          {showCreateBetForm ? "Open Create Form" : "Create Bet"}
+        </Button>
+      </li>
+      <li>
+        <Link to="/result">
+          <Button block>Result</Button>
+        </Link>
+      </li>
+    </ul>
+  </nav>
+)}
+
 
       <div
         className="home container"
@@ -731,13 +797,15 @@ const placeBet = async (matchId, team, rate, matchName) => {
   <span>
     {match.team1} vs {match.team2}
   </span>
-  <span>{formatCountdown(countdownMs)}</span>
   <div>
-    👤 {match.creator?.name || "Hidden"} - ⭐ {match.creator?.level || 0}
+    👤 {match.creator?.name || "Hidden"}{" "}
+    {Array(match.creator?.level || 0).fill("⭐").join(" ")} •
   </div>
   <div>
-    🏁 {match.winningTeam ? match.winningTeam : "In progress"}
+      🏆{match.winningTeam ? match.winningTeam : "  📡 LIVE"}
   </div>
+    <span>⏳{formatCountdown(countdownMs)}</span>
+
 </div>
 
 
@@ -831,7 +899,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
       );
     })}
   {matches.filter((m) => new Date(m.countdown).getTime() > now).length === 0 && (
-    <p>Không có kèo cược nào đang mở.</p>
+    <p>No match.</p>
   )}
 </div>
 

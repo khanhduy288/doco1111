@@ -262,6 +262,24 @@ h1 {
   text-decoration: underline;
 }
 
+.sidebar-toggle-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #333;
+  color: #fff;
+  font-size: 24px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #444;
+}
 
 
 @media (max-width: 768px) {

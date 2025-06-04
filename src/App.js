@@ -152,7 +152,7 @@ function App() {
             </Route>
 
             <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
+              <Route index element={<Menu />} />
               
               <Route path="/menu" element={<Menu />} />
               <Route path="/auction" element={<AuctionPage />} />

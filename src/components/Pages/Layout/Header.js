@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 import { CartContext } from "../Cart/CartContext.js";
 import { Modal, Button, Badge, notification } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
@@ -11,9 +12,10 @@ import { FaUser } from "react-icons/fa";
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
 
-const Header = () => {
+const Header = ({ onExtra }) => {
   const { cart, getTotalItems } = useContext(CartContext);
   const totalItems = getTotalItems();
+  const [currentAccount, setCurrentAccount] = useState(null);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
@@ -58,6 +60,24 @@ const Header = () => {
     navigate("/checkout", { state: { cart, showCart: true } });
   };
 
+    const connectWallet = async () => {
+      if (!window.ethereum) {
+        toast.error("Vui lòng cài đặt MetaMask để đặt cược!");
+        return;
+      }
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setCurrentAccount(accounts[0]);
+        toast.success("Kết nối ví thành công!");
+      } catch (err) {
+        toast.error("Kết nối ví thất bại");
+      }
+    };
+  
+
+
   const handleConnectWallet = async () => {
     if (window.ethereum) {
       try {
@@ -75,6 +95,7 @@ const Header = () => {
     }
   };
 
+  
   const handleDisconnectWallet = () => {
     setWalletAddress(null);
     notification.info({
@@ -308,44 +329,7 @@ const Header = () => {
 )}
 
 
-  {walletAddress ? (
-    <>
-      <span
-        className="nav-link"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          color: "#ccc",
-          fontSize: "16px"
-        }}
-      >
-        <FaUser size={20} style={{ marginRight: "6px", color: "orange" }} />
-        {truncateAddress(walletAddress)}
-      </span>
-      <LogoutOutlined
-        onClick={handleDisconnectWallet}
-        style={{
-          color: "red",
-          fontSize: "20px",
-          marginLeft: "10px",
-          cursor: "pointer"
-        }}
-        title="Disconnect Wallet"
-      />
-    </>
-  ) : (
-    <Button
-      type="primary"
-      onClick={handleConnectWallet}
-      style={{
-        backgroundColor: "#ff6600",
-        border: "none",
-        fontSize: "16px"
-      }}
-    >
-      Connect Wallet
-    </Button>
-  )}
+
 </div>
 
 

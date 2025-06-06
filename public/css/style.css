@@ -8347,7 +8347,7 @@ a.text-dark:hover, a.text-dark:focus {
     border-color: #dee2e6; } }
 
 body {
-  font-family: "Roboto", Arial, sans-serif;
+  font-family: 'Inter', 'Roboto', sans-serif !important;
   background: #fff;
   font-size: 16px;
   line-height: 2;
@@ -10002,5 +10002,5 @@ textarea.form-control {
     stroke-dasharray: 89, 200;
     stroke-dashoffset: -136px; } }
     * {
-      font-family: 'Roboto', sans-serif !important;
+      font-family: 'Inter', sans-serif !important;
     }

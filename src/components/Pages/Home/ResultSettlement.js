@@ -436,6 +436,16 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
   setLoading(false);
 };
 
+const oneHourAgo = Date.now() - 60 * 60 * 1000;
+const filteredMatches = matches.filter((match) => {
+  if (!match.countdown) return false;
+  const countdownTime = Date.parse(match.countdown);
+  return (
+    !isNaN(countdownTime) &&
+    countdownTime > oneHourAgo &&
+    (userInfo.level === 6 || match.creatorId === userInfo.id)
+  );
+});
 
 
 
@@ -472,7 +482,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
       </span>
       <button
         onClick={refreshUserInfo}
-        disabled={loading}
+        // disabled={loading}
         title="Refresh"
         style={{
           border: 'none',
@@ -499,7 +509,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
       {matches.length === 0 && <p>No active matches found.</p>}
 
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-        {matches.map((match) => {
+        {filteredMatches.map((match) => {
           const finalized = isResultFinalized(match);
           const isCreator = isUserMatchCreator(match);
 
@@ -518,19 +528,19 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
                 padding: "10px",
                 backgroundColor: selectedMatch?.id === match.id ? "#ff7043" : "#333",
                 borderRadius: "6px",
-                cursor: finalized || !isCreator ? "not-allowed" : "pointer",
+                cursor: !isCreator ? "not-allowed" : "pointer",
                 userSelect: "none",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
               onClick={() => {
-                  if (!finalized && (isCreator || userInfo.level === 6)) {
-                  setSelectedMatch(match);
-                  setWinningTeam("");
-                } else if (!isCreator) {
-                  toast.warn("Bạn không phải người tạo kèo này.");
-                }
+              if (isCreator || userInfo.level === 6) {
+              setSelectedMatch(match);
+              setWinningTeam("");
+              } else {
+              toast.warn("Bạn không phải người tạo kèo này.");
+              }
               }}
             >
               <div>
@@ -570,7 +580,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <select
-            disabled={!selectedMatch || isResultFinalized(selectedMatch) || (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6)}
+            disabled={!selectedMatch || (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6)}
             value={winningTeam}
             onChange={(e) => setWinningTeam(e.target.value)}
             style={{
@@ -598,7 +608,6 @@ disabled={
   loading ||
   !selectedMatch ||
   !winningTeam ||
-  isResultFinalized(selectedMatch) ||
   (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6) ||
   !isUserLevel5OrAdmin()
 }
@@ -617,7 +626,7 @@ disabled={
       !isUserMatchCreator(selectedMatch) ||
       !isUserLevel5OrAdmin() // 🔐 cho cursor
     )
-      ? "not-allowed"
+      ? "poin"
       : "pointer",
     borderRadius: "6px",
   }}

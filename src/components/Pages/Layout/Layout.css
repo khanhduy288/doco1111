@@ -1,13 +1,13 @@
 /* Font và nền tổng thể */
 body {
-  background-color: #121212;
+  background-color: #08080b;
   color: #ffffff;
   font-family: 'Poppins', sans-serif;
 }
 
 /* Container */
 .container {
-  background: #121212 !important;
+  background: #08080b !important;
   color: #ffffff !important;
   padding: 0 !important;
   margin: 0 auto;
@@ -20,7 +20,7 @@ body {
   top: 0;
   width: 100%;
   z-index: 1000;
-  background-color: #1e1e1e !important;
+  background-color: #08080b !important;
   border-bottom: 1px solid #333;
 }
 
@@ -104,7 +104,7 @@ body {
 /* Modal */
 .modal-content,
 Modal {
-  background-color: #1e1e1e !important;
+  background-color: #08080b !important;
   color: #ffffff !important;
   width: 600px;
 }
@@ -126,7 +126,7 @@ Modal {
 
 /* Footer */
 .ftco-footer {
-  background-color: #1e1e1e;
+  background-color: #08080b;
   color: #fff;
 }
 
@@ -161,7 +161,7 @@ footer .bg-secondary {
 
 footer .container {
   max-width: 1200px;
-  background-color: #121212 !important;
+  background-color: #08080b !important;
   color: #ffffff !important;
 }
 
@@ -192,7 +192,7 @@ footer .text-center p {
   margin-top: 0;
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  background-color: #1e1e1e;
+  background-color: #08080b;
 }
 
 .dropdown-menu .dropdown-item {

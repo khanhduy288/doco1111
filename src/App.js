@@ -19,10 +19,6 @@ import AllRestaurant from "./components/Pages/Role/AdminRole/Pages/AllRestaurant
 import AllArea from "./components/Pages/Role/AdminRole/Pages/AllArea.js";
 import AllTable from "./components/Pages/Role/AdminRole/Pages/AllTable.js";
 import AllBlogs from "./components/Pages/Role/AdminRole/Pages/AllBlog.js";
-import WaiterLayout from "./components/Pages/Role/WaiterRole/Layout/WaiterLayout.js";
-import ListReservationWaiter from "./components/Pages/Role/WaiterRole/Pages/ListReservationWaiter.js";
-import AcceptstateWaiter from "./components/Pages/Role/WaiterRole/Pages/AcceptStateWaiter.js";
-import ChooseDish from "./components/Pages/Role/WaiterRole/Pages/ChooseDish.js";
 import ListReservationReceptionist from "./components/Pages/Role/ReceptionistRole/Pages/ListReservationReceptionist.js";
 import Waitstate from "./components/Pages/Role/ReceptionistRole/Pages/Waitstate.js";
 import ArrangeTable from "./components/Pages/Role/ReceptionistRole/Pages/ArrangeTable.js";
@@ -47,7 +43,6 @@ import NotFound from "./components/Pages/Shared/NotFound.js";
 import AdminProfile from "./components/Pages/Role/AdminRole/Pages/AdminProfile.js";
 import OwnerProfile from "./components/Pages/Role/OwnerRole/Pages/OwnerProfile.js";
 import ReceptionistProfile from "./components/Pages/Role/ReceptionistRole/Pages/ReceptionistProfile.js";
-import WaiterProfile from "./components/Pages/Role/WaiterRole/Pages/WaiterProfile.js";
 import AllStaff from "./components/Pages/Role/AdminRole/Pages/AllStaff.js";
 import AllCustomer from "./components/Pages/Role/AdminRole/Pages/AllCustomer.js";
 import OwnerDetailReservation from "./components/Pages/Role/OwnerRole/Pages/OwnerDetailReservation.js";
@@ -55,7 +50,6 @@ import AdminChangePassword from "./components/Pages/Role/AdminRole/Pages/AdminCh
 import ManagerChangePassword from "./components/Pages/Role/ManagerRole/Pages/ManagerChangePassword.js";
 import OwnerChangePassword from "./components/Pages/Role/OwnerRole/Pages/OwnerChangePassword.js";
 import ReceptionistChangePassword from "./components/Pages/Role/ReceptionistRole/Pages/ReceptionistChangePassword.js";
-import WaiterChangePassword from "./components/Pages/Role/WaiterRole/Pages/WaiterChangePassword.js";
 import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
 import RevenuePage from "./components/Pages/Home/RevenuePage.js";
 import History from "./components/Pages/Home/History.js";
@@ -74,7 +68,6 @@ function App() {
   const ProtectedReceptionistLayout = withAuth(["Receptionist"])(
     ReceptionistLayout
   );
-  const ProtectedWaiterLayout = withAuth(["Waiter"])(WaiterLayout);
   const ProtectedOwnerLayout = withAuth(["Owner"])(OwnerLayout);
   const ProtectedCustomerLayout = withAuth(["Customer"])(CustomerLayout);
   return (
@@ -132,13 +125,6 @@ function App() {
               <Route path="changepw" element={<ReceptionistChangePassword />} />
             </Route>
 
-            <Route path="/waiter" element={<ProtectedWaiterLayout />}>
-              <Route index element={<ListReservationWaiter />} />
-              <Route path="acceptstate/:id" element={<AcceptstateWaiter />} />
-              <Route path="choosedish/:id" element={<ChooseDish />} />
-              <Route path="profile" element={<WaiterProfile />} />
-              <Route path="changepw" element={<WaiterChangePassword />} />
-            </Route>
 
             <Route path="/owner" element={<ProtectedOwnerLayout />}>
               <Route path="/owner" element={<OwnerDashboard />} />
@@ -153,7 +139,6 @@ function App() {
 
             <Route path="/" element={<Layout />}>
               <Route index element={<Menu />} />
-              
               <Route path="/menu" element={<Menu />} />
               <Route path="/auction" element={<AuctionPage />} />
               <Route path="/auction/:id" element={<AuctionPage />} />

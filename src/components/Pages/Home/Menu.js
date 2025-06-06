@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
+import Header from '../Layout/Header';  // phải import Header mới dùng được
+import { SiBinance } from 'react-icons/si';
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, Row, Col } from "antd";
@@ -25,7 +28,14 @@ const Menu = () => {
   const [systemMessage, setSystemMessage] = useState('Loading...');
   const [creatorInfo, setCreatorInfo] = useState({ name: "", level: "" });
   const [userInfo, setUserInfo] = useState(null);
-  
+  const [activeOption, setActiveOption] = React.useState(null); // lưu option đang đặt cược (team hoặc id)
+  const [updateTick, setUpdateTick] = React.useState(0);
+  const [tab, setTab] = useState("live");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [showTabMenu, setShowTabMenu] = useState(false);  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
   const [form, setForm] = useState({
     name: "",
     team1: "",
@@ -53,7 +63,9 @@ const Menu = () => {
 
   }, []);
 
-  
+  const forceUpdate = () => {
+  setUpdateTick(prev => prev + 1);
+};
   
 
 
@@ -194,7 +206,6 @@ useEffect(() => {
 
       setMatches(enrichedMatches);
     } catch (err) {
-      toast.error("Lỗi tải dữ liệu trận đấu");
     }
   };
 
@@ -233,7 +244,9 @@ useEffect(() => {
       .then((bets) => {
         setBetsByMatchId(prev => ({ ...prev, [expandedMatchId]: bets }));
       })
-      .catch(() => toast.error("Lỗi tải dữ liệu cược"));
+       .catch(() => {
+        // Bỏ qua lỗi, không hiện toast, không làm gì
+      });
   }
 }, [expandedMatchId]);
 
@@ -387,14 +400,22 @@ useEffect(() => {
 
 const fetchCreatorInfo = async (creatorId) => {
   try {
-    const res = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`);
+    const res = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
+      headers: {
+        'x-secret-key': 'adminsepuser'
+      }
+    });
+
+    if (!res.ok) throw new Error("Không lấy được dữ liệu");
+
     const data = await res.json();
     return { name: data.fullName, level: data.level };
   } catch (err) {
     console.error("Lỗi lấy thông tin người tạo:", err);
-    return { name: "Không rõ", level: 0 };
+    return { name: "", level: 0 };
   }
 };
+
 
 
 
@@ -617,76 +638,69 @@ const placeBet = async (matchId, team, rate, matchName) => {
 
   setBettingLoading(false);
   console.log("Đặt cược vào trận:", matchName);
+    forceUpdate(); // ép render lại
 
 };
+
+
+const filteredMatches = matches.filter(match => {
+  const countdownTime = new Date(match.countdown).getTime();
+
+  if (tab === "live") {
+    return countdownTime > now;
+  } else if (tab === "history") {
+    return countdownTime <= now && countdownTime >= startOfDay.getTime() && countdownTime <= endOfDay.getTime();
+  }
+  return false;
+});
+
 
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       {/* Nút toggle menu */}
-{user && (
-<button
-  className="sidebar-toggle-btn"
-  onClick={() => setSidebarOpen((v) => !v)}
-  aria-label={sidebarOpen ? "Đóng menu" : "Mở menu"}
-  title={sidebarOpen ? "Đóng menu" : "Mở menu"}
-  style={{
-    position: "fixed", // luôn luôn fixed
-    top: "90px",        // vị trí không đổi
-    right: "120px",
-    zIndex: 1100,
-    fontSize: "24px",
-    background: "transparent",
-    border: "none",
-    color: "orange",
-    cursor: "pointer",
-    transition: "transform 0.3s ease",
-  }}
->
-  {sidebarOpen ? "×" : "☰"}
-</button>
 
-)}
 
 
       {/* Sidebar menu */}
-{user && sidebarOpen && (
-  <nav
-    className="sidebar-menu"
-    style={{
-      position: "fixed",
-      top: 100,
-      left: 0,
-      width: "220px",
-      height: "100vh",
-      backgroundColor: "#1e1e1e",
-      padding: "50px 20px 20px 20px", 
-      boxShadow: "2px 0 5px rgba(0,0,0,0.3)",
-      zIndex: 1000,
-      overflowY: "auto",
-      boxSizing: "border-box",
-      color: "#fff",
-    }}
-  >
-    <h3 style={{ marginTop: 0 }}>Menu</h3>
-    <ul style={{ listStyle: "none", padding: 0 }}>
-      <li style={{ marginBottom: "15px" }}>
-        <Button
-          type="primary"
-          block
-          onClick={() => setShowCreateBetForm((v) => !v)}
-        >
-          {showCreateBetForm ? "Open Create Form" : "Create Bet"}
-        </Button>
-      </li>
-      <li>
-        <Link to="/result">
-          <Button block>Result</Button>
-        </Link>
-      </li>
-    </ul>
-  </nav>
-)}
+
+<div
+  style={{
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingRight: '20px',
+  }}
+>
+  {!currentAccount ? (
+    <button className="wallet-btn" onClick={connectWallet}>
+      Connect Wallet
+    </button>
+  ) : (
+    <div
+      className="wallet-display"
+      title={currentAccount} // hiển thị toàn bộ địa chỉ khi hover
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        backgroundColor: '#1b1b21',
+        padding: '8px 12px',
+        borderRadius: '8px',
+        boxShadow: '0 0 5px rgba(0,0,0,0.1)',
+        cursor: 'default',
+        color:"#00bcd4",
+        marginTop:"10px"
+      }}
+    >
+      <SiBinance size={20} color="#F3BA2F" />
+      <span>
+        {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
+      </span>
+    </div>
+  )}
+</div>
+
 
 
       <div
@@ -768,131 +782,326 @@ const placeBet = async (matchId, team, rate, matchName) => {
         <strong>Exclusive Offer:</strong> Get up to 5% bonus as a member!
       </a>
     </div>
-  {!currentAccount ? (
-    <button className="wallet-btn" onClick={connectWallet}>
-      Kết nối ví MetaMask
+
+  
+<div className="header-container">
+  <div className="header-title">
+    <h1>List Board</h1>
+  </div>
+  <div className="header-row">
+<div className="left-buttons">
+  {/* + Board */}
+  <div className="tooltip-wrapper">
+    <button
+      onClick={() => setShowCreateBetForm(v => !v)}
+      className="header-btn"
+    >
+      <span className="plus-icon">✛</span>
+      <span style={{ fontWeight: "bold" }}>Board</span>
     </button>
-  ) : (
-    <p>Đã kết nối ví: {currentAccount}</p>
-  )}
-
-  <h1 style={{ textAlign: "center", color: "#007bff", fontSize: "2rem", marginBottom: "20px" }}>
-    List Bet
-  </h1>
-
-  {matches
-    .filter((match) => new Date(match.countdown).getTime() > now)
-    .map((match) => {
-      const countdownMs = new Date(match.countdown).getTime() - now;
-
-      return (
-        <div
-          key={match.id}
-          className="match-card"
-          onClick={() =>
-            setExpandedMatchId(expandedMatchId === match.id ? null : match.id)
-          }
-        >
-<div className="match-header">
-  <span>
-    {match.team1} vs {match.team2}
-  </span>
-  <div>
-    👤 {match.creator?.name || "Hidden"}{" "}
-    {Array(match.creator?.level || 0).fill("⭐").join(" ")} •
+    <div className="tooltip-text">Create a new betting board</div>
   </div>
-  <div>
-      🏆{match.winningTeam ? match.winningTeam : "  📡 LIVE"}
+
+  {/* ⓘ Result */}
+  <div className="tooltip-wrapper">
+    <button
+      onClick={() => (window.location.href = "/result")}
+      className="header-btn"
+    >
+      ⓘ Result
+    </button>
+    <div className="tooltip-text">Only available for 5-star accounts</div>
   </div>
-    <span>⏳{formatCountdown(countdownMs)}</span>
+
+  {/* 🔍 Search Input */}
+<input
+  type="text"
+  className="search-input"
+  placeholder="🔍 Search..."
+  // onChange={(e) => handleSearch(e.target.value)}
+/>
+
 
 </div>
 
+    <div className="tab-menu-wrapper" style={{ position: "relative" }}>
+      <button
+        className="tab-toggle-btn"
+        onClick={() => setShowTabMenu(prev => !prev)}
+      >
+        ⋮
+      </button>
+      {showTabMenu && (
+        <div className="tab-menu">
+          <button
+            onClick={() => {
+              setTab("live");
+              setShowTabMenu(false);
+            }}
+            className={`tab-item ${tab === "live" ? "active" : ""}`}
+          >
+            Live
+          </button>
+          <button
+            onClick={() => {
+              setTab("history");
+              setShowTabMenu(false);
+            }}
+            className={`tab-item ${tab === "history" ? "active" : ""}`}
+          >
+            History
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+
+
+ 
+
+
+ {matches
+      .filter((match) => {
+        const matchTime = new Date(match.countdown).getTime();
+        if (tab === "live") return matchTime > now;
+        if (tab === "history") return matchTime <= now;
+        return true; // fallback
+      })
+      .map((match) => {
+        const countdownMs = new Date(match.countdown).getTime() - now;
+        const isExpandable = tab === "live"; // chỉ live mới cho mở rộng
+
+        return (
+       <div
+            key={match.id}
+            className="match-card"
+            onClick={() => {
+              if (isExpandable) {
+                setExpandedMatchId(
+                  expandedMatchId === match.id ? null : match.id
+                );
+              }
+            }}
+          >
+
+
+<div
+  style={{
+    position: "relative",
+    backgroundColor: "#1b1b21",
+    color: "white",
+    padding: "36px 20px 16px",
+    borderRadius: "10px",
+    fontFamily: "'Inter', sans-serif",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+    textAlign: "center",
+    borderLeft: "5px solid #00bcd4",
+  }}
+>
+  {/* Creator info (top-left badge) */}
+  <div
+    style={{
+      position: "absolute",
+      top: 6,
+      left: 10,
+      fontSize: 11,
+      backgroundColor: "rgba(0, 0, 0, 0.6)",
+      padding: "3px 6px",
+      borderRadius: 5,
+      opacity: 0.85,
+    }}
+  >
+    👤 {match.creator?.name || "Hidden"}{" "}
+    {Array(match.creator?.level || 0).fill("⭐").join(" ")}
+  </div>
+
+  {/* Match status (top-right badge) */}
+  <div
+    style={{
+      position: "absolute",
+      top: 6,
+      right: 10,
+      fontSize: 11,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      padding: "3px 6px",
+      borderRadius: 5,
+      opacity: 0.85,
+    }}
+  >
+    🏆 {match.winningTeam ? match.winningTeam : "📡 LIVE"}
+  </div>
+
+  {/* Countdown (center-top above match) */}
+  <div
+    style={{
+      position: "absolute",
+      top: 8,
+      left: "50%",
+      transform: "translateX(-50%)",
+      fontSize: 12,
+      color: "#f1c40f",
+      backgroundColor: "rgba(0,0,0,0.4)",
+      padding: "2px 10px",
+      borderRadius: 5,
+    }}
+  >
+    ⏳ {formatCountdown(countdownMs)}
+  </div>
+
+  {/* Team names + video buttons + VS */}
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      fontSize: 22,
+      fontWeight: 700,
+      padding: "8px 0",
+      marginTop: 8,
+      gap: 40,
+    }}
+  >
+    <div style={{ flex: 1, textAlign: "right", fontSize: 24, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6 }}>
+      <button
+        onClick={() => window.open(match.iframe.split(",")[0]?.trim() || "#", "_blank")}
+        style={{
+          padding: "2px 6px",
+          fontSize: 12,
+          borderRadius: 4,
+          border: "1px solid #007bff",
+          backgroundColor: "transparent",
+          color: "#7cbfe9",
+          cursor: "pointer",
+        }}
+        title="Xem livestream đội 1"
+      >
+        🔴 LIVE
+      </button>
+      {match.team1}
+    </div>
+
+    <span
+      style={{
+        flex: 0,
+        padding: "0 12px",
+        fontSize: 20,
+        fontWeight: 700,
+        color: "#f39c12",
+        textTransform: "uppercase",
+        letterSpacing: "1px",
+      }}
+    >
+      𝗩𝗦
+    </span>
+
+    <div style={{ flex: 1, textAlign: "left", fontSize: 24, display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 6 }}>
+      {match.team2}
+      <button
+        onClick={() => window.open(match.iframe.split(",")[1]?.trim() || "#", "_blank")}
+        style={{
+          padding: "2px 6px",
+          fontSize: 12,
+          borderRadius: 4,
+          border: "1px solid #007bff",
+          backgroundColor: "transparent",
+          color: "#7cbfe9",
+          cursor: "pointer",
+        }}
+        title="Xem livestream đội 2"
+      >
+        🔴 LIVE
+      </button>
+    </div>
+  </div>
+</div>
 
 
 {expandedMatchId === match.id && (
   <div className="bet-options" onClick={(e) => e.stopPropagation()}>
-    {/* Phần nút chuyển hướng thay cho video */}
-    {match.iframe && (
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
-          flexWrap: "wrap"
-        }}
-      >
-        {match.iframe.split(",").map((link, i) => (
+    <div className="bet-row">
+      {[
+        { team: match.option1, rate: match.rate1, sum: match.sum1, name: match.team1 },
+        { team: match.option2, rate: match.rate2, sum: match.sum2, name: match.team2 }
+      ].map((option, idx) => (
+        <div key={idx} className="bet-column">
+
           <button
-            className="view-video-btn"
-            key={i}
-            style={{
-              padding: "10px 20px",
-              cursor: "pointer",
-              borderRadius: "6px",
-              border: "1px solid #007bff",
-              backgroundColor: "#007bff",
-              color: "white",
-              flex: "1",
-              minWidth: "150px"
+            disabled={bettingLoading}
+            className="bet-btn"
+            onClick={() => {
+              // Khi bấm Board này, bật input cho option đó
+              setActiveOption(option.team);
+              setBetAmount(""); // reset số tiền mỗi lần bấm board khác
             }}
-            onClick={() => window.open(link.trim(), "_blank")}
           >
-            Link {i + 1}
+            Board {option.name}
+            <div className="bet-rate"> Rate {option.rate}, min 5 USDT</div>
           </button>
-        ))}
-      </div>
-    )}
 
-    {/* Phần cược như cũ */}
-<div className="bet-row">
-  {[
-    { team: match.option1, rate: match.rate1, sum: match.sum1 },
-    { team: match.option2, rate: match.rate2, sum: match.sum2 }
-  ].map((option, idx) => (
-    <div key={idx} className="bet-column">
-      <button
-        disabled={bettingLoading}
-        className="bet-btn"
-        onClick={() =>
-          placeBet(match.id, option.team, option.rate, match.name) // 👈 thêm match.name vào đây
-        }
-      >
-        Bet on {option.team} ({option.rate})
-      </button>
-      <div className="bet-sum">
-        Total bet: <strong>{Number(option.sum || 0).toFixed(3)} USDT</strong>
-      </div>
+          <div className="bet-sum">
+            Total bet: <strong>{Number(option.sum || 0).toFixed(3)} USDT</strong>
+          </div>
 
-      <div className="bet-list">
-        {allBets
-          .filter(
-            (bet) =>
-              bet.matchId === match.id.toString() &&
-              bet.team === option.team
-          )
-          .map((bet, index) => (
-            <div key={index} className="bet-item">
-              <span>{bet.amount} {bet.token}</span>
-              <span className="wallet">{bet.userWallet.slice(0, 6)}...</span>
-            </div>
-          ))}
-      </div>
-    </div>
-  ))}
-</div>
+          <div className="bet-list">
+            {allBets
+              .filter(
+                (bet) =>
+                  bet.matchId === match.id.toString() &&
+                  bet.team === option.team
+              )
+              .map((bet, index) => (
+                <div key={index} className="bet-item">
+                  <span>{bet.amount} {bet.token}</span>
+                  <span className="wallet">{bet.userWallet.slice(0, 6)}...</span>
+                </div>
+              ))}
+          </div>
 
-
+          {/* Hiện input + nút OK chỉ khi option đang active */}
+{activeOption === option.team && (
+  <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
     <input
       type="number"
       step="0.001"
-      min="0.001"
+      min="5"
       className="bet-input"
-      placeholder="Enter bet amount (USDT)"
+      placeholder="Enter bet amount (min 5 USDT)"
       value={betAmount}
       onChange={(e) => setBetAmount(e.target.value)}
       disabled={bettingLoading}
+      style={{ flexGrow: 1 }}
     />
+<button
+  disabled={bettingLoading || !betAmount || Number(betAmount) < 5}
+  onClick={() => {
+    placeBet(match.id, option.team, option.rate, match.name, betAmount);
+    setActiveOption(null);
+    setBetAmount("");
+  }}
+  className={`button-ok ${
+    Number(betAmount) >= 0.01 ? "active" : "disabled"
+  }`}
+>
+  OK
+</button>
+
+    <button
+      onClick={() => {
+        setActiveOption(null);
+        setBetAmount("");
+      }}
+      style={{ padding: "6px 12px", backgroundColor: "#1a2b3a" }}
+    >
+      X
+    </button>
+  </div>
+)}
+
+        </div>
+      ))}
+    </div>
   </div>
 )}
         </div>

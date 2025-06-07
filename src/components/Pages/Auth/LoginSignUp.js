@@ -29,20 +29,39 @@ const LoginSignup = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (auth && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: (response) => {
-            console.log("reCAPTCHA solved:", response);
+useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios
+        .get("https://berendersepuser.onrender.com/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        }
-      );
+        })
+        .then((res) => {
+          const user = res.data.user;
+          if (!user) {
+            // Token invalid, xóa token và user
+            localStorage.removeItem("token");
+            localStorage.removeItem("SEPuser");
+          } else {
+            // Lưu user mới nhất
+            localStorage.setItem("SEPuser", JSON.stringify(user));
+            // Redirect theo role + status
+            if (user.level === 0) {
+              navigate("/Dashboardmember");
+            } else if (user.status !== "approved") {
+              navigate("/");
+            }
+          }
+        })
+        .catch(() => {
+          // Xóa token và user khi lỗi
+          localStorage.removeItem("token");
+          localStorage.removeItem("SEPuser");
+        });
     }
-  }, []);
+  }, [navigate]);
 
   const resetRecaptcha = () => {
     if (window.recaptchaVerifier) {
@@ -127,83 +146,69 @@ const LoginSignup = () => {
     return null;
   };
 
-const handleLogin = async (event) => {
-  event.preventDefault();
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
-  if (!username) {
-    toast.error("Tên đăng nhập không được để trống.");
-    return;
-  }
+    // validate username + password như hiện tại
 
-  const passwordError = validatePassword(password);
-  if (passwordError) {
-    toast.error(passwordError);
-    return;
-  }
+    try {
+      const loginResponse = await axios.post(
+        "https://berendersepuser.onrender.com/login", // sửa URL backend khi deploy
+        { username, password }
+      );
 
-  try {
-    // Gọi cả hai API
-    const [adminRes, userRes] = await Promise.all([
-      axios.get("https://6437c88f0c58d3b14579192a.mockapi.io/api/tour/login"),
-      axios.get("https://65682fed9927836bd9743814.mockapi.io/api/singup/signup")
-    ]);
+      const { user, token } = loginResponse.data;
 
-    const adminUsers = adminRes.data;
-    const normalUsers = userRes.data;
+      if (!user || !token) {
+        toast.error("Invalid response from server.");
+        return;
+      }
 
-    // Kiểm tra tài khoản admin
-    const admin = adminUsers.find(
-      (u) =>
-        (u.userName === username || u.username === username) &&
-        u.password === password
-    );
+      // Lưu token
+      localStorage.setItem("token", token);
 
-    if (admin) {
-      localStorage.setItem("SEPuser", JSON.stringify(admin));
+      // Gọi /me lấy user mới nhất
+      const meRes = await axios.get("https://berendersepuser.onrender.com/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const meUser = meRes.data.user;
+
+      if (!meUser) {
+        toast.error("User info not found.");
+        localStorage.removeItem("token");
+        return;
+      }
+
+      // Lưu user info
+      localStorage.setItem("SEPuser", JSON.stringify(meUser));
+
       if (rememberMe) {
         localStorage.setItem("rememberedUsername", username);
       } else {
         localStorage.removeItem("rememberedUsername");
       }
-      toast.success("Đăng nhập thành công (Admin)!");
-      navigate("/dashboard");
-      return;
-    }
 
-    // Kiểm tra tài khoản người dùng thường
-    const user = normalUsers.find(
-      (u) =>
-        (u.userName === username || u.username === username || u.email === username) &&
-        u.passWord === password
-    );
-
-    if (user) {
-      if (user.status !== "approvedd") {
-        // Lưu user và token (nếu có) vào localStorage
-        localStorage.setItem("SEPuser", JSON.stringify(user));
-        if (user.token) {
-          localStorage.setItem("token", user.token);
-        }
-
-        if (rememberMe) {
-          localStorage.setItem("rememberedUsername", username);
-        } else {
-          localStorage.removeItem("rememberedUsername");
-        }
-
-        toast.success("Đăng nhập thành công (Thành viên)!");
-        navigate("/"); // Chuyển về trang chủ
+      if (meUser.level === 0) {
+        toast.success("Login successful (Admin)!");
+        navigate("/Dashboardmember");
+      } else if (meUser.status !== "approved") {
+        toast.success("Login successful!");
+        navigate("/");
       } else {
-        toast.error("Tài khoản của bạn chưa được phê duyệt.");
+        toast.error("Your account is not approved yet.");
       }
-    } else {
-      toast.error("Tên đăng nhập hoặc mật khẩu không đúng.");
+    } catch (error) {
+      console.error("Login failed:", error);
+      toast.error(
+        error.response?.data?.message || "Login failed. Please try again later."
+      );
     }
-  } catch (error) {
-    console.error("Login failed:", error);
-    toast.error("Lỗi khi đăng nhập. Vui lòng thử lại sau.");
-  }
-};
+  };
+
+
 
 
   
@@ -257,7 +262,7 @@ const handleSignup = async (event) => {
   try {
     // Check if username already exists
     const checkResponse = await axios.get(
-      `https://65682fed9927836bd9743814.mockapi.io/api/singup/signup`
+      `https://berendersepuser.onrender.com/users`
     );
 
     const existingUser = checkResponse.data.find(
@@ -271,7 +276,7 @@ const handleSignup = async (event) => {
 
     // Send signup data to API
     const registerResponse = await axios.post(
-      'https://65682fed9927836bd9743814.mockapi.io/api/singup/signup',
+      'https://berendersepuser.onrender.com/users',
       dataToSend
     );
 

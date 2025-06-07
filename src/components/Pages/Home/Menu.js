@@ -1064,7 +1064,6 @@ const rounds = [
             }}
           >
 
-
 <div
   id={"tft" + match.id}
   style={{
@@ -1175,6 +1174,13 @@ const rounds = [
         🔴 LIVE
       </button>
       {match.team1}
+      {match.winningTeam?.toLowerCase().includes(match.team1.toLowerCase()) && (
+        <span
+          style={{ color: "#4caf50", fontSize: 14, marginLeft: 6, fontWeight: "bold" }}
+        >
+          🏆 Win
+        </span>
+      )}
     </div>
 
     <span
@@ -1203,6 +1209,13 @@ const rounds = [
       }}
     >
       {match.team2}
+      {match.winningTeam?.toLowerCase().includes(match.team2.toLowerCase()) && (
+        <span
+          style={{ color: "#4caf50", fontSize: 14, marginLeft: 6, fontWeight: "bold" }}
+        >
+          🏆 Win
+        </span>
+      )}
       <button
         onClick={() =>
           window.open(match.iframe.split(",")[1]?.trim() || "#", "_blank")
@@ -1238,6 +1251,7 @@ const rounds = [
     ID: tft{match.id}
   </div>
 </div>
+
 
 
 

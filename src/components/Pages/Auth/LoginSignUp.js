@@ -211,75 +211,84 @@ const handleLogin = async (event) => {
 const handleSignup = async (event) => {
   event.preventDefault();
 
-  // Kiểm tra số điện thoại hợp lệ
+  // Validate phone number length (10 characters)
   if (signupData.phoneNumber.length !== 10) {
-    toast.error("Số điện thoại phải có 10 ký tự.");
+    toast.error("Phone number must be 10 characters.");
     return;
   }
 
-  // Kiểm tra mật khẩu hợp lệ
+  // Validate wallet address (basic check for length 42 and starts with 0x)
+  if (!signupData.walletAddress || !/^0x[a-fA-F0-9]{40}$/.test(signupData.walletAddress)) {
+    toast.error("Invalid wallet address format.");
+    return;
+  }
+
+  // Validate password rules (assume you have validatePassword function)
   const passwordError = validatePassword(signupData.passWord);
   if (passwordError) {
     toast.error(passwordError);
     return;
   }
 
-  // Kiểm tra xác nhận mật khẩu
+  // Confirm password match
   if (signupData.passWord !== confirmPassword) {
-    toast.error("Mật khẩu và xác nhận mật khẩu không khớp.");
+    toast.error("Password and confirm password do not match.");
     return;
   }
 
-  // Kiểm tra định dạng email
+  // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(signupData.email)) {
-    toast.error("Định dạng email không hợp lệ.");
+    toast.error("Invalid email format.");
     return;
   }
 
-  // Thêm trường dob với ngày thực hiện đăng ký
-  const currentDate = new Date().toISOString(); // Định dạng ngày tháng theo ISO
+  // Add dob (date of signup) in ISO format
+  const currentDate = new Date().toISOString();
 
-  // Thêm dob vào dữ liệu đăng ký
-  const signupDataWithDob = { 
+  // Compose data to send with balance and level
+  const dataToSend = {
     ...signupData,
-    dob: currentDate 
+    dob: currentDate,
+    balance: "0",
+    level: "1",
   };
 
   try {
-    // Kiểm tra username và email đã tồn tại chưa
+    // Check if username already exists
     const checkResponse = await axios.get(
       `https://65682fed9927836bd9743814.mockapi.io/api/singup/signup`
     );
 
-    // Kiểm tra xem userName đã tồn tại chưa
     const existingUser = checkResponse.data.find(
       (user) => user.userName === signupData.userName
     );
 
     if (existingUser) {
-      toast.error("Tên đăng nhập đã được sử dụng.");
+      toast.error("Username is already taken.");
       return;
     }
 
-    // Gửi dữ liệu đăng ký đến API khác
+    // Send signup data to API
     const registerResponse = await axios.post(
       'https://65682fed9927836bd9743814.mockapi.io/api/singup/signup',
-      signupDataWithDob
+      dataToSend
     );
 
     if (registerResponse.status === 200 || registerResponse.status === 201) {
-      toast.success("Đăng ký thành công! Vui lòng chờ xét duyệt.");
+      toast.success("Registration successful! Please wait for approval.");
+      // Optionally reset form or redirect here
     } else {
-      toast.error("Đăng ký không thành công. Vui lòng thử lại.");
+      toast.error("Registration failed. Please try again.");
     }
   } catch (error) {
-    console.error("Lỗi trong quá trình đăng ký:", error);
+    console.error("Error during registration:", error);
     toast.error(
-      error.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau."
+      error.response?.data?.message || "An error occurred. Please try again later."
     );
   }
 };
+
 
 
   const handleVerifyOtp = async (event) => {
@@ -376,257 +385,277 @@ const handleSignup = async (event) => {
       });
   };
 
-  return (
-    <div className="login-signUp">
-      <ToastContainer />
-      <div className="wrapper">
-        <Link to="/" className="">
-          Back home
-        </Link>
-        <div className="form-container">
-          <div className="slide-controls">
-            <input
-              type="radio"
-              name="slide"
-              id="login"
-              checked={isLoginActive}
-              readOnly
-            />
-            <input
-              type="radio"
-              name="slide"
-              id="signup"
-              checked={!isLoginActive}
-              readOnly
-            />
-            <label
-              htmlFor="login"
-              className="slide login"
-              onClick={handleLoginBtnClick}
-            >
-              Đăng Nhập
-            </label>
-            <label
-              htmlFor="signup"
-              className="slide signup"
-              onClick={handleSignupBtnClick}
-            >
-              Đăng Ký
-            </label>
-            <div className="slider-tab"></div>
-          </div>
-          <div
-            className="form-inner"
-            style={{ marginLeft: isLoginActive ? "0%" : "-100%" }}
+ return (
+  <div className="login-signUp">
+    <ToastContainer />
+    <div className="wrapper">
+      <Link to="/" className="">
+        Back home
+      </Link>
+      <div className="form-container">
+        <div className="slide-controls">
+          <input
+            type="radio"
+            name="slide"
+            id="login"
+            checked={isLoginActive}
+            readOnly
+          />
+          <input
+            type="radio"
+            name="slide"
+            id="signup"
+            checked={!isLoginActive}
+            readOnly
+          />
+          <label
+            htmlFor="login"
+            className="slide login"
+            onClick={handleLoginBtnClick}
           >
-            <form
-              onSubmit={handleLogin}
-              className={`login ${isLoginActive ? "active" : ""}`}
-            >
-              <div className="field">
-                <label htmlFor="username" className="text-dark">
-                  Tên đăng nhập
-                </label>
-                <input
-                  type="text"
-                  autoComplete="username"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  maxLength={20}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="password" className="text-dark">
-                  Mật khẩu
-                </label>
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  maxLength={20}
-                />
-              </div>
-              <div className="remember-me">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <label htmlFor="rememberMe" className="text-dark">
-                  {" "}
-                  Ghi nhớ đăng nhập
-                </label>
-              </div>
-              <div className="pass-link">
-                <Link to="/forgetPassword" className="">
-                  Quên mật khẩu?
-                </Link>
-              </div>
-              <div className="field btn">
-                <div className="btn-layer"></div>
-                <input type="submit" value="Đăng Nhập" />
-              </div>
-              <div className="signup-link">
-                Chưa có tài khoản?{" "}
-                <a href="" onClick={handleSignupLinkClick}>
-                  Đăng Ký
-                </a>
-              </div>
-            </form>
-            <form
-              onSubmit={handleSignup}
-              className={`signup ${!isLoginActive ? "active" : ""}`}
-            >
-              <div className="row">
-                <div className="col-lg-12">
-                  <div className="field">
-                    <label htmlFor="username" className="text-dark">
-                      Tên đăng nhập
-                    </label>
-                    <input
-                      type="text"
-                      name="userName"
-                      autoComplete="username"
-                      required
-                      value={signupData.userName}
-                      onChange={handleSignupInputChange}
-                      maxLength={20}
-                    />
-                  </div>
-                </div>
+            Login
+          </label>
+          <label
+            htmlFor="signup"
+            className="slide signup"
+            onClick={handleSignupBtnClick}
+          >
+            Sign Up
+          </label>
+          <div className="slider-tab"></div>
+        </div>
+        <div
+          className="form-inner"
+          style={{ marginLeft: isLoginActive ? "0%" : "-100%" }}
+        >
+          {/* Login form */}
+          <form
+            onSubmit={handleLogin}
+            className={`login ${isLoginActive ? "active" : ""}`}
+          >
+            <div className="field">
+              <label htmlFor="username" className="text-dark">
+                Username
+              </label>
+              <input
+                type="text"
+                autoComplete="username"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                maxLength={20}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="password" className="text-dark">
+                Password
+              </label>
+              <input
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                maxLength={20}
+              />
+            </div>
+            <div className="remember-me">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label htmlFor="rememberMe" className="text-dark">
+                Remember me
+              </label>
+            </div>
+            <div className="pass-link">
+              <Link to="/forgetPassword" className="">
+                Forgot password?
+              </Link>
+            </div>
+            <div className="field btn">
+              <div className="btn-layer"></div>
+              <input type="submit" value="Login" />
+            </div>
+            <div className="signup-link">
+              Don't have an account?{" "}
+              <a href="" onClick={handleSignupLinkClick}>
+                Sign Up
+              </a>
+            </div>
+          </form>
 
-                <div className="col-lg-12">
-                  <div className="field">
-                    <label htmlFor="fullName" className="text-dark">
-                      Họ và tên
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      autoComplete="name"
-                      required
-                      value={signupData.fullName}
-                      onChange={handleSignupInputChange}
-                      readOnly={showOtpInput}
-                      maxLength={40}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="field">
-                <label htmlFor="phoneNumber" className="text-dark">
-                  Số điện thoại
-                </label>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  autoComplete="tel"
-                  required
-                  value={signupData.phoneNumber}
-                  onChange={handleSignupInputChange}
-                  readOnly={showOtpInput}
-                  maxLength={10}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="email" className="text-dark">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  required
-                  value={signupData.email}
-                  onChange={handleSignupInputChange}
-                  maxLength={40}
-                />
-              </div>
-              <div className="row">
-                <div className="col-lg-5">
-                  <div className="field">
-                    <label htmlFor="password" className="text-dark">
-                      Mật khẩu
-                    </label>
-                    <input
-                      type="password"
-                      name="passWord"
-                      autoComplete="new-password"
-                      required
-                      value={signupData.passWord}
-                      onChange={handleSignupInputChange}
-                      readOnly={showOtpInput}
-                      maxLength={20}
-                    />
-                  </div>
-                </div>
-                <div className="col-lg-7">
-                  <div className="field">
-                    <label htmlFor="password" className="text-dark">
-                      Nhập lại mật khẩu
-                    </label>
-                    <input
-                      type="password"
-                      autoComplete="new-password"
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      readOnly={showOtpInput}
-                      maxLength={20}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {showOtpInput ? (
+          {/* Signup form */}
+          <form
+            onSubmit={handleSignup}
+            className={`signup ${!isLoginActive ? "active" : ""}`}
+          >
+            <div className="row">
+              <div className="col-lg-12">
                 <div className="field">
                   <label htmlFor="username" className="text-dark">
-                    Nhập mã OTP
+                    Username
                   </label>
                   <input
                     type="text"
+                    name="userName"
+                    autoComplete="username"
                     required
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    maxLength={6}
+                    value={signupData.userName}
+                    onChange={handleSignupInputChange}
+                    maxLength={20}
                   />
                 </div>
-              ) : null}
-              <div className="field btn">
-                <div className="btn-layer"></div>
+              </div>
+
+              <div className="col-lg-12">
+                <div className="field">
+                  <label htmlFor="fullName" className="text-dark">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    autoComplete="name"
+                    required
+                    value={signupData.fullName}
+                    onChange={handleSignupInputChange}
+                    readOnly={showOtpInput}
+                    maxLength={40}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="phoneNumber" className="text-dark">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                name="phoneNumber"
+                autoComplete="tel"
+                required
+                value={signupData.phoneNumber}
+                onChange={handleSignupInputChange}
+                readOnly={showOtpInput}
+                maxLength={10}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="email" className="text-dark">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                autoComplete="email"
+                required
+                value={signupData.email}
+                onChange={handleSignupInputChange}
+                maxLength={40}
+              />
+            </div>
+
+            {/* Wallet Address Input */}
+            <div className="field">
+              <label htmlFor="walletAddress" className="text-dark">
+                Wallet Address (Metamask)
+              </label>
+              <input
+                type="text"
+                name="walletAddress"
+                required
+                value={signupData.walletAddress || ""}
+                onChange={handleSignupInputChange}
+                maxLength={42} // Ethereum address length
+                placeholder="0x..."
+              />
+            </div>
+
+            <div className="row">
+              <div className="col-lg-5">
+                <div className="field">
+                  <label htmlFor="password" className="text-dark">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="passWord"
+                    autoComplete="new-password"
+                    required
+                    value={signupData.passWord}
+                    onChange={handleSignupInputChange}
+                    readOnly={showOtpInput}
+                    maxLength={20}
+                  />
+                </div>
+              </div>
+              <div className="col-lg-7">
+                <div className="field">
+                  <label htmlFor="password" className="text-dark">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    readOnly={showOtpInput}
+                    maxLength={20}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {showOtpInput ? (
+              <div className="field">
+                <label htmlFor="otp" className="text-dark">
+                  Enter OTP
+                </label>
                 <input
-                  type="submit"
-                  value={showOtpInput ? "Xác thực OTP" : "Đăng ký"}
+                  type="text"
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
                 />
               </div>
-              {showOtpInput ? (
-                <p className="resend-otp">
-                  Không nhận được mã?{" "}
-                  <span
-                    onClick={handleResendOtp}
-                    style={{
-                      cursor: resendTimer > 0 ? "default" : "pointer",
-                      color: resendTimer > 0 ? "gray" : "blue",
-                    }}
-                  >
-                    {resendTimer > 0
-                      ? `Gửi lại sau ${resendTimer}s`
-                      : "Gửi lại"}
-                  </span>
-                </p>
-              ) : null}
-            </form>
-          </div>
+            ) : null}
+            <div className="field btn">
+              <div className="btn-layer"></div>
+              <input
+                type="submit"
+                value={showOtpInput ? "Verify OTP" : "Sign Up"}
+              />
+            </div>
+            {showOtpInput ? (
+              <p className="resend-otp">
+                Didn't receive the code?{" "}
+                <span
+                  onClick={handleResendOtp}
+                  style={{
+                    cursor: resendTimer > 0 ? "default" : "pointer",
+                    color: resendTimer > 0 ? "gray" : "blue",
+                  }}
+                >
+                  {resendTimer > 0
+                    ? `Resend in ${resendTimer}s`
+                    : "Resend"}
+                </span>
+              </p>
+            ) : null}
+          </form>
         </div>
       </div>
-      <div id="recaptcha-container"></div>
     </div>
-  );
+    <div id="recaptcha-container"></div>
+  </div>
+);
+
 };
 
 export default LoginSignup;

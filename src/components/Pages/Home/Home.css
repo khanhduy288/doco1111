@@ -91,7 +91,7 @@
 .form input,
 .form select,
 .form button {
-  width: 100%;
+  /* width: 100%; */
   padding: 8px 10px;
   font-size: 1rem;
   border-radius: 4px;

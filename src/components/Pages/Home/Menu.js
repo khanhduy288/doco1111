@@ -34,23 +34,27 @@ const Menu = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [showTabMenu, setShowTabMenu] = useState(false);  const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
+  const [focusedInput, setFocusedInput] = useState(null);
   const endOfDay = new Date();
   endOfDay.setHours(23, 59, 59, 999);
   const [form, setForm] = useState({
-    name: "",
-    team1: "",
-    team2: "",
-    option1: "",
-    option2: "",
-    rate1: "1.85",
-    rate2: "1.85",
-    status1: "pending",
-    status2: "pending",
-    claim: "",
-    time: "",
-    iframe: "",
-    countdown: "",
-  });
+  name: "",
+  team1: "",
+  team2: "",
+  iframe: "",
+  iframe2: "",
+  matchType: "top_win_bot_lose", // Mặc định chọn "Top Win / Bot Lose"
+  option1: "",
+  option2: "",
+  rate1: "1.85",
+  rate2: "1.85",
+  status1: "pending",
+  status2: "pending",
+  countdown: "",
+  claim: "",
+  time: "",
+});
+
 
 
   useEffect(() => {
@@ -88,26 +92,41 @@ const Menu = () => {
         [name]: value,
       }));
     };
-const handleCreate = async (e) => { 
+const handleCreate = async (e) => {
   e.preventDefault();
 
-  const requiredFields = [
-    "name", "team1", "team2",
-    "option1", "option2",
-    "rate1", "rate2",
-    "status1", "status2"
-  ];
+  const requiredFields = ["name", "team1", "team2", "iframe", "countdown"];
 
   for (const field of requiredFields) {
     if (!form[field] || form[field].toString().trim() === "") {
-      toast.error(`Vui lòng nhập đầy đủ trường: ${field}`);
+      toast.error(`Please fill out the required field: ${field}`);
       return;
     }
   }
 
+  // Kiểm tra URL hợp lệ
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  if (!isValidUrl(form.iframe)) {
+    toast.error("Iframe Link 1 is not a valid URL.");
+    return;
+  }
+
+  if (form.matchType === "top_win_bot_lose" && form.iframe2 && !isValidUrl(form.iframe2)) {
+    toast.error("Iframe Link 2 is not a valid URL.");
+    return;
+  }
+
   const now = Date.now();
 
-  const isDuplicate = matches.some(match => 
+  const isDuplicate = matches.some((match) =>
     new Date(match.countdown).getTime() > now &&
     match.name.trim().toLowerCase() === form.name.trim().toLowerCase() &&
     match.team1.trim().toLowerCase() === form.team1.trim().toLowerCase() &&
@@ -115,27 +134,36 @@ const handleCreate = async (e) => {
   );
 
   if (isDuplicate) {
-    toast.error("Kèo đã tồn tại với name, team1, team2 trùng nhau và chưa hết thời gian countdown.");
+    toast.error("A match with the same name and teams already exists and hasn't expired.");
     return;
   }
 
-  // 🔽 Lấy id người tạo từ localStorage
-const member = JSON.parse(localStorage.getItem("SEPuser"));
+  const member = JSON.parse(localStorage.getItem("SEPuser"));
   const creatorId = member?.id;
 
   if (!creatorId) {
-    toast.error("Không tìm thấy thông tin người tạo. Vui lòng đăng nhập lại.");
+    toast.error("Creator information not found. Please log in again.");
     return;
   }
 
-  const payload = {
-    ...form,
-    time: new Date().toISOString(),
-    sum1: 0,
-    sum2: 0,
-    status: "pending",
-    creatorId, // 👈 thêm id người tạo vào payload
-  };
+const payload = {
+  ...form,
+  iframe:
+    form.matchType === "top_win_bot_lose" && form.iframe2
+      ? `${form.iframe},${form.iframe2}`
+      : form.iframe, 
+  option1: `${form.team1} Win`,
+  option2: `${form.team2} Win`,
+  rate1: "1.85",
+  rate2: "1.85",
+  status1: "pending",
+  status2: "pending",
+  time: new Date().toISOString(),
+  sum1: 0,
+  sum2: 0,
+  status: "pending",
+  creatorId,
+};
 
   try {
     const res = await fetch(BET_API, {
@@ -152,23 +180,18 @@ const member = JSON.parse(localStorage.getItem("SEPuser"));
       name: "",
       team1: "",
       team2: "",
-      option1: "",
-      option2: "",
-      rate1: "1.85",
-      rate2: "1.85",
-      status1: "pending",
-      status2: "pending",
-      claim: "",
-      time: "",
       iframe: "",
+      iframe2: "",
       countdown: "",
+      matchType: "top_win_bot_lose",
     });
 
     setShowCreateBetForm(false);
   } catch (error) {
-    toast.error("Tạo kèo thất bại, vui lòng thử lại.");
+    toast.error("Failed to create match. Please try again.");
   }
 };
+
 
 
   useEffect(() => {
@@ -417,7 +440,13 @@ const fetchCreatorInfo = async (creatorId) => {
 };
 
 
+  const handleFocus = (field) => {
+    setFocusedInput(field);
+  };
 
+  const handleBlur = () => {
+    setFocusedInput(null);
+  };
 
 const fetchBetsByMatch = async (matchId) => {
   const res = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet?matchId=${matchId}`);
@@ -449,14 +478,14 @@ const ERC20_ABI = [
         method: "eth_requestAccounts",
       });
       setCurrentAccount(accounts[0]);
-      toast.success("Kết nối ví thành công!");
+      toast.success("Success Connect!");
     } catch (err) {
-      toast.error("Kết nối ví thất bại");
+      toast.error("Error Connect!");
     }
   };
 
   const formatCountdown = (ms) => {
-    if (ms <= 0) return "Đã kết thúc";
+    if (ms <= 0) return "Locked ";
     const totalSeconds = Math.floor(ms / 1000);
     const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
     const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
@@ -655,6 +684,25 @@ const filteredMatches = matches.filter(match => {
 });
 
 
+// Danh sách thời gian và round tương ứng (từ 17p đến 5p)
+const rounds = [
+  { time: 17, round: "1.1" },
+  { time: 16, round: "2.1" },
+  { time: 15, round: "2.2" },
+  { time: 14, round: "2.3" },
+  { time: 13, round: "2.4" },
+  { time: 12, round: "2.5" },
+  { time: 11, round: "2.6" },
+  { time: 10, round: "3.1" },
+  { time: 9,  round: "3.2" },
+  { time: 8,  round: "3.3" },
+  { time: 7,  round: "3.4" },
+  { time: 6,  round: "3.5" },
+  { time: 5,  round: "3.6" },
+];
+
+
+
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -716,72 +764,180 @@ const filteredMatches = matches.filter(match => {
           zIndex: 0,
         }}
       ></div>
-{showCreateBetForm && (
-          <form className="form" onSubmit={handleCreate} noValidate>
-            <input name="name" placeholder="Match Name" value={form.name} onChange={handleChange} />
-            <input name="team1" placeholder="Team 1" value={form.team1} onChange={handleChange} />
-            <input name="team2" placeholder="Team 2" value={form.team2} onChange={handleChange} />
-            <input name="option1" placeholder="Option 1" value={form.option1} onChange={handleChange} />
-            <input name="option2" placeholder="Option 2" value={form.option2} onChange={handleChange} />
-            <input
-              name="rate1"
-              placeholder="Rate 1"
-              type="number"
-              step="0.01"
-              max="1.90"
-              value={form.rate1}
-              onChange={handleChange}
-            />
-            <input
-              name="rate2"
-              placeholder="Rate 2"
-              type="number"
-              step="0.01"
-              max="1.90"
-              value={form.rate2}
-              onChange={handleChange}
-            />
-            <select name="countdown" value={form.countdown} onChange={handleChange}>
-  <option value="">Chọn thời gian đếm ngược</option>
-  {Array.from({ length: 17 }, (_, i) => i + 1).map((minute) => {
-    const futureTime = new Date(Date.now() + minute * 60000).toISOString();
-    return (
-      <option key={minute} value={futureTime}>
-        {minute} phút
-      </option>
-    );
-  })}
-</select>
 
-            <select name="status1" value={form.status1} onChange={handleChange}>
-              <option value="pending">Pending</option>
-              <option value="won">Won</option>
-              <option value="lost">Lost</option>
-            </select>
-            <select name="status2" value={form.status2} onChange={handleChange}>
-              <option value="pending">Pending</option>
-              <option value="won">Won</option>
-              <option value="lost">Lost</option>
-            </select>
-            <input name="iframe" placeholder="Iframe" value={form.iframe} onChange={handleChange} />
-            <button type="submit" className="btn btn-primary">
-              Create Bet
-            </button>
-          </form>
-        )}  
+{showCreateBetForm && (
+  <form className="form" onSubmit={handleCreate} noValidate style={{ position: "relative" }}>
+    {/* Close Button */}
+    <button
+      type="button"
+      className="close-btn"
+      onClick={() => setShowCreateBetForm(false)}
+      aria-label="Close form"
+      style={{
+        position: "absolute",
+        top: "-16px",
+        right: "-7px",
+        background: "transparent",
+        border: "none",
+        fontSize: "24px",
+        color: "#fff",
+        cursor: "pointer",
+      }}
+    >
+      &times;
+    </button>
+
+    {/* Match Type */}
+    <div className="form-row">
+      <select
+        name="matchType"
+        value={form.matchType || "top_win_bot_lose"}
+        onChange={(e) =>
+          setForm((prev) => ({
+            ...prev,
+            matchType: e.target.value,
+            team1: "",
+            team2: "",
+            iframe2: "",
+            option1: "",
+          }))
+        }
+      >
+        <option value="top_win_bot_lose">Top Win / Bot Lose</option>
+        <option value="temporary_ranking" >Temporary Top Ranking</option>
+      </select>
+    </div>
+
+    {/* Match Name */}
+    <div className="form-row">
+      <input
+        name="name"
+        placeholder="Match Name"
+        value={form.name}
+        onChange={handleChange}
+      />
+    </div>
+
+    {/* Iframe(s) */}
+    <div className="form-row">
+      <input
+        name="iframe"
+        placeholder="Link video team 1"
+        value={form.iframe}
+        onChange={handleChange}
+      />
+      {form.matchType === "top_win_bot_lose" && (
+        <input
+          name="iframe2"
+          placeholder="Link video team 2"
+          value={form.iframe2 || ""}
+          onChange={handleChange}
+        />
+      )}
+    </div>
+
+    {/* Team Select */}
+<div className="form-row" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+
+        <input
+          name="team1"
+          placeholder="Team 1"
+          value={form.team1}
+          onChange={handleChange}
+          required
+          onFocus={() => handleFocus("team1")}
+          onBlur={handleBlur}
+          style={{ position: "relative" }}
+        />
+        {focusedInput === "team1" && (
+          <div
+            style={{
+              color: "#d32f2f",
+              fontSize: "0.8em",
+              marginTop: "4px",
+              backgroundColor: "#ffe6e6",
+              padding: "6px 10px",
+              borderRadius: "4px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              maxWidth: "500px",
+            }}
+          >
+    Please enter a valid name. Incorrect input may result in your account being locked.
+          </div>
+        )}
+
+
+        <input
+          name="team2"
+          placeholder="Team 2"
+          value={form.team2}
+          onChange={handleChange}
+          required
+          onFocus={() => handleFocus("team2")}
+          onBlur={handleBlur}
+          style={{ position: "relative" }}
+        />
+        {focusedInput === "team2" && (
+          <div
+            style={{
+              color: "#d32f2f",
+              fontSize: "0.8em",
+              marginTop: "4px",
+              backgroundColor: "#ffe6e6",
+              padding: "6px 10px",
+              borderRadius: "4px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              maxWidth: "500px",
+            }}
+          >
+    Please enter a valid name. Incorrect input may result in your account being locked.
+          </div>
+        )}
+      </div>
+
+    {/* Countdown */}
+<div className="form-row">
+  <select name="countdown" value={form.countdown} onChange={handleChange}>
+    <option value="">Select countdown duration</option>
+    {rounds.map(({ time, round }) => {
+      const futureTime = new Date(Date.now() + time * 60000).toISOString();
+      return (
+        <option key={time} value={futureTime}>
+          {time} minutes (Round {round})
+        </option>
+      );
+    })}
+  </select>
+</div>
+
+    {/* Submit */}
+    <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+<button type="submit" className="btn-create">
+  Create Bet
+</button>
+
+    </div>
+  </form>
+)}
+
+
+
+
 
       <div className="container">
-    <div className="ads-section">
-      <a href="/guide" className="ad-box">
-        <strong>Newbie Guide:</strong> Learn how to place bets and join easily.
-      </a>
-      <a href="/guide" className="ad-box">
-        <strong>System Announcement:</strong> {systemMessage}
-      </a>
-      <a href="/guide" className="ad-box">
-        <strong>Exclusive Offer:</strong> Get up to 5% bonus as a member!
-      </a>
-    </div>
+<div className="ads-section">
+  <a href="/guide" className="ad-box">
+    <strong>Newbie Guide</strong><span className="after-title">On mobile, you need to use the MetaMask in-app browser
+</span>
+  </a>
+  <a href="/guide" className="ad-box">
+    <strong>Announcement</strong><span className="after-title">{systemMessage}</span> 
+  </a>
+  <a href="/guide" className="ad-box">
+    <strong>Rule</strong> <span className="after-title">Get up to 5% bonus as a member!</span>
+  </a>
+</div>
+
 
   
 <div className="header-container">
@@ -831,28 +987,40 @@ const filteredMatches = matches.filter(match => {
       >
         ⋮
       </button>
-      {showTabMenu && (
-        <div className="tab-menu">
-          <button
-            onClick={() => {
-              setTab("live");
-              setShowTabMenu(false);
-            }}
-            className={`tab-item ${tab === "live" ? "active" : ""}`}
-          >
-            Live
-          </button>
-          <button
-            onClick={() => {
-              setTab("history");
-              setShowTabMenu(false);
-            }}
-            className={`tab-item ${tab === "history" ? "active" : ""}`}
-          >
-            History
-          </button>
-        </div>
-      )}
+{showTabMenu && (
+  <div className="tab-menu">
+    <button
+      onClick={() => {
+        setTab("live");
+        setShowTabMenu(false);
+      }}
+      className={`tab-item ${tab === "live" ? "active" : ""}`}
+    >
+      Live
+    </button>
+
+    <button
+      onClick={() => {
+        setTab("processing");
+        setShowTabMenu(false);
+      }}
+      className={`tab-item ${tab === "processing" ? "active" : ""}`}
+    >
+      Processing
+    </button>
+
+    <button
+      onClick={() => {
+        setTab("history");
+        setShowTabMenu(false);
+      }}
+      className={`tab-item ${tab === "history" ? "active" : ""}`}
+    >
+      History
+    </button>
+  </div>
+)}
+
     </div>
   </div>
 </div>
@@ -863,12 +1031,22 @@ const filteredMatches = matches.filter(match => {
 
 
  {matches
-      .filter((match) => {
-        const matchTime = new Date(match.countdown).getTime();
-        if (tab === "live") return matchTime > now;
-        if (tab === "history") return matchTime <= now;
-        return true; // fallback
-      })
+.filter((match) => {
+  const matchTime = new Date(match.countdown).getTime();
+
+  if (tab === "live") return matchTime > now;
+  if (tab === "history") return matchTime <= now - 3600000; // Lịch sử: trước 1h
+  if (tab === "processing") {
+    return (
+      !match.winningTeam &&
+      matchTime > now - 3600000 &&
+      matchTime <= now
+    );
+  }
+
+  return true; // fallback
+})
+
       .map((match) => {
         const countdownMs = new Date(match.countdown).getTime() - now;
         const isExpandable = tab === "live"; // chỉ live mới cho mở rộng
@@ -888,6 +1066,7 @@ const filteredMatches = matches.filter(match => {
 
 
 <div
+  id={"tft" + match.id}
   style={{
     position: "relative",
     backgroundColor: "#1b1b21",
@@ -897,7 +1076,9 @@ const filteredMatches = matches.filter(match => {
     fontFamily: "'Inter', sans-serif",
     boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
     textAlign: "center",
-    borderLeft: "5px solid #00bcd4",
+    borderLeft: `5px solid ${
+      tab === "live" ? "#00bcd4" : tab === "processing" ? "#ffeb3b" : "red"
+    }`,
   }}
 >
   {/* Creator info (top-left badge) */}
@@ -930,7 +1111,9 @@ const filteredMatches = matches.filter(match => {
       opacity: 0.85,
     }}
   >
-    🏆 {match.winningTeam ? match.winningTeam : "📡 LIVE"}
+    <div style={{ fontWeight: "bold", color: "#ffcc00" }}>
+      {match.winningTeam ? <>🏆 {match.winningTeam}</> : <>📡 LIVE</>}
+    </div>
   </div>
 
   {/* Countdown (center-top above match) */}
@@ -963,9 +1146,21 @@ const filteredMatches = matches.filter(match => {
       gap: 40,
     }}
   >
-    <div style={{ flex: 1, textAlign: "right", fontSize: 24, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6 }}>
+    <div
+      style={{
+        flex: 1,
+        textAlign: "right",
+        fontSize: 24,
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        gap: 6,
+      }}
+    >
       <button
-        onClick={() => window.open(match.iframe.split(",")[0]?.trim() || "#", "_blank")}
+        onClick={() =>
+          window.open(match.iframe.split(",")[0]?.trim() || "#", "_blank")
+        }
         style={{
           padding: "2px 6px",
           fontSize: 12,
@@ -996,10 +1191,22 @@ const filteredMatches = matches.filter(match => {
       𝗩𝗦
     </span>
 
-    <div style={{ flex: 1, textAlign: "left", fontSize: 24, display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 6 }}>
+    <div
+      style={{
+        flex: 1,
+        textAlign: "left",
+        fontSize: 24,
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        gap: 6,
+      }}
+    >
       {match.team2}
       <button
-        onClick={() => window.open(match.iframe.split(",")[1]?.trim() || "#", "_blank")}
+        onClick={() =>
+          window.open(match.iframe.split(",")[1]?.trim() || "#", "_blank")
+        }
         style={{
           padding: "2px 6px",
           fontSize: 12,
@@ -1015,7 +1222,23 @@ const filteredMatches = matches.filter(match => {
       </button>
     </div>
   </div>
+
+  {/* ID badge bottom-right */}
+  <div
+    style={{
+      position: "absolute",
+      bottom: 6,
+      right: 10,
+      fontSize: 10,
+      color: "#bbb",
+      opacity: 0.6,
+      fontFamily: "'Courier New', monospace",
+    }}
+  >
+    ID: tft{match.id}
+  </div>
 </div>
+
 
 
 {expandedMatchId === match.id && (

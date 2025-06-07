@@ -548,9 +548,9 @@ const formatCountdown = (endTime) => {
   const currentBets = bets.slice(startIndex, startIndex + pageSize);
 
 return (
-  <section style={{ padding: "5%" }}>
+  <section style={{ padding: "5%", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
     <div className="container">
-      <h1 className="text-center mb-4">Lịch Sử Cược</h1>
+      <h1 className="text-center mb-4" style={{ color: "#eee" }}>Lịch Sử Cược</h1>
 
       {!currentAccount ? (
         <div className="text-center">
@@ -561,7 +561,13 @@ return (
               fontSize: "16px",
               borderRadius: "8px",
               cursor: "pointer",
+              backgroundColor: "#1f1f1f",
+              color: "#eee",
+              border: "1px solid #444",
+              transition: "background-color 0.3s",
             }}
+            onMouseOver={e => (e.currentTarget.style.backgroundColor = "#333")}
+            onMouseOut={e => (e.currentTarget.style.backgroundColor = "#1f1f1f")}
           >
             Kết nối ví MetaMask
           </button>
@@ -581,73 +587,85 @@ return (
             <p>Không tìm thấy lịch sử cược cho ví này.</p>
           ) : (
             <>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                backgroundColor: "#1e1e1e",
+                color: "#ddd",
+                boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+                borderRadius: "8px",
+                overflow: "hidden"
+              }}>
                 <thead>
-                  <tr>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Match ID</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Match Name</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Team</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Amount (USDT)</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Status</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Time</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>TxHash</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Claim (USDT)</th>
-                    <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Action</th>
+                  <tr style={{ backgroundColor: "#2c2c2c" }}>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "left" }}>Match ID</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "left" }}>Match Name</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "left" }}>Team</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "right" }}>Amount (USDT)</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "center" }}>Status</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "left" }}>Time</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "left" }}>TxHash</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "right" }}>Claim (USDT)</th>
+                    <th style={{ borderBottom: "1px solid #444", padding: "12px 8px", textAlign: "center" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentBets.map((bet) => (
-                    <tr key={bet.id}>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.matchId}</td>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.matchName}</td>                      
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.team}</td>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.amount}</td>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>{bet.status}</td>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+                  {currentBets.map((bet, index) => (
+                    <tr
+                      key={bet.id}
+                      style={{
+                        backgroundColor: index % 2 === 0 ? "#292929" : "#232323",
+                        borderBottom: "1px solid #333"
+                      }}
+                    >
+                      <td style={{ padding: "10px 8px" }}>{bet.matchId}</td>
+                      <td style={{ padding: "10px 8px" }}>{bet.matchName}</td>
+                      <td style={{ padding: "10px 8px" }}>{bet.team}</td>
+                      <td style={{ padding: "10px 8px", textAlign: "right" }}>{bet.amount}</td>
+                      <td style={{ padding: "10px 8px", textAlign: "center" }}>{bet.status}</td>
+                      <td style={{ padding: "10px 8px" }}>
                         {new Date(bet.timestamp).toLocaleString()}
                       </td>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "10px 8px" }}>
                         <a
                           href={`https://bscscan.com/tx/${bet.txHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          style={{ color: "#4db8ff", textDecoration: "underline" }}
                         >
                           {bet.txHash?.slice(0, 10)}...
                         </a>
                       </td>
-                      <td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "10px 8px", textAlign: "right" }}>
                         {bet.claim ? parseFloat(bet.claim).toFixed(6) : "-"}
                       </td>
-<td style={{ padding: "8px", borderBottom: "1px solid #eee" }}>
-  {bet.status === "won" ? (
-    <div style={{ display: "flex", gap: "8px" }}>
-      <button onClick={() => handleClaim(bet)} style={greenBtnStyle}>Claim</button>
-      <button onClick={() => handleContinue(bet, true)} style={blueBtnStyle}>Continue</button>
-    </div>
-  ) : bet.status === "refund" ? (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "start", gap: "4px" }}>
-      {countdownMap[bet.id] != null ? (
-        <div style={{ color: "red", fontWeight: "bold" }}>
-          ⏳ {countdownMap[bet.id]}s to auto bet!
-        </div>
-      ) : (
-        <div style={{ color: "gray" }}>⏳ Waiting...</div>
-      )}
-      <button
-        onClick={() => handleContinue(bet, false)}
-        title="You have limited time to continue. Otherwise, the system will bet randomly!"
-        style={blueBtnStyle}
-      >
-        Continue
-      </button>
-    </div>
-  ) : (
-    "-"
-  )}
-</td>
-
-
-
+                      <td style={{ padding: "10px 8px", textAlign: "center" }}>
+                        {bet.status === "won" ? (
+                          <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                            <button onClick={() => handleClaim(bet)} style={greenBtnStyle}>Claim</button>
+                            <button onClick={() => handleContinue(bet, true)} style={blueBtnStyle}>Continue</button>
+                          </div>
+                        ) : bet.status === "refund" ? (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                            {countdownMap[bet.id] != null ? (
+                              <div style={{ color: "#ff5555", fontWeight: "bold" }}>
+                                ⏳ {countdownMap[bet.id]}s to auto bet!
+                              </div>
+                            ) : (
+                              <div style={{ color: "#999" }}>⏳ Waiting...</div>
+                            )}
+                            <button
+                              onClick={() => handleContinue(bet, false)}
+                              title="You have limited time to continue. Otherwise, the system will bet randomly!"
+                              style={blueBtnStyle}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -669,130 +687,146 @@ return (
       )}
 
       {/* Modal popup chọn kèo cược tiếp */}
-{showContinueModal && (
-  <div
-    className="modal-overlay"
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 9999,
-    }}
-  >
-    <div
-      className="modal-content"
-      style={{
-        backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        width: "400px",
-        maxWidth: "90%",
-        color: "black",
-      }}
-    >
-<h3
-  style={{
-    color: "white",
-    fontSize: "20px",
-    fontWeight: "bold",
-    marginBottom: "16px",
-    borderBottom: "1px solid rgba(255,255,255,0.2)",
-    paddingBottom: "8px",
-  }}
->
-  Chọn trận để cược tiếp
-</h3>
-      <select
-        value={selectedMatch ? selectedMatch.id : ""}
-        onChange={e => {
-          const match = matchList.find(m => m.id === e.target.value);
-          setSelectedMatch(match);
-          setSelectedOption(null); // reset option khi đổi trận
-        }}
-        style={{ width: "100%", padding: "8px", marginBottom: "10px", color: "black" }}
-      >
-        <option value="">-- Chọn trận --</option>
-        {matchList.map(match => (
-          <option key={match.id} value={match.id}>
-            {match.name} - {match.option1} / {match.option2}
-          </option>
-        ))}
-      </select>
+      {showContinueModal && (
+        <div
+          className="modal-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            className="modal-content"
+            style={{
+              backgroundColor: "#222",
+              padding: "20px",
+              borderRadius: "8px",
+              width: "400px",
+              maxWidth: "90%",
+              color: "#eee",
+            }}
+          >
+            <h3
+              style={{
+                color: "#eee",
+                fontSize: "20px",
+                fontWeight: "bold",
+                marginBottom: "16px",
+                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                paddingBottom: "8px",
+              }}
+            >
+              Chọn trận để cược tiếp
+            </h3>
+            <select
+              value={selectedMatch ? selectedMatch.id : ""}
+              onChange={e => {
+                const match = matchList.find(m => m.id === e.target.value);
+                setSelectedMatch(match);
+                setSelectedOption(null); // reset option khi đổi trận
+              }}
+              style={{
+                width: "100%",
+                padding: "8px",
+                marginBottom: "10px",
+                color: "#eee",
+                backgroundColor: "#333",
+                border: "1px solid #555",
+                borderRadius: "4px",
+              }}
+            >
+              <option value="">-- Chọn trận --</option>
+              {matchList.map(match => (
+                <option key={match.id} value={match.id}>
+                  {match.name} - {match.option1} / {match.option2}
+                </option>
+              ))}
+            </select>
 
-{selectedMatch && (
-  <select
-    value={selectedOption || ""}
-    onChange={e => setSelectedOption(e.target.value)}
-    style={{ width: "100%", padding: "8px", marginBottom: "10px", color: "black" }}
-  >
-    <option value="">-- Chọn tùy chọn cược --</option>
-    <option value="option1">
-      {selectedMatch.option1} (Tỉ lệ: {selectedMatch.rate1})
-    </option>
-    <option value="option2">
-      {selectedMatch.option2} (Tỉ lệ: {selectedMatch.rate2})
-    </option>
-  </select>
-)}
+            {selectedMatch && (
+              <select
+                value={selectedOption || ""}
+                onChange={e => setSelectedOption(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  marginBottom: "10px",
+                  color: "#eee",
+                  backgroundColor: "#333",
+                  border: "1px solid #555",
+                  borderRadius: "4px",
+                }}
+              >
+                <option value="">-- Chọn tùy chọn cược --</option>
+                <option value="option1">
+                  {selectedMatch.option1} (Tỉ lệ: {selectedMatch.rate1})
+                </option>
+                <option value="option2">
+                  {selectedMatch.option2} (Tỉ lệ: {selectedMatch.rate2})
+                </option>
+              </select>
+            )}
 
-<div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
-  <button
-    onClick={handleContinueBet}
-    disabled={!selectedMatch || !selectedOption}
-    style={{
-      backgroundColor: !selectedMatch || !selectedOption ? "#6c757d" : "#007bff",
-      color: "white",
-      border: "none",
-      padding: "4px 8px",
-      fontSize: "14px",
-      borderRadius: "4px",
-      cursor: !selectedMatch || !selectedOption ? "not-allowed" : "pointer",
-      opacity: !selectedMatch || !selectedOption ? 0.65 : 1,
-      transition: "background-color 0.2s",
-      marginRight: "8px",
-    }}
-    onMouseOver={e => {
-      if (selectedMatch && selectedOption)
-        e.currentTarget.style.backgroundColor = "#0056b3";
-    }}
-    onMouseOut={e => {
-      if (selectedMatch && selectedOption)
-        e.currentTarget.style.backgroundColor = "#007bff";
-    }}
-  >
-    Cược tiếp
-  </button>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", gap: "8px" }}>
+              <button
+                onClick={handleContinueBet}
+                disabled={!selectedMatch || !selectedOption}
+                style={{
+                  backgroundColor: !selectedMatch || !selectedOption ? "#555" : "#007bff",
+                  color: "white",
+                  border: "none",
+                  padding: "6px 12px",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  cursor: !selectedMatch || !selectedOption ? "not-allowed" : "pointer",
+                  opacity: !selectedMatch || !selectedOption ? 0.7 : 1,
+                  transition: "background-color 0.2s",
+                }}
+                onMouseOver={e => {
+                  if (selectedMatch && selectedOption)
+                    e.currentTarget.style.backgroundColor = "#0056b3";
+                }}
+                onMouseOut={e => {
+                  if (selectedMatch && selectedOption)
+                    e.currentTarget.style.backgroundColor = "#007bff";
+                }}
+              >
+                Cược tiếp
+              </button>
 
-  <button
-    onClick={() => setShowContinueModal(false)}
-    style={{
-      backgroundColor: "#dc3545",
-      color: "white",
-      border: "none",
-      padding: "4px 8px",
-      fontSize: "14px",
-      borderRadius: "4px",
-      cursor: "pointer",
-      transition: "background-color 0.2s",
-    }}
-    onMouseOver={e => (e.currentTarget.style.backgroundColor = "#c82333")}
-    onMouseOut={e => (e.currentTarget.style.backgroundColor = "#dc3545")}
-  >
-    Hủy
-  </button>
-</div>
-    </div>
-  </div>
-)}
+              <button
+                onClick={() => setShowContinueModal(false)}
+                style={{
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  padding: "6px 12px",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseOver={e => (e.currentTarget.style.backgroundColor = "#c82333")}
+                onMouseOut={e => (e.currentTarget.style.backgroundColor = "#dc3545")}
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   </section>
 );
+
 
 };
 

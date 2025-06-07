@@ -458,186 +458,175 @@ const filteredMatches = matches.filter((match) => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-  return (
-    <div style={{ padding: "20px", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
-          <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "10px 15px",
-        marginBottom: "20px",
-        backgroundColor: "#1e1e1e",
-        borderRadius: "8px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
-        color: "#ffa726",
-        fontWeight: "600",
-        fontSize: "1rem",
-      }}
-    >
-{userInfo && (
-      <div className="welcome-message text-dark fw-bold my-2 d-flex align-items-center gap-2">
-      <span>
-        Welcome, {userInfo.fullName}! | Level: {userInfo.level} {renderStars(userInfo.level)} | Balance: {userInfo.balance} USDT
-      </span>
-      <button
-        onClick={refreshUserInfo}
-        // disabled={loading}
-        title="Refresh"
-        style={{
-          border: 'none',
-          background: 'transparent',
-          fontSize: '18px',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          transform: loading ? 'rotate(360deg)' : 'none',
-          transition: 'transform 0.5s linear',
-        }}
-      >
-        🔄
-      </button>
-    </div>
-)}
-
-      <div style={{ fontSize: "0.9rem", color: "#ccc" }}>
-        {/* Bạn có thể thêm nút logout hoặc profile link ở đây nếu muốn */}
-        {/* Ví dụ: <button style={{ background: "none", border: "none", color: "#ff7043", cursor: "pointer" }}>Logout</button> */}
-      </div>
-    </div>
-      <h1 style={{ color: "#ff7043" }}>Match Result Decider</h1>
-
-      <h2>Active Matches (Countdown &gt; Now - 1 hour)</h2>
-      {matches.length === 0 && <p>No active matches found.</p>}
-
-      <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-        {filteredMatches.map((match) => {
-          const finalized = isResultFinalized(match);
-          const isCreator = isUserMatchCreator(match);
-
-        const processingBet = bets.find(
-        (b) => b.matchId === match.id && b.status?.startsWith("processing") && b.processStart
-        );
-
-
-
-
-          return (
-            <li
-              key={match.id}
-              style={{
-                marginBottom: "12px",
-                padding: "10px",
-                backgroundColor: selectedMatch?.id === match.id ? "#ff7043" : "#333",
-                borderRadius: "6px",
-                cursor: !isCreator ? "not-allowed" : "pointer",
-                userSelect: "none",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-              onClick={() => {
-              if (isCreator || userInfo.level === 6) {
-              setSelectedMatch(match);
-              setWinningTeam("");
-              } else {
-              toast.warn("Bạn không phải người tạo kèo này.");
-              }
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{match.name}</div>
-                <div>Option 1: {match.option1} | Option 2: {match.option2}</div>
-                <div>Bet sums: {match.sum1 || 0} USDT - {match.sum2 || 0} USDT</div>
-                <div>Countdown: {formatTime(countdowns[match.id] || 0)}</div>
-                <div style={{ fontSize: "0.85rem", color: "#bbb" }}>
-                Creator: {match.creatorId}
-                </div>
-
-              </div>
-
-<div style={{ fontWeight: "bold", color: "#90caf9", fontSize: "0.9rem" }}>
-  {processingBet
-    ? `Checking... ${formatTime(getRemainingProcessingTime(match.id))}`
-    : finalized
-    ? `Result Finalized (${match.winningTeam || "?"})`
-    : ""}
-</div>
-
-
-
-            </li>
-          );
-        })}
-      </ul>
-
-      <div style={{ marginTop: "20px", backgroundColor: "#222", padding: "15px", borderRadius: "8px", maxWidth: "400px" }}>
-        <h3>Decide Result</h3>
-        <p>
-          Selected match: <strong style={{ color: "#ffab91" }}>{selectedMatch ? selectedMatch.name : "None"}</strong>
-        </p>
-        <p style={{ color: "orange", fontSize: "0.9rem" }}>
-          {selectedMatch && !isUserMatchCreator(selectedMatch) ? "Bạn không có quyền phân định kết quả cho kèo này." : ""}
-        </p>
-
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <select
-            disabled={!selectedMatch || (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6)}
-            value={winningTeam}
-            onChange={(e) => setWinningTeam(e.target.value)}
+ return (
+  <div style={{ padding: "20px", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
+    {/* Header */}
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 15px",
+      marginBottom: "20px",
+      backgroundColor: "#1e1e1e",
+      borderRadius: "8px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+      color: "#ffa726",
+      fontWeight: "600",
+      fontSize: "1rem",
+    }}>
+      {userInfo && (
+        <div className="welcome-message text-dark fw-bold my-2 d-flex align-items-center gap-2">
+          <span>
+            Welcome, {userInfo.fullName}! | Level: {userInfo.level} {renderStars(userInfo.level)} | Balance: {userInfo.balance} USDT
+          </span>
+          <button
+            onClick={refreshUserInfo}
+            title="Refresh"
             style={{
-              flexGrow: 1,
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid #555",
-              backgroundColor: "#333",
-              color: "#eee",
-              cursor: selectedMatch && isUserMatchCreator(selectedMatch) ? "pointer" : "not-allowed",
+              border: 'none',
+              background: 'transparent',
+              fontSize: '18px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transform: loading ? 'rotate(360deg)' : 'none',
+              transition: 'transform 0.5s linear',
             }}
           >
-            <option value="">-- Select Winning Team --</option>
-            {selectedMatch && (
-              <>
-                <option value={selectedMatch.option1}>{selectedMatch.option1}</option>
-                <option value={selectedMatch.option2}>{selectedMatch.option2}</option>
-              </>
-            )}
-          </select>
-
-<button
-  onClick={handleDecideResult}
-disabled={
-  loading ||
-  !selectedMatch ||
-  !winningTeam ||
-  (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6) ||
-  !isUserLevel5OrAdmin()
-}
-  style={{
-    backgroundColor: "#ff7043",
-    border: "none",
-    padding: "6px 12px",
-    fontSize: "0.9rem",
-    color: "#222",
-    fontWeight: "bold",
-    cursor: (
-      loading ||
-      !selectedMatch ||
-      !winningTeam ||
-      isResultFinalized(selectedMatch) ||
-      !isUserMatchCreator(selectedMatch) ||
-      !isUserLevel5OrAdmin() // 🔐 cho cursor
-    )
-      ? "poin"
-      : "pointer",
-    borderRadius: "6px",
-  }}
->
-  {loading ? "Updating..." : "Submit"}
-</button>
-
+            🔄
+          </button>
         </div>
-      </div>
-
-      <ToastContainer position="top-right" autoClose={3000} />
+      )}
     </div>
-  );
+
+    <h1 style={{ color: "#f5f5f5", textAlign: "center" }}>Match Result Decider</h1>
+
+    {/* Decide Result Box - moved above match list */}
+    <div style={{
+      margin: "0 auto 30px auto",
+      backgroundColor: "#222",
+      padding: "15px",
+      borderRadius: "8px",
+      maxWidth: "450px",
+      color: "#fff",
+      textAlign: "center"
+    }}>
+      <h3 style={{ color: "#f5f5f5" }}>Decide Result</h3>
+      <p>
+        Selected match: <strong>{selectedMatch ? selectedMatch.name : "None"}</strong>
+      </p>
+      <p style={{ color: "orange", fontSize: "0.9rem" }}>
+        {selectedMatch && !isUserMatchCreator(selectedMatch) ? "You are not authorized to decide this result." : ""}
+      </p>
+
+      <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
+        <select
+          disabled={!selectedMatch || (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6)}
+          value={winningTeam}
+          onChange={(e) => setWinningTeam(e.target.value)}
+          style={{
+            flexGrow: 1,
+            padding: "8px",
+            borderRadius: "6px",
+            border: "1px solid #555",
+            backgroundColor: "#333",
+            color: "#fff",
+            cursor: selectedMatch && isUserMatchCreator(selectedMatch) ? "pointer" : "not-allowed",
+            minWidth: "180px"
+          }}
+        >
+          <option value="">-- Select Winning Team --</option>
+          {selectedMatch && (
+            <>
+              <option value={selectedMatch.option1}>{selectedMatch.option1}</option>
+              <option value={selectedMatch.option2}>{selectedMatch.option2}</option>
+            </>
+          )}
+        </select>
+
+        <button
+          onClick={handleDecideResult}
+          disabled={
+            loading ||
+            !selectedMatch ||
+            !winningTeam ||
+            (!isUserMatchCreator(selectedMatch) && userInfo.level !== 6) ||
+            isResultFinalized(selectedMatch) ||
+            !isUserLevel5OrAdmin()
+          }
+          style={{
+            backgroundColor: "#ff7043",
+            border: "none",
+            padding: "6px 12px",
+            fontSize: "0.9rem",
+            color: "#222",
+            fontWeight: "bold",
+            cursor: "pointer",
+            borderRadius: "6px",
+          }}
+        >
+          {loading ? "Updating..." : "Submit"}
+        </button>
+      </div>
+    </div>
+
+    {/* Match List */}
+    {matches.length === 0 && <p style={{ textAlign: "center" }}>No active recent matches found.</p>}
+
+    <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+      {filteredMatches.map((match) => {
+        const finalized = isResultFinalized(match);
+        const isCreator = isUserMatchCreator(match);
+        const processingBet = bets.find(
+          (b) => b.matchId === match.id && b.status?.startsWith("processing") && b.processStart
+        );
+
+        return (
+          <li
+            key={match.id}
+            style={{
+              marginBottom: "12px",
+              padding: "10px",
+              backgroundColor: selectedMatch?.id === match.id ? "#ff7043" : "#333",
+              borderRadius: "6px",
+              cursor: !isCreator ? "not-allowed" : "pointer",
+              userSelect: "none",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              color: "#fff",
+            }}
+            onClick={() => {
+              if (isCreator || userInfo.level === 6) {
+                setSelectedMatch(match);
+                setWinningTeam("");
+              } else {
+                toast.warn("You are not the creator of this match.");
+              }
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{match.name}</div>
+              <div>Option 1: {match.option1} | Option 2: {match.option2}</div>
+              <div>Bet sums: {match.sum1 || 0} USDT - {match.sum2 || 0} USDT</div>
+              <div>Countdown: {formatTime(countdowns[match.id] || 0)}</div>
+              <div style={{ fontSize: "0.85rem", color: "#bbb" }}>
+                Creator: {match.creatorId}
+              </div>
+            </div>
+
+            <div style={{ fontWeight: "bold", color: "#90caf9", fontSize: "0.9rem" }}>
+              {processingBet
+                ? `Checking... ${formatTime(getRemainingProcessingTime(match.id))}`
+                : finalized
+                  ? `Result Finalized (${match.winningTeam || "?"})`
+                  : ""}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+
+    <ToastContainer position="top-right" autoClose={3000} />
+  </div>
+);
+
 }

@@ -40,7 +40,6 @@ const processingBets = bets.filter(
 
     const now = Date.now();
 
-    // Các cược đã đủ 3 phút để quyết định kết quả
     const betsReadyToFinalize = processingBets.filter((bet) => {
       const start = Date.parse(bet.processStart);
       return now - start >= 180000; // 3 phút
@@ -48,10 +47,8 @@ const processingBets = bets.filter(
 
     if (betsReadyToFinalize.length === 0) return;
 
-    // Lưu matchId đã cập nhật
     const updatedMatchIds = new Set();
 
-    // Duyệt các cược để cập nhật status won/lose dựa trên winningTeam của match
     await Promise.all(
       betsReadyToFinalize.map(async (bet) => {
         const match = matches.find((m) => m.id.toString() === bet.matchId.toString());
@@ -60,11 +57,9 @@ const processingBets = bets.filter(
           return;
         }
 
-        // So sánh để gán trạng thái cược
         const winning = bet.team === match.winningTeam ? "won" : "lose";
         console.log(`Bet ${bet.id} team: ${bet.team}, match winningTeam: ${match.winningTeam}, status: ${winning}`);
 
-        // Cập nhật cược
         await fetch(`${API_BASE}/bet/${bet.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -75,33 +70,27 @@ const processingBets = bets.filter(
       })
     );
 
-    // Sau khi cập nhật tất cả cược, cập nhật trạng thái status1, status2 cho trận đấu
 for (const matchId of updatedMatchIds) {
   const relatedBets = bets.filter((b) => b.matchId.toString() === matchId.toString());
-  // Kiểm tra tất cả cược đã được quyết định
   const allDone = relatedBets.every((b) => !b.status?.startsWith("processing"));
 
   if (allDone) {
     const match = matches.find((m) => m.id.toString() === matchId.toString());
     if (!match || !match.option1 || !match.option2 || !match.winningTeam) continue;
 
-    // Phân định status1, status2 dựa trên winningTeam
     const status1 = match.winningTeam === match.option1 ? "won" : "lose";
     const status2 = match.winningTeam === match.option2 ? "won" : "lose";
 
-    // Cập nhật trận đấu với trạng thái status1, status2
     await fetch(`${API_BASE}/football/${match.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...match, status1, status2 }),
     });
 
-    // Tính tổng cược
     const sum1 = parseFloat(match.sum1) || 0;
     const sum2 = parseFloat(match.sum2) || 0;
     const totalBet = sum1 + sum2;
 
-    // Lấy thông tin người tạo kèo
     const creatorId = match.creatorId;
     const userRes = await fetch(`${API_BASE}/user/${creatorId}`);
     const user = await userRes.json();
@@ -110,7 +99,6 @@ for (const matchId of updatedMatchIds) {
       const level = parseFloat(user.level) || 1;
       const reward = (totalBet / 2) * (level / 100);
 
-      // Cập nhật số dư và số lượng kèo đã tạo
       await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -124,7 +112,6 @@ for (const matchId of updatedMatchIds) {
   }
 }
 
-    // Refresh dữ liệu mới
     const refreshedBetsRes = await fetch(`${API_BASE}/bet`);
     const refreshedBets = await refreshedBetsRes.json();
     setBets(refreshedBets);
@@ -140,7 +127,7 @@ for (const matchId of updatedMatchIds) {
 
 useEffect(() => {
   const timer = setInterval(() => {
-    setTick((prev) => prev + 1); // ép render lại
+    setTick((prev) => prev + 1); 
   }, 1000);
 
   return () => clearInterval(timer);
@@ -155,8 +142,8 @@ useEffect(() => {
       const user = userData ? JSON.parse(userData) : null;
 
       if (!user || !user.id) {
-        console.error("Không có thông tin người dùng");
-        toast.error("Không tìm thấy thông tin người dùng.");
+        console.error("No user information found.");
+        toast.error("User information not found.");
         return;
       }
 
@@ -209,7 +196,6 @@ const isUserLevel5OrAdmin = () => {
       const res = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userInfo.id}`);
       const data = await res.json();
 
-      // Lưu vào localStorage và state
       localStorage.setItem('SEPuser', JSON.stringify(data));
       setUserInfo(data);
     } catch (error) {
@@ -218,7 +204,6 @@ const isUserLevel5OrAdmin = () => {
     setLoading(false);
   };
 
-  // Tạo chuỗi ⭐ theo level
   const renderStars = (level) => '⭐'.repeat(level);
 
 
@@ -272,7 +257,7 @@ const getRemainingProcessingTime = (matchId) => {
   const processingBet = bets.find(
     (b) =>
       b.matchId === matchId &&
-      b.status?.startsWith("processing") && // sửa ở đây
+      b.status?.startsWith("processing") && 
       b.processStart
   );
   if (!processingBet) return 0;
@@ -295,38 +280,27 @@ const handleDecideResult = async () => {
     return;
   }
   if (!isUserMatchCreator(selectedMatch) && userInfo?.level !== 6) {
-    toast.error("Chỉ người tạo kèo mới được phân định kết quả.");
+    toast.error("Only the match creator can decide the result.");
     return;
   }
 
   setLoading(true);
 
-  // Hàm con tính và cập nhật balance cho creator
 const updateCreatorBalance = async (creatorId, sum1, sum2) => {
   try {
-    // Lấy thông tin user theo creatorId
     const creatorRes = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`);
     const creator = await creatorRes.json();
 
     if (!creator || !creator.level) {
-      toast.error("Không tìm thấy thông tin creator hoặc level.");
+      toast.error("Creator info or level not found.");
       return;
     }
 
     const bonus = Math.min(sum1, sum2) * creator.level / 100;
 
-    // Làm tròn về 6 chữ số sau dấu phẩy để tránh lỗi
     const newBalance = +(creator.balance + bonus).toFixed(6);
 
-    // Debug log
-    console.log("Cập nhật balance:", {
-      id: creator.id,
-      balanceOld: creator.balance,
-      bonus,
-      newBalance,
-    });
 
-    // Gửi PUT với payload đầy đủ và balance đã làm tròn
     const updateRes = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -341,17 +315,16 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
       throw new Error("PUT failed: " + errText);
     }
 
-    toast.success("Cập nhật số dư cho creator thành công.");
+    toast.success("Creator's balance updated successfully.");
   } catch (error) {
-    console.error("Lỗi khi cập nhật số dư:", error);
-    toast.error("Cập nhật số dư creator thất bại.");
+    console.error("Error while updating balance", error);
+    toast.error("Failed to update creator's balance.");
   }
 };
 
 
   try {
-    // Cập nhật trận đấu với winningTeam mới
-const nowISO = new Date().toISOString(); // Không cần tạo biến riêng ở trên, dùng luôn ở đây
+const nowISO = new Date().toISOString(); 
 await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
   method: "PUT",
   headers: { "Content-Type": "application/json" },
@@ -363,7 +336,6 @@ await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
   }),
 });
 
-    // Cập nhật các cược liên quan sang trạng thái "processing"
 
     const betsToUpdate = bets.filter(
       (bet) =>
@@ -385,24 +357,21 @@ await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
 
     await Promise.all(updatePromises);
 
-    // Cập nhật balance creator
     await updateCreatorBalance(selectedMatch.creatorId, selectedMatch.sum1, selectedMatch.sum2);
 
     toast.success(
       "Match result set. Bets processing will finalize after 3 minutes."
     );
 
-    // Lấy user từ localStorage
     const userData = localStorage.getItem("SEPuser");
     const user = userData ? JSON.parse(userData) : null;
 
     if (!user || !user.id) {
-      toast.error("Không tìm thấy thông tin người dùng.");
+      toast.error("User info not found.");
       setLoading(false);
       return;
     }
 
-    // Refetch dữ liệu trận và cược
     const [matchesRes, betsRes] = await Promise.all([
       fetch(`${API_BASE}/football`),
       fetch(`${API_BASE}/bet`),
@@ -410,7 +379,6 @@ await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
     const matchesData = await matchesRes.json();
     const betsData = await betsRes.json();
 
-    // Lọc các trận của user, countdown > now -1h
     const oneHourAgo = Date.now() - 3600 * 1000;
 
     const filteredMatches = matchesData.filter((match) => {
@@ -423,7 +391,6 @@ await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
       );
     });
 
-    // Lọc bets theo filteredMatches
     const filteredBets = betsData.filter((bet) =>
       filteredMatches.some(
         (match) => match.id.toString() === bet.matchId.toString()
@@ -503,7 +470,6 @@ const filteredMatches = matches.filter((match) => {
 
     <h1 style={{ color: "#f5f5f5", textAlign: "center" }}>Match Result Decider</h1>
 
-    {/* Decide Result Box - moved above match list */}
     <div style={{
       margin: "0 auto 30px auto",
       backgroundColor: "#222",
@@ -572,7 +538,6 @@ const filteredMatches = matches.filter((match) => {
       </div>
     </div>
 
-    {/* Match List */}
     {matches.length === 0 && <p style={{ textAlign: "center" }}>No active recent matches found.</p>}
 
     <ul style={{ listStyle: "none", paddingLeft: 0 }}>

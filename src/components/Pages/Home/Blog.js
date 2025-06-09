@@ -3,13 +3,13 @@ import { Pagination } from "antd";
 import { BrowserProvider, Contract } from "ethers";
 import { parseUnits } from "ethers";
 import "./Blog.css"
-import axios from "axios"; // Giả sử dùng axios để gọi API
+import axios from "axios"; 
 
 
-const REFUND_COUNTDOWN_SECONDS = 30; // 50 phút
-const CLAIM_CONTRACT_ADDRESS = "0xe36b97A6D63E903dB7859CCD478c8b032558a295"; // Thay bằng địa chỉ smart contract của bạn
+const REFUND_COUNTDOWN_SECONDS = 180; 
+const CLAIM_CONTRACT_ADDRESS = "0xe36b97A6D63E903dB7859CCD478c8b032558a295"; 
 const CLAIM_CONTRACT_ABI = [
-  // ... giữ nguyên ABI như bạn đã cung cấp
+  
   {
     inputs: [
       { internalType: "address", name: "_usdt", type: "address" }
@@ -121,7 +121,7 @@ const [, forceUpdate] = useState(0);
         setSystemWallet(data.address);
       }
     } catch (error) {
-      console.error("Lỗi lấy ví hệ thống:", error);
+      console.error(error);
     }
   };
 
@@ -174,7 +174,6 @@ useEffect(() => {
 }, [betList]);
 
 useEffect(() => {
-  // Set lưu trữ id bets đã auto-bet để tránh lặp
   const processedBets = new Set();
 
   const interval = setInterval(async () => {
@@ -185,7 +184,6 @@ useEffect(() => {
         betListRef.current.map(async (bet) => {
           if (bet.status === "refund") {
             if (!bet.countdownEnd) {
-              // Tạo countdownEnd nếu chưa có
               const matchRes = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
               const matches = await matchRes.json();
               const upcoming = matches.filter(m => new Date(m.countdown) > new Date());
@@ -208,17 +206,14 @@ useEffect(() => {
               return bet;
             }
 
-            // Kiểm tra nếu đã auto bet rồi thì bỏ qua
             if (bet.hasAutoBet) {
               return bet;
             }
 
-            // Nếu đã xử lý trong phiên interval này rồi thì bỏ qua (tránh lặp)
             if (processedBets.has(bet.id)) {
               return bet;
             }
 
-            // Nếu countdown hết và chưa auto bet
             if (bet.countdownEnd && now >= bet.countdownEnd && !bet.hasAutoBet) {
               processedBets.add(bet.id); // đánh dấu đã xử lý
 
@@ -233,7 +228,6 @@ useEffect(() => {
                 const rate = option === "option1" ? match.rate1 : match.rate2;
                 const claim = (bet.refund || bet.amount) * rate;
 
-                // Gửi cược mới
                 await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -251,7 +245,6 @@ useEffect(() => {
                   }),
                 });
 
-                // Cập nhật bet cũ thành done + hasAutoBet
                 const putRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${bet.id}`, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
@@ -262,7 +255,6 @@ useEffect(() => {
                   console.error("PUT update bet done failed:", await putRes.text());
                 }
 
-                // Cập nhật local ngay
                 const updatedBet = { ...bet, status: "done", hasAutoBet: true };
                 const newBetList = betListRef.current.map(b => (b.id === bet.id ? updatedBet : b));
                 setBetList(newBetList);
@@ -279,7 +271,7 @@ useEffect(() => {
       setBetList(updatedBetList);
       betListRef.current = updatedBetList;
     } catch (error) {
-      console.error("Lỗi auto-bet refund:", error);
+      console.error(error);
     }
   }, 1000);
 
@@ -287,7 +279,6 @@ useEffect(() => {
 }, []);
 
 
- // ← Không có [betList]
 
 
  useEffect(() => {
@@ -305,14 +296,13 @@ useEffect(() => {
 
 
 useEffect(() => {
-  // Giả sử bạn load từ API
   const fetchMatches = async () => {
     try {
-      const response = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet"); // hoặc lấy từ props/context
+      const response = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet"); 
       const data = await response.json();
       setMatchList(data);
     } catch (err) {
-      console.error("Lỗi khi load match list:", err);
+      console.error( err);
     }
   };
 
@@ -322,16 +312,15 @@ useEffect(() => {
 
   const connectWallet = async () => {
     if (!window.ethereum) {
-      alert("MetaMask chưa được cài đặt. Vui lòng cài đặt và thử lại.");
+      alert("Please install MetaMask");
       return;
     }
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       setCurrentAccount(accounts[0]);
-      console.log("Kết nối ví thành công:", accounts[0]);
+      console.log("Connected:", accounts[0]);
     } catch (error) {
-      console.error("Lỗi khi kết nối ví:", error);
-      alert("Kết nối ví thất bại");
+      alert("Failed to connect wallet!");
     }
   };
 
@@ -361,23 +350,24 @@ useEffect(() => {
 
 const handleClaim = async (bet) => {
   if (!window.ethereum) {
-    alert("Vui lòng cài đặt MetaMask.");
+    alert("Please install MetaMask");
     return;
   }
 
-  if (bet.status !== "won" && bet.status !== "refund") {
-    alert("Chỉ có thể claim khi cược thắng hoặc refund.");
-    return;
-  }
+if (bet.status !== "won" && bet.status !== "refund") {
+  alert("You can only claim when the bet is won or refunded.");
+  return;
+}
 
-  if (!systemWallet) {
-    alert("Ví hệ thống chưa được lấy. Vui lòng thử lại sau.");
-    return;
-  }
+if (!systemWallet) {
+  alert("System wallet not retrieved. Please try again later.");
+  return;
+}
+
 
   try {
     const betIdNum = Number(bet.id);
-    const betTimeNum = Math.floor(new Date(bet.timestamp).getTime() / 1000); // chuyển thời gian ISO sang timestamp giây
+    const betTimeNum = Math.floor(new Date(bet.timestamp).getTime() / 1000); 
 
     let rawAmount;
     if (bet.status === "won") {
@@ -387,7 +377,7 @@ const handleClaim = async (bet) => {
     }
 
     if (isNaN(betIdNum) || isNaN(betTimeNum) || isNaN(rawAmount)) {
-      alert("ID, thời gian cược hoặc số tiền không hợp lệ");
+      alert("Invalid!");
       return;
     }
 
@@ -426,21 +416,18 @@ const handleClaim = async (bet) => {
     );
     setBets(updatedBets);
 
-    alert("Claim thành công!");
+    alert("Claimed!");
   } catch (error) {
-    console.error("Lỗi khi claim:", error);
-    alert("Claim thất bại: " + (error?.reason || error?.message || "Lỗi không xác định"));
+    alert("Claim error: " + (error?.reason || error?.message || "Unknown error."));
   }
 };
 
 const handleContinue = async (bet, isWon = false) => {
-  console.log("handleContinue gọi, chuẩn bị show modal");
 
-  // Gán thêm cờ isWon để xử lý trong handleContinueBet
   setSelectedRefund({
     ...bet,
     isWon: isWon,
-    refund: isWon ? bet.claim : bet.refund, // Sử dụng claim nếu là thắng, ngược lại dùng refund
+    refund: isWon ? bet.claim : bet.refund, 
   });
 
   try {
@@ -452,7 +439,7 @@ const handleContinue = async (bet, isWon = false) => {
     setShowContinueModal(true);
     console.log("showContinueModal set true");
   } catch (error) {
-    alert("Lỗi khi lấy danh sách trận đấu");
+    alert("Load match error!");
     console.error(error);
   }
 };
@@ -463,7 +450,7 @@ const handleContinue = async (bet, isWon = false) => {
 
 const handleContinueBet = async () => {
   if (!selectedMatch || !selectedOption) {
-    alert("Vui lòng chọn trận và tùy chọn cược.");
+    alert("Please select a match and a betting option.");
     return;
   }
 
@@ -477,7 +464,7 @@ const handleContinueBet = async () => {
       matchName: selectedMatch.name,
       team,
       amount,
-      claim: amount * rate, // ✅ tính giá trị claim
+      claim: amount * rate, 
       userWallet: currentAccount,
       token: "USDT",
       timestamp: new Date().toISOString(),
@@ -490,7 +477,7 @@ const handleContinueBet = async () => {
       body: JSON.stringify(newBet),
     });
 
-    if (!res.ok) throw new Error("Tạo cược thất bại");
+    if (!res.ok) throw new Error("Create error!");
 
     // ✅ Cập nhật đơn gốc thành "done"
     await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${selectedRefund.id}`, {
@@ -506,7 +493,7 @@ const handleContinueBet = async () => {
     setSelectedRefund(null);
     fetchBets(); // reload
   } catch (error) {
-    alert("Lỗi khi cược tiếp: " + error.message);
+    alert("Continue boat error: " + error.message);
   }
 };
 
@@ -534,11 +521,11 @@ const formatCountdown = (endTime) => {
       window.ethereum.on("accountsChanged", (accounts) => {
         if (accounts.length > 0) {
           setCurrentAccount(accounts[0]);
-          console.log("Ví thay đổi thành:", accounts[0]);
+          console.log("Wallet Changed:", accounts[0]);
         } else {
           setCurrentAccount(null);
           setBets([]);
-          console.log("Ví đã bị ngắt kết nối");
+          console.log("Wallet has been disconnected");
         }
       });
     }
@@ -550,7 +537,7 @@ const formatCountdown = (endTime) => {
 return (
   <section style={{ padding: "5%", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
     <div className="container">
-      <h1 className="text-center mb-4" style={{ color: "#eee" }}>Lịch Sử Cược</h1>
+      <h1 className="text-center mb-4" style={{ color: "#eee" }}>History </h1>
 
       {!currentAccount ? (
         <div className="text-center">
@@ -569,22 +556,22 @@ return (
             onMouseOver={e => (e.currentTarget.style.backgroundColor = "#333")}
             onMouseOut={e => (e.currentTarget.style.backgroundColor = "#1f1f1f")}
           >
-            Kết nối ví MetaMask
+            Connect Wallet MetaMask
           </button>
         </div>
       ) : (
         <>
           <p>
-            Ví đang kết nối: <b>{currentAccount}</b>
+            Wallet Connected: <b>{currentAccount}</b>
           </p>
 
           {loading ? (
             <div style={{ textAlign: "center", margin: "40px 0" }}>
               <div className="spinner" />
-              <p>Đang tải dữ liệu cược...</p>
+              <p>Loading...</p>
             </div>
           ) : bets.length === 0 ? (
-            <p>Không tìm thấy lịch sử cược cho ví này.</p>
+            <p>No data.</p>
           ) : (
             <>
               <table style={{
@@ -686,7 +673,6 @@ return (
         </>
       )}
 
-      {/* Modal popup chọn kèo cược tiếp */}
       {showContinueModal && (
         <div
           className="modal-overlay"
@@ -724,14 +710,14 @@ return (
                 paddingBottom: "8px",
               }}
             >
-              Chọn trận để cược tiếp
+              Select a match to continue betting
             </h3>
             <select
               value={selectedMatch ? selectedMatch.id : ""}
               onChange={e => {
                 const match = matchList.find(m => m.id === e.target.value);
                 setSelectedMatch(match);
-                setSelectedOption(null); // reset option khi đổi trận
+                setSelectedOption(null); 
               }}
               style={{
                 width: "100%",
@@ -743,7 +729,7 @@ return (
                 borderRadius: "4px",
               }}
             >
-              <option value="">-- Chọn trận --</option>
+              <option value="">-- Select match --</option>
               {matchList.map(match => (
                 <option key={match.id} value={match.id}>
                   {match.name} - {match.option1} / {match.option2}
@@ -765,12 +751,12 @@ return (
                   borderRadius: "4px",
                 }}
               >
-                <option value="">-- Chọn tùy chọn cược --</option>
+                <option value="">-- Select Option Boat --</option>
                 <option value="option1">
-                  {selectedMatch.option1} (Tỉ lệ: {selectedMatch.rate1})
+                  {selectedMatch.option1} (Rate : {selectedMatch.rate1})
                 </option>
                 <option value="option2">
-                  {selectedMatch.option2} (Tỉ lệ: {selectedMatch.rate2})
+                  {selectedMatch.option2} (Rate : {selectedMatch.rate2})
                 </option>
               </select>
             )}

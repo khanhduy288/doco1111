@@ -44,7 +44,7 @@ const Menu = () => {
   team2: "",
   iframe: "",
   iframe2: "",
-  matchType: "top_win_bot_lose", // Mặc định chọn "Top Win / Bot Lose"
+  matchType: "top_win_bot_lose", 
   option1: "",
   option2: "",
   rate1: "1.85",
@@ -217,7 +217,6 @@ const handleCreate = async (e) => {
 
     if (!res.ok) throw new Error("Create failed");
 
-    // ✅ Tăng exp cho user sau khi tạo match thành công
     await updateUserExp(creatorId);
 
     toast.success("Tạo kèo thành công!");
@@ -261,9 +260,9 @@ useEffect(() => {
     }
   };
 
-  fetchMatchesWithCreators(); // gọi 1 lần đầu
+  fetchMatchesWithCreators(); 
 
-  const intervalId = setInterval(fetchMatchesWithCreators, 30000); // gọi mỗi 30s
+  const intervalId = setInterval(fetchMatchesWithCreators, 30000); 
 
   return () => {
     isMounted = false;
@@ -276,7 +275,7 @@ useEffect(() => {
 useEffect(() => {
   if (window.ethereum) {
     const handleChainChanged = () => {
-      window.location.reload(); // reload lại trang để đồng bộ chainId
+      window.location.reload(); 
     };
     window.ethereum.on("chainChanged", handleChainChanged);
     return () => {
@@ -305,7 +304,6 @@ useEffect(() => {
         setBetsByMatchId(prev => ({ ...prev, [expandedMatchId]: bets }));
       })
        .catch(() => {
-        // Bỏ qua lỗi, không hiện toast, không làm gì
       });
   }
 }, [expandedMatchId]);
@@ -317,7 +315,6 @@ useEffect(() => {
       const data = await res.json();
       setAllBets(data);
     } catch (err) {
-      console.error('Lỗi khi lấy danh sách cược:', err);
     }
   };
 
@@ -331,7 +328,6 @@ useEffect(() => {
   const checkForExpiredMatches = async () => {
     const nowTime = Date.now();
 
-    // Lọc những trận hết giờ, chưa settled và chưa xử lý trong ref
     const expiredMatches = matches.filter(
       (m) =>
         new Date(m.countdown).getTime() <= nowTime &&
@@ -344,7 +340,6 @@ useEffect(() => {
         const res = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet?matchId=${match.id}`);
 
         if (!res.ok) {
-          // Nếu fetch lỗi (có thể 404), coi như trận hết countdown mà k có cược => xóa trận
           setMatches((prev) => prev.filter((m) => m.id !== match.id));
           settledMatchIds.current.push(match.id);
           continue;
@@ -352,15 +347,12 @@ useEffect(() => {
 
         const allBets = await res.json();
 
-        // Nếu hết countdown mà không có cược
         if (allBets.length === 0) {
-          // Xóa trận khỏi danh sách
           setMatches((prev) => prev.filter((m) => m.id !== match.id));
           settledMatchIds.current.push(match.id);
           continue;
         }
 
-        // Tiếp tục xử lý refund nếu có cược như cũ
         const team1Bets = allBets.filter((b) => b.team === match.option1 && b.status === "pending");
         const team2Bets = allBets.filter((b) => b.team === match.option2 && b.status === "pending");
 
@@ -428,14 +420,13 @@ useEffect(() => {
           body: JSON.stringify({ status: "settled" }),
         });
 
-        // Đánh dấu trận đã xử lý
         settledMatchIds.current.push(match.id);
 
         if (refundBets.length > 0) {
-          toast.info(`Đã hoàn tiền ${refundBets.length} đơn cược lệch kèo ở trận ${match.team1} vs ${match.team2}`);
+        toast.info(`Refunded ${refundBets.length} mismatched bets for the match ${match.team1} vs ${match.team2}`);
         }
       } catch (err) {
-        console.error("Lỗi khi xử lý refund:", err);
+        console.error(err);
       }
     }
   };
@@ -454,7 +445,7 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, [matches, setMatches]); // nhớ thêm setMatches vào deps nếu bạn khai báo từ state
+}, [matches, setMatches]);
 
 
 
@@ -466,12 +457,12 @@ const fetchCreatorInfo = async (creatorId) => {
       }
     });
 
-    if (!res.ok) throw new Error("Không lấy được dữ liệu");
+    if (!res.ok) throw new Error("Cannot load data");
 
     const data = await res.json();
     return { name: data.fullName, level: data.level, balance: data.balance, exp: data.exp };
   } catch (err) {
-    console.error("Lỗi lấy thông tin người tạo:", err);
+    console.error(err);
     return { name: "", level: 0 };
   }
 };
@@ -487,13 +478,13 @@ const fetchCreatorInfo = async (creatorId) => {
 
 const fetchBetsByMatch = async (matchId) => {
   const res = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet?matchId=${matchId}`);
-  if (!res.ok) throw new Error("Lỗi khi lấy danh sách cược");
+  if (!res.ok) throw new Error("Error");
   return await res.json();
 };
 
 
 const ALLOWED_CHAIN_ID = 56n;
-const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // USDT trên BSC
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; 
 
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) public returns (bool)",
@@ -507,7 +498,7 @@ const ERC20_ABI = [
 
   const connectWallet = async () => {
     if (!window.ethereum) {
-      toast.error("Vui lòng cài đặt MetaMask để đặt cược!");
+      toast.error("Please install MetaMask to place bets!");
       return;
     }
     try {
@@ -534,12 +525,11 @@ const switchToBSC = async () => {
   try {
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x38" }], // 0x38 = 56 decimal
+      params: [{ chainId: "0x38" }], 
     });
-    toast.success("Đã chuyển sang mạng BSC");
+    toast.success("Switched to BSC network");
     return true;
   } catch (switchError) {
-    // Nếu mạng chưa có trong MetaMask, yêu cầu add mạng mới
     if (switchError.code === 4902) {
       try {
         await window.ethereum.request({
@@ -558,14 +548,14 @@ const switchToBSC = async () => {
             },
           ],
         });
-        toast.success("Đã thêm mạng BSC và chuyển đổi thành công");
+        toast.success("BSC network added and switched successfully");
         return true;
       } catch (addError) {
-        toast.error("Không thể thêm mạng BSC");
+        toast.error("Failed to add BSC network.");
         return false;
       }
     } else {
-      toast.error("Không thể chuyển sang mạng BSC");
+      toast.error("Failed to switch to BSC network.");
       return false;
     }
   }
@@ -577,12 +567,12 @@ const placeBet = async (matchId, team, rate, matchName) => {
   console.log("placeBet is called with", matchId, team, "Rate:", rate, matchName);
 
   if (!currentAccount) {
-    toast.warning("Vui lòng kết nối ví MetaMask trước.");
+    toast.warning("Please connect your MetaMask wallet first.");
     return;
   }
 
   if (!betAmount || isNaN(betAmount) || Number(betAmount) <= 0) {
-    toast.error("Vui lòng nhập số tiền cược hợp lệ.");
+    toast.error("Please enter a valid bet amount.");
     return;
   }
 
@@ -595,7 +585,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
     if (network.chainId !== ALLOWED_CHAIN_ID) {
       const switched = await switchToBSC();
       if (!switched) {
-        toast.error("Không thể chuyển sang mạng BSC.");
+        toast.error("Failed to switch to BSC network.");
         setBettingLoading(false);
         return;
       }
@@ -619,7 +609,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
 
     const balance = await usdt.balanceOf(userAddress);
     if (balance < betAmountInUnits) {
-      toast.error("Số dư USDT không đủ.");
+      toast.error("Insufficient USDT balance.");
       setBettingLoading(false);
       return;
     }
@@ -629,17 +619,16 @@ const placeBet = async (matchId, team, rate, matchName) => {
     const allowance = await usdt.allowance(userAddress, recipient);
     if (allowance < betAmountInUnits) {
       const approveTx = await usdt.approve(recipient, betAmountInUnits);
-      toast.info("Đang gửi giao dịch approve...");
+      toast.info("Sending approve transaction...");
       await approveTx.wait();
     }
 
     const transferTx = await usdt.transfer(recipient, betAmountInUnits);
-    toast.info("Đang gửi giao dịch USDT...");
+    toast.info("Sending USDT transaction...");
     await transferTx.wait();
 
     const claim = Number((Number(betAmount) * Number(rate)).toFixed(4));
 
-    // 1. Lưu cược vào /bet
     const betData = {
       matchId,
       team,
@@ -660,7 +649,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
     });
 
     if (!res.ok) {
-      toast.error("Lưu đơn cược thất bại.");
+      toast.error("Failed to save the bet.");
       setBettingLoading(false);
       return;
     }
@@ -684,27 +673,23 @@ const placeBet = async (matchId, team, rate, matchName) => {
     });
 
     if (updateRes.ok) {
-      toast.success("Cược thành công và đã cập nhật tổng cược!");
+      toast.success("Bet placed successfully and total bet updated!");
 
-      // --- FETCH LẠI trận đấu để cập nhật sum1, sum2 mới nhất ---
       const refreshedRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${matchId}`);
       const refreshedMatch = await refreshedRes.json();
 
-      // --- Cập nhật matches state (giả sử bạn có setMatches và matches ở component) ---
       setMatches((prevMatches) =>
         prevMatches.map((m) => (m.id === matchId ? refreshedMatch : m))
       );
     } else {
-      toast.warning("Cược thành công nhưng cập nhật tổng cược thất bại.");
+      toast.warning("Bet placed successfully but failed to update total bet.");
     }
   } catch (error) {
     console.error(error);
-    toast.error("Lỗi khi đặt cược: " + (error.reason || error.message));
   }
 
   setBettingLoading(false);
-  console.log("Đặt cược vào trận:", matchName);
-    forceUpdate(); // ép render lại
+    forceUpdate();
 
 };
 
@@ -721,7 +706,6 @@ const placeBet = async (matchId, team, rate, matchName) => {
 // });
 
 
-// Danh sách thời gian và round tương ứng (từ 17p đến 5p)
 const rounds = [
   { time: 17, round: "1.1" },
   { time: 16, round: "2.1" },
@@ -759,7 +743,7 @@ const rounds = [
   ) : (
     <div
       className="wallet-display"
-      title={currentAccount} // hiển thị toàn bộ địa chỉ khi hover
+      title={currentAccount} 
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -944,7 +928,6 @@ const rounds = [
         </div>
       </div>
     ) : (
-      // Nếu không phải kiểu top_win_bot_lose thì giữ layout cũ, thêm tooltip
       <>
         <div className="form-row" style={{ display: "flex", gap: "16px" }}>
           <input
@@ -1168,7 +1151,7 @@ const rounds = [
   const matchTime = new Date(match.countdown).getTime();
 
   if (tab === "live") return matchTime > now;
-  if (tab === "history") return matchTime <= now - 3600000; // Lịch sử: trước 1h
+  if (tab === "history") return matchTime <= now - 3600000;
   if (tab === "processing") {
     return (
       !match.winningTeam &&
@@ -1177,12 +1160,12 @@ const rounds = [
     );
   }
 
-  return true; // fallback
+  return true; 
 })
 
       .map((match) => {
         const countdownMs = new Date(match.countdown).getTime() - now;
-        const isExpandable = tab === "live"; // chỉ live mới cho mở rộng
+        const isExpandable = tab === "live"; 
 
         return (
        <div
@@ -1224,7 +1207,7 @@ const rounds = [
     padding: "3px 6px",
     borderRadius: 5,
     opacity: 0.85,
-    color: "#fff", // màu chữ mặc định trắng
+    color: "#fff", 
   }}
 >
   👤 {match.creator?.name || "Hidden"}{" "}
@@ -1256,13 +1239,8 @@ const rounds = [
   )}
 </div>
 
-
-
-
-  {/* Match status (top-right badge) */}
  
 
-  {/* Match name ở vị trí cũ của countdown */}
   <div
     style={{
       position: "absolute",
@@ -1280,13 +1258,12 @@ const rounds = [
       overflow: "hidden",
       textOverflow: "ellipsis",
     }}
-    title={match.name} // tooltip nếu tên dài
+    title={match.name} 
   >
     {match.name}
   </div>
 
-  {/* Team names + video buttons + VS */}
-  <div className="match-row" style={{ marginTop: "5px" /* tạo khoảng cách với match name */ }}>
+  <div className="match-row" style={{ marginTop: "5px" }}>
     {/* TEAM 1 */}
     <div className="team team-left">
       {match.winningTeam?.toLowerCase().includes(match.team1.toLowerCase()) && (
@@ -1297,7 +1274,7 @@ const rounds = [
           window.open(match.iframe.split(",")[0]?.trim() || "#", "_blank")
         }
         className="live-button"
-        title="Xem livestream đội 1"
+        title="Xem livestream 1"
       >
         🔴 LIVE
       </button>
@@ -1314,7 +1291,7 @@ const rounds = [
           window.open(match.iframe.split(",")[1]?.trim() || "#", "_blank")
         }
         className="live-button"
-        title="Xem livestream đội 2"
+        title="Xem livestream 2"
       >
         🔴 LIVE
       </button>
@@ -1324,7 +1301,6 @@ const rounds = [
     </div>
   </div>
 
-  {/* Countdown xuống dưới cùng, không dùng absolute, căn giữa */}
   <div
     style={{
       marginTop: -5,
@@ -1340,7 +1316,6 @@ const rounds = [
     ⏳ {formatCountdown(countdownMs)}
   </div>
 
-  {/* ID badge bottom-right */}
   <div
     style={{
       position: "absolute",
@@ -1373,9 +1348,8 @@ const rounds = [
             disabled={bettingLoading}
             className="bet-btn"
             onClick={() => {
-              // Khi bấm Board này, bật input cho option đó
               setActiveOption(option.team);
-              setBetAmount(""); // reset số tiền mỗi lần bấm board khác
+              setBetAmount(""); 
             }}
           >
             Board {option.name}
@@ -1401,7 +1375,6 @@ const rounds = [
               ))}
           </div>
 
-          {/* Hiện input + nút OK chỉ khi option đang active */}
 {activeOption === option.team && (
   <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
     <input

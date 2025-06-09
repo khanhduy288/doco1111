@@ -10,36 +10,14 @@ const Contact = () => {
 
   return (
     <>
-      <section
-        className="hero-wrap hero-wrap-2"
-        style={{ backgroundImage: 'url("images/bg_1.jpg")' }}
-        data-stellar-background-ratio="0.5"
-      >
-        <div className="overlay" />
-        <div className="container">
-          <div className="row no-gutters slider-text align-items-end justify-content-center">
-            <div className="col-md-9 wow animate__animated animate__fadeInUp text-center mb-5">
-              <h1 className="mb-2 bread">How to Create "Boat" & Earn Commission</h1>
-              <p className="breadcrumbs">
-                <span className="mr-2">
-                  <a href="/">
-                    Home 
-                  </a>
-                </span>{" "}
-                <span>
-                  User Guide 
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Bỏ hẳn section hero-wrap */}
 
-      <section className="ftco-section contact-section bg-light guide-section">
+      <section className="ftco-section contact-section bg-light guide-section" style={{ paddingTop: '30px' }}>
         <div className="container">
           <div className="row mb-5">
             <div className="col-md-12">
-              <h2>How to Register and Earn Revenue by Creating "Boat"</h2>
+              {/* Nếu bạn muốn giữ lại tiêu đề chính, chuyển h1 xuống đây */}
+              <h2>How to Create "Boat" & Earn Commission</h2>
 
               <h5>Step 1: Register an Account</h5>
               <p>

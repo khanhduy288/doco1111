@@ -5601,7 +5601,7 @@ button.bg-light:focus {
   background-color: #dae0e5 !important; }
 
 .bg-dark {
-  background-color: #343a40 !important; }
+  background-color: #08080b !important; }
 
 a.bg-dark:hover, a.bg-dark:focus,
 button.bg-dark:hover,
@@ -9292,7 +9292,7 @@ textarea.form-control {
 
 .ftco-footer {
   font-size: 14px;
-  background: #1a1a1a;
+  background: #08080b;
   padding: 6em 0 0 0; }
   .ftco-footer .ftco-footer-logo {
     text-transform: uppercase;
@@ -9330,7 +9330,7 @@ textarea.form-control {
   .ftco-footer .ftco-heading-2 {
     font-size: 17px;
     font-weight: 700;
-    color: #000000; }
+    color: #fff; }
   .ftco-footer .categories li {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
     .ftco-footer .categories li a span {

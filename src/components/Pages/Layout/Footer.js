@@ -12,8 +12,9 @@ const Footer = () => {
             {/* Column for Company Info */}
             <div className="col-md-4 mb-4">
               <h5 className="ftco-heading-2">About Us</h5>
-              <p>We are a global brand offering top quality products with fast and reliable shipping worldwide.</p>
-            </div>
+              <h6 style={{ color: 'white' }}>
+              We will provide you with a trustworthy and fair playground. Have fun!
+              </h6>            </div>
 
             {/* Column for Customer Service */}
             <div className="col-md-4 mb-4">
@@ -42,17 +43,17 @@ const Footer = () => {
             <div className="col-12 text-center">
               <ul className="ftco-footer-social list-unstyled d-flex justify-content-center">
                 <li className="mr-3">
-                  <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.instagram.com"  target="_blank" rel="noopener noreferrer" className="social-link">
                     <FontAwesomeIcon icon={faInstagram} className="text-white" />
                   </a>
                 </li>
                 <li className="mr-3">
-                  <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
                     <FontAwesomeIcon icon={faFacebook} className="text-white" />
                   </a>
                 </li>
                 <li className="mr-3">
-                  <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-link">
                     <FontAwesomeIcon icon={faYoutube} className="text-white" />
                   </a>
                 </li>
@@ -62,7 +63,7 @@ const Footer = () => {
         </div>
 
         {/* Copyright Section */}
-        <div className="bg-secondary py-3">
+        <div className="bg-dark py-3">
           <div className="container text-center">
             <p className="mb-0">&copy; 2025 ShopName - All Rights Reserved</p>
           </div>

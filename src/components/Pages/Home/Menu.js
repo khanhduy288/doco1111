@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Header from '../Layout/Header';  // phải import Header mới dùng được
 import { SiBinance } from 'react-icons/si';
-
+import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, Row, Col } from "antd";
@@ -73,6 +74,19 @@ const Menu = () => {
   
 
 
+const hasProcessingMatches =
+  user?.level === 5 &&
+  matches.some((match) => {
+    const matchTime = new Date(match.countdown).getTime();
+    return (
+      !match.winningTeam &&
+      matchTime > now - 3600000 &&
+      matchTime <= now
+    );
+  });
+
+
+
   useEffect(() => {
 
     const storedUser = localStorage.getItem("SEPuser");
@@ -92,11 +106,41 @@ const Menu = () => {
         [name]: value,
       }));
     };
+
+
+const updateUserExp = async (creatorId) => {
+  try {
+    const res = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
+      headers: {
+        "x-secret-key": "adminsepuser"
+      }
+    });
+
+    const user = await res.json();
+    const currentExp = user.exp || 0;
+
+    await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "x-secret-key": "adminsepuser"
+      },
+      body: JSON.stringify({
+        ...user,
+        exp: currentExp + 1
+      })
+    });
+  } catch (error) {
+    console.error("Failed to update user exp:", error);
+  }
+};
+
+
+    
 const handleCreate = async (e) => {
   e.preventDefault();
 
   const requiredFields = ["name", "team1", "team2", "iframe", "countdown"];
-
   for (const field of requiredFields) {
     if (!form[field] || form[field].toString().trim() === "") {
       toast.error(`Please fill out the required field: ${field}`);
@@ -104,7 +148,6 @@ const handleCreate = async (e) => {
     }
   }
 
-  // Kiểm tra URL hợp lệ
   const isValidUrl = (url) => {
     try {
       new URL(url);
@@ -125,7 +168,6 @@ const handleCreate = async (e) => {
   }
 
   const now = Date.now();
-
   const isDuplicate = matches.some((match) =>
     new Date(match.countdown).getTime() > now &&
     match.name.trim().toLowerCase() === form.name.trim().toLowerCase() &&
@@ -146,26 +188,27 @@ const handleCreate = async (e) => {
     return;
   }
 
-const payload = {
-  ...form,
-  iframe:
-    form.matchType === "top_win_bot_lose" && form.iframe2
-      ? `${form.iframe},${form.iframe2}`
-      : form.iframe, 
-  option1: `${form.team1} Win`,
-  option2: `${form.team2} Win`,
-  rate1: "1.85",
-  rate2: "1.85",
-  status1: "pending",
-  status2: "pending",
-  time: new Date().toISOString(),
-  sum1: 0,
-  sum2: 0,
-  status: "pending",
-  creatorId,
-};
+  const payload = {
+    ...form,
+    iframe:
+      form.matchType === "top_win_bot_lose" && form.iframe2
+        ? `${form.iframe},${form.iframe2}`
+        : form.iframe,
+    option1: `${form.team1} Win`,
+    option2: `${form.team2} Win`,
+    rate1: "1.85",
+    rate2: "1.85",
+    status1: "pending",
+    status2: "pending",
+    time: new Date().toISOString(),
+    sum1: 0,
+    sum2: 0,
+    status: "pending",
+    creatorId,
+  };
 
   try {
+    // Gửi yêu cầu tạo match
     const res = await fetch(BET_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -173,6 +216,9 @@ const payload = {
     });
 
     if (!res.ok) throw new Error("Create failed");
+
+    // ✅ Tăng exp cho user sau khi tạo match thành công
+    await updateUserExp(creatorId);
 
     toast.success("Tạo kèo thành công!");
 
@@ -194,27 +240,9 @@ const payload = {
 
 
 
-  useEffect(() => {
-    // Khi component mount, kiểm tra kích thước màn hình
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        // màn hình desktop (tùy chỉnh ngưỡng 768px)
-        setSidebarOpen(true);
-      } else {
-        // màn hình điện thoại
-        setSidebarOpen(false);
-      }
-    };
-
-    handleResize(); // chạy 1 lần khi mount
-
-    // (Không bắt buộc) nếu muốn menu tự động đóng mở khi resize window
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  
-
 useEffect(() => {
+  let isMounted = true;
+
   const fetchMatchesWithCreators = async () => {
     try {
       const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
@@ -227,13 +255,22 @@ useEffect(() => {
         })
       );
 
-      setMatches(enrichedMatches);
+      if (isMounted) setMatches(enrichedMatches);
     } catch (err) {
+      console.error("Lỗi khi fetch matches:", err);
     }
   };
 
-  fetchMatchesWithCreators();
+  fetchMatchesWithCreators(); // gọi 1 lần đầu
+
+  const intervalId = setInterval(fetchMatchesWithCreators, 30000); // gọi mỗi 30s
+
+  return () => {
+    isMounted = false;
+    clearInterval(intervalId);
+  };
 }, []);
+
 
 
 useEffect(() => {
@@ -432,7 +469,7 @@ const fetchCreatorInfo = async (creatorId) => {
     if (!res.ok) throw new Error("Không lấy được dữ liệu");
 
     const data = await res.json();
-    return { name: data.fullName, level: data.level };
+    return { name: data.fullName, level: data.level, balance: data.balance, exp: data.exp };
   } catch (err) {
     console.error("Lỗi lấy thông tin người tạo:", err);
     return { name: "", level: 0 };
@@ -672,16 +709,16 @@ const placeBet = async (matchId, team, rate, matchName) => {
 };
 
 
-const filteredMatches = matches.filter(match => {
-  const countdownTime = new Date(match.countdown).getTime();
+// const filteredMatches = matches.filter(match => {
+//   const countdownTime = new Date(match.countdown).getTime();
 
-  if (tab === "live") {
-    return countdownTime > now;
-  } else if (tab === "history") {
-    return countdownTime <= now && countdownTime >= startOfDay.getTime() && countdownTime <= endOfDay.getTime();
-  }
-  return false;
-});
+//   if (tab === "live") {
+//     return countdownTime > now;
+//   } else if (tab === "history") {
+//     return countdownTime <= now && countdownTime >= startOfDay.getTime() && countdownTime <= endOfDay.getTime();
+//   }
+//   return false;
+// });
 
 
 // Danh sách thời gian và round tương ứng (từ 17p đến 5p)
@@ -706,11 +743,6 @@ const rounds = [
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
-      {/* Nút toggle menu */}
-
-
-
-      {/* Sidebar menu */}
 
 <div
   style={{
@@ -802,9 +834,10 @@ const rounds = [
             option1: "",
           }))
         }
+        style={{ width: "100%" }}
       >
         <option value="top_win_bot_lose">Top Win / Bot Lose</option>
-        <option value="temporary_ranking" >Temporary Top Ranking</option>
+        <option value="temporary_ranking">Temporary Top Ranking</option>
       </select>
     </div>
 
@@ -812,116 +845,216 @@ const rounds = [
     <div className="form-row">
       <input
         name="name"
-        placeholder="Match Name"
+        placeholder="Title"
         value={form.name}
         onChange={handleChange}
+        style={{ width: "100%" }}
       />
     </div>
 
-    {/* Iframe(s) */}
-    <div className="form-row">
-      <input
-        name="iframe"
-        placeholder="Link video team 1"
-        value={form.iframe}
-        onChange={handleChange}
-      />
-      {form.matchType === "top_win_bot_lose" && (
-        <input
-          name="iframe2"
-          placeholder="Link video team 2"
-          value={form.iframe2 || ""}
-          onChange={handleChange}
-        />
-      )}
-    </div>
-
-    {/* Team Select */}
-<div className="form-row" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-
-        <input
-          name="team1"
-          placeholder="Team 1"
-          value={form.team1}
-          onChange={handleChange}
-          required
-          onFocus={() => handleFocus("team1")}
-          onBlur={handleBlur}
-          style={{ position: "relative" }}
-        />
-        {focusedInput === "team1" && (
-          <div
-            style={{
-              color: "#d32f2f",
-              fontSize: "0.8em",
-              marginTop: "4px",
-              backgroundColor: "#ffe6e6",
-              padding: "6px 10px",
-              borderRadius: "4px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-              maxWidth: "500px",
-            }}
-          >
-    Please enter a valid name. Incorrect input may result in your account being locked.
+    {/* Team + Link cùng dòng (2 cột) */}
+    {form.matchType === "top_win_bot_lose" ? (
+      <div className="form-row" style={{ display: "flex", gap: "16px" }}>
+        {/* Cột Team1 + Link */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ position: "relative", width: "100%" }}>
+            <input
+              name="team1"
+              placeholder="ID In Game Boat 1 (*)"
+              value={form.team1}
+              onChange={handleChange}
+              required
+              onFocus={() => handleFocus("team1")}
+              onBlur={handleBlur}
+              style={{ width: "100%", position: "relative", zIndex: 1 }}
+            />
+            {focusedInput === "team1" && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  marginBottom: "4px",
+                  color: "#d32f2f",
+                  fontSize: "0.8em",
+                  backgroundColor: "#ffe6e6",
+                  padding: "6px 10px",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  maxWidth: "500px",
+                  zIndex: 2,
+                }}
+              >
+                Please enter a valid name. Incorrect input may result in your account being locked.
+              </div>
+            )}
           </div>
-        )}
 
+          <input
+            name="iframe"
+            placeholder="Link Live Stream Boat 1 (*)"
+            value={form.iframe}
+            onChange={handleChange}
+            style={{ width: "100%" }}
+          />
+        </div>
 
-        <input
-          name="team2"
-          placeholder="Team 2"
-          value={form.team2}
-          onChange={handleChange}
-          required
-          onFocus={() => handleFocus("team2")}
-          onBlur={handleBlur}
-          style={{ position: "relative" }}
-        />
-        {focusedInput === "team2" && (
-          <div
-            style={{
-              color: "#d32f2f",
-              fontSize: "0.8em",
-              marginTop: "4px",
-              backgroundColor: "#ffe6e6",
-              padding: "6px 10px",
-              borderRadius: "4px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-              maxWidth: "500px",
-            }}
-          >
-    Please enter a valid name. Incorrect input may result in your account being locked.
+        {/* Cột Team2 + Link */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ position: "relative", width: "100%" }}>
+            <input
+              name="team2"
+              placeholder="ID In Game Boat 2 (*)"
+              value={form.team2}
+              onChange={handleChange}
+              required
+              onFocus={() => handleFocus("team2")}
+              onBlur={handleBlur}
+              style={{ width: "100%", position: "relative", zIndex: 1 }}
+            />
+            {focusedInput === "team2" && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  marginBottom: "4px",
+                  color: "#d32f2f",
+                  fontSize: "0.8em",
+                  backgroundColor: "#ffe6e6",
+                  padding: "6px 10px",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  maxWidth: "500px",
+                  zIndex: 2,
+                }}
+              >
+                Please enter a valid name. Incorrect input may result in your account being locked.
+              </div>
+            )}
           </div>
-        )}
+
+          <input
+            name="iframe2"
+            placeholder="Link Live Stream Boat 2 (*)"
+            value={form.iframe2 || ""}
+            onChange={handleChange}
+            style={{ width: "100%" }}
+          />
+        </div>
       </div>
+    ) : (
+      // Nếu không phải kiểu top_win_bot_lose thì giữ layout cũ, thêm tooltip
+      <>
+        <div className="form-row" style={{ display: "flex", gap: "16px" }}>
+          <input
+            name="iframe"
+            placeholder="Link video team 1"
+            value={form.iframe}
+            onChange={handleChange}
+            style={{ flex: 1 }}
+          />
+          <input
+            name="iframe2"
+            placeholder="Link video team 2"
+            value={form.iframe2 || ""}
+            onChange={handleChange}
+            style={{ flex: 1 }}
+          />
+        </div>
+        <div className="form-row" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ position: "relative", width: "100%" }}>
+            <input
+              name="team1"
+              placeholder="Team 1"
+              value={form.team1}
+              onChange={handleChange}
+              required
+              onFocus={() => handleFocus("team1")}
+              onBlur={handleBlur}
+              style={{ width: "100%", position: "relative", zIndex: 1 }}
+            />
+            {focusedInput === "team1" && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  marginBottom: "4px",
+                  color: "#d32f2f",
+                  fontSize: "0.8em",
+                  backgroundColor: "#ffe6e6",
+                  padding: "6px 10px",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  maxWidth: "500px",
+                  zIndex: 2,
+                }}
+              >
+                Please enter a valid name. Incorrect input may result in your account being locked.
+              </div>
+            )}
+          </div>
+
+          <div style={{ position: "relative", width: "100%" }}>
+            <input
+              name="team2"
+              placeholder="Team 2"
+              value={form.team2}
+              onChange={handleChange}
+              required
+              onFocus={() => handleFocus("team2")}
+              onBlur={handleBlur}
+              style={{ width: "100%", position: "relative", zIndex: 1 }}
+            />
+            {focusedInput === "team2" && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  marginBottom: "4px",
+                  color: "#d32f2f",
+                  fontSize: "0.8em",
+                  backgroundColor: "#ffe6e6",
+                  padding: "6px 10px",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  maxWidth: "500px",
+                  zIndex: 2,
+                }}
+              >
+                Please enter a valid name. Incorrect input may result in your account being locked.
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    )}
 
     {/* Countdown */}
-<div className="form-row">
-  <select name="countdown" value={form.countdown} onChange={handleChange}>
-    <option value="">Select countdown duration</option>
-    {rounds.map(({ time, round }) => {
-      const futureTime = new Date(Date.now() + time * 60000).toISOString();
-      return (
-        <option key={time} value={futureTime}>
-          {time} minutes (Round {round})
-        </option>
-      );
-    })}
-  </select>
-</div>
+    <div className="form-row">
+      <select name="countdown" value={form.countdown} onChange={handleChange} style={{ width: "100%" }}>
+        <option value="">Select the game start time (*)</option>
+        {rounds.map(({ time, round }) => {
+          const futureTime = new Date(Date.now() + time * 60000).toISOString();
+          return (
+            <option key={time} value={futureTime}>
+              {time} minutes (Round {round})
+            </option>
+          );
+        })}
+      </select>
+    </div>
 
     {/* Submit */}
     <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-<button type="submit" className="btn-create">
-  Create Bet
-</button>
-
+      <button type="submit" className="btn-create">
+        Create Bet
+      </button>
     </div>
   </form>
 )}
-
-
-
 
 
       <div className="container">
@@ -930,7 +1063,7 @@ const rounds = [
     <strong>Newbie Guide</strong><span className="after-title">On mobile, you need to use the MetaMask in-app browser
 </span>
   </a>
-  <a href="/guide" className="ad-box">
+  <a href="/" className="ad-box">
     <strong>Announcement</strong><span className="after-title">{systemMessage}</span> 
   </a>
   <a href="/guide" className="ad-box">
@@ -962,7 +1095,7 @@ const rounds = [
   <div className="tooltip-wrapper">
     <button
       onClick={() => (window.location.href = "/result")}
-      className="header-btn"
+      className={`header-btn ${hasProcessingMatches ? "blinking" : ""}`}
     >
       ⓘ Result
     </button>
@@ -1040,7 +1173,7 @@ const rounds = [
     return (
       !match.winningTeam &&
       matchTime > now - 3600000 &&
-      matchTime <= now
+      matchTime <= now + 30000
     );
   }
 
@@ -1081,159 +1214,130 @@ const rounds = [
   }}
 >
   {/* Creator info (top-left badge) */}
-  <div
-    style={{
-      position: "absolute",
-      top: 6,
-      left: 10,
-      fontSize: 11,
-      backgroundColor: "rgba(0, 0, 0, 0.6)",
-      padding: "3px 6px",
-      borderRadius: 5,
-      opacity: 0.85,
-    }}
-  >
-    👤 {match.creator?.name || "Hidden"}{" "}
-    {Array(match.creator?.level || 0).fill("⭐").join(" ")}
-  </div>
+<div
+  style={{
+    position: "absolute",
+    top: 6,
+    left: 10,
+    fontSize: 11,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    padding: "3px 6px",
+    borderRadius: 5,
+    opacity: 0.85,
+    color: "#fff", // màu chữ mặc định trắng
+  }}
+>
+  👤 {match.creator?.name || "Hidden"}{" "}
+  {Array(match.creator?.level || 0).fill("⭐").join(" ")}
+  <br />
+  Exp:{" "}
+  <span style={{ color: "deepskyblue", fontWeight: "bold" }}>
+    {match.creator?.exp ?? "N/A"}
+  </span>{" "}
+  | Balance:{" "}
+  {match.creator?.balance !== undefined ? (
+    <>
+      <span style={{ fontWeight: "bold", color: "gold" }}>
+        {Number(match.creator.balance).toFixed(2)}
+      </span>{" "}
+      <span
+        style={{
+          fontWeight: "bold",
+          color: "#25a17b",
+          marginRight: 3,
+          verticalAlign: "middle",
+        }}
+      >
+        ₮
+      </span>
+    </>
+  ) : (
+    "N/A"
+  )}
+</div>
+
+
+
 
   {/* Match status (top-right badge) */}
-  <div
-    style={{
-      position: "absolute",
-      top: 6,
-      right: 10,
-      fontSize: 11,
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-      padding: "3px 6px",
-      borderRadius: 5,
-      opacity: 0.85,
-    }}
-  >
-    <div style={{ fontWeight: "bold", color: "#ffcc00" }}>
-      {match.winningTeam ? <>🏆 {match.winningTeam}</> : <>📡 LIVE</>}
-    </div>
-  </div>
+ 
 
-  {/* Countdown (center-top above match) */}
+  {/* Match name ở vị trí cũ của countdown */}
   <div
     style={{
       position: "absolute",
       top: 8,
       left: "50%",
       transform: "translateX(-50%)",
-      fontSize: 12,
-      color: "#f1c40f",
+      fontSize: 16,
+      fontWeight: "bold",
+      color: "#fff",
       backgroundColor: "rgba(0,0,0,0.4)",
-      padding: "2px 10px",
+      padding: "4px 12px",
       borderRadius: 5,
+      whiteSpace: "nowrap",
+      maxWidth: "90%",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     }}
+    title={match.name} // tooltip nếu tên dài
   >
-    ⏳ {formatCountdown(countdownMs)}
+    {match.name}
   </div>
 
   {/* Team names + video buttons + VS */}
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      fontSize: 22,
-      fontWeight: 700,
-      padding: "8px 0",
-      marginTop: 8,
-      gap: 40,
-    }}
-  >
-    <div
-      style={{
-        flex: 1,
-        textAlign: "right",
-        fontSize: 24,
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "center",
-        gap: 6,
-      }}
-    >
+  <div className="match-row" style={{ marginTop: "5px" /* tạo khoảng cách với match name */ }}>
+    {/* TEAM 1 */}
+    <div className="team team-left">
+      {match.winningTeam?.toLowerCase().includes(match.team1.toLowerCase()) && (
+        <span className="win-badge left">🏆 Win</span>
+      )}
       <button
         onClick={() =>
           window.open(match.iframe.split(",")[0]?.trim() || "#", "_blank")
         }
-        style={{
-          padding: "2px 6px",
-          fontSize: 12,
-          borderRadius: 4,
-          border: "1px solid #007bff",
-          backgroundColor: "transparent",
-          color: "#7cbfe9",
-          cursor: "pointer",
-        }}
+        className="live-button"
         title="Xem livestream đội 1"
       >
         🔴 LIVE
       </button>
       {match.team1}
-      {match.winningTeam?.toLowerCase().includes(match.team1.toLowerCase()) && (
-        <span
-          style={{ color: "#4caf50", fontSize: 14, marginLeft: 6, fontWeight: "bold" }}
-        >
-          🏆 Win
-        </span>
-      )}
     </div>
 
-    <span
-      style={{
-        flex: 0,
-        padding: "0 12px",
-        fontSize: 20,
-        fontWeight: 700,
-        color: "#f39c12",
-        textTransform: "uppercase",
-        letterSpacing: "1px",
-      }}
-    >
-      𝗩𝗦
-    </span>
+    <span className="vs-text">VS</span>
 
-    <div
-      style={{
-        flex: 1,
-        textAlign: "left",
-        fontSize: 24,
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        gap: 6,
-      }}
-    >
+    {/* TEAM 2 */}
+    <div className="team team-right">
       {match.team2}
-      {match.winningTeam?.toLowerCase().includes(match.team2.toLowerCase()) && (
-        <span
-          style={{ color: "#4caf50", fontSize: 14, marginLeft: 6, fontWeight: "bold" }}
-        >
-          🏆 Win
-        </span>
-      )}
       <button
         onClick={() =>
           window.open(match.iframe.split(",")[1]?.trim() || "#", "_blank")
         }
-        style={{
-          padding: "2px 6px",
-          fontSize: 12,
-          borderRadius: 4,
-          border: "1px solid #007bff",
-          backgroundColor: "transparent",
-          color: "#7cbfe9",
-          cursor: "pointer",
-        }}
+        className="live-button"
         title="Xem livestream đội 2"
       >
         🔴 LIVE
       </button>
+      {match.winningTeam?.toLowerCase().includes(match.team2.toLowerCase()) && (
+        <span className="win-badge right">🏆 Win</span>
+      )}
     </div>
+  </div>
+
+  {/* Countdown xuống dưới cùng, không dùng absolute, căn giữa */}
+  <div
+    style={{
+      marginTop: -5,
+      fontSize: 12,
+      color: "#f1c40f",
+      backgroundColor: "rgba(0,0,0,0.4)",
+      padding: "4px 12px",
+      borderRadius: 5,
+      display: "inline-block",
+
+    }}
+  >
+    ⏳ {formatCountdown(countdownMs)}
   </div>
 
   {/* ID badge bottom-right */}
@@ -1251,6 +1355,7 @@ const rounds = [
     ID: tft{match.id}
   </div>
 </div>
+
 
 
 

@@ -31,7 +31,6 @@ useEffect(() => {
   const interval = setInterval(async () => {
     if (!matches.length || !bets.length) return;
 
-    // Lấy các cược đang xử lý
 const processingBets = bets.filter(
   (bet) => bet.status?.startsWith("processing") && bet.processStart
 );
@@ -314,7 +313,7 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
       return;
     }
 
-    const bonus = Math.min(sum1, sum2) * 0.15 * creator.level / 100;
+    const bonus = Math.min(sum1, sum2) * creator.level / 100;
 
     // Làm tròn về 6 chữ số sau dấu phẩy để tránh lỗi
     const newBalance = +(creator.balance + bonus).toFixed(6);
@@ -352,14 +351,19 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
 
   try {
     // Cập nhật trận đấu với winningTeam mới
-    await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...selectedMatch, winningTeam }),
-    });
+const nowISO = new Date().toISOString(); // Không cần tạo biến riêng ở trên, dùng luôn ở đây
+await fetch(`${API_BASE}/football/${selectedMatch.id}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    ...selectedMatch,
+    winningTeam,
+    status: "processing",
+    processingStart: nowISO,
+  }),
+});
 
     // Cập nhật các cược liên quan sang trạng thái "processing"
-    const nowISO = new Date().toISOString();
 
     const betsToUpdate = bets.filter(
       (bet) =>
@@ -476,9 +480,9 @@ const filteredMatches = matches.filter((match) => {
     }}>
       {userInfo && (
         <div className="welcome-message text-dark fw-bold my-2 d-flex align-items-center gap-2">
-          <span>
-            Welcome, {userInfo.fullName}! | Level: {userInfo.level} {renderStars(userInfo.level)} | Balance: {userInfo.balance} USDT
-          </span>
+<span style={{ color: 'white' }}>
+  Welcome, {userInfo.fullName}! | Level: {userInfo.level} {renderStars(userInfo.level)} | Balance: {userInfo.balance} USDT
+</span>
           <button
             onClick={refreshUserInfo}
             title="Refresh"

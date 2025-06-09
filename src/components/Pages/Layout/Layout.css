@@ -156,7 +156,7 @@ Modal {
 }
 
 footer .bg-secondary {
-  background-color: #6c757d;
+  background-color: #08080b;
 }
 
 footer .container {
@@ -178,7 +178,7 @@ footer .text-center p {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: #ff6600;
+  background-color: #1b1b21;
 }
 
 .ftco-footer-social li svg {
@@ -216,4 +216,18 @@ footer .text-center p {
 
 .logo-img:hover {
   transform: scale(1.05);
+}
+
+.social-link {
+  background-color: black !important;
+  color: white;  /* màu icon */
+  padding: 0px;
+  border-radius: 6px;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.social-link:hover {
+  background-color: #333; /* màu hover tối hơn */
+  color: #ffd700; /* màu vàng khi hover */
 }

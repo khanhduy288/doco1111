@@ -742,3 +742,107 @@ h1 {
   color: #e0f7fa;
 }
 
+.match-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 8px 0;
+  margin-top: 4px;
+  gap: 40px;
+  position: relative;
+}
+
+.team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 24px;
+}
+
+.team-left {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.team-right {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.live-button {
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #007bff;
+  background-color: transparent;
+  color: #7cbfe9;
+  cursor: pointer;
+}
+
+.win-badge {
+  font-size: 12px;
+  color: gold;
+  font-weight: bold;
+  border: 0px solid gray;
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: #222;
+  white-space: nowrap;
+}
+
+.win-badge.left {
+  margin-left: 6px;
+}
+
+.win-badge.right {
+  margin-left: 6px;
+}
+
+.vs-text {
+  flex: 0;
+  padding: 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f39c12;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Responsive for mobile */
+@media (max-width: 700px) {
+  .match-row {
+    font-size: 18px;
+    gap: 20px;
+  }
+
+  .team {
+    font-size: 18px;
+  }
+
+  .live-button {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+
+  .win-badge {
+    font-size: 10px;
+    padding: 0 4px;
+  }
+
+  .vs-text {
+    font-size: 16px;
+    padding: 0 8px;
+  }
+}
+.blinking {
+  animation: blinkingEffect 1s infinite;
+}
+
+@keyframes blinkingEffect {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}

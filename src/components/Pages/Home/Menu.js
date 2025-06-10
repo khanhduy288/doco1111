@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, Row, Col } from "antd";
 import { Link } from "react-router-dom";
+
 import"./Menu.css";
 
 
@@ -19,6 +20,8 @@ const Menu = () => {
   const [bettingLoading, setBettingLoading] = useState(false);
   const [betAmount, setBetAmount] = useState("0.01");
   const [now, setNow] = useState(Date.now());
+  const [loading, setLoading] = useState(true);
+
   const [betsByMatchId, setBetsByMatchId] = useState({});
   const [allBets, setAllBets] = useState([]);
   const BET_API = "https://68271b3b397e48c913189c7d.mockapi.io/football";
@@ -242,23 +245,37 @@ const handleCreate = async (e) => {
 useEffect(() => {
   let isMounted = true;
 
-  const fetchMatchesWithCreators = async () => {
-    try {
-      const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
-      const matchesData = await res.json();
+const fetchMatchesWithCreators = async () => {
+  try {
+    setLoading(true); // Bắt đầu loading
 
-      const enrichedMatches = await Promise.all(
-        matchesData.map(async (match) => {
-          const creator = await fetchCreatorInfo(match.creatorId);
-          return { ...match, creator };
-        })
-      );
+    const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
+    const matchesData = await res.json();
 
-      if (isMounted) setMatches(enrichedMatches);
-    } catch (err) {
-      console.error("Lỗi khi fetch matches:", err);
+    const creatorCache = {};
+    const enrichedMatches = [];
+
+    for (const match of matchesData) {
+      let creator;
+
+      if (creatorCache[match.creatorId]) {
+        creator = creatorCache[match.creatorId];
+      } else {
+        creator = await fetchCreatorInfo(match.creatorId);
+        creatorCache[match.creatorId] = creator;
+      }
+
+      enrichedMatches.push({ ...match, creator });
     }
-  };
+
+    if (isMounted) setMatches(enrichedMatches);
+  } catch (err) {
+    console.error("Matches:", err);
+  } finally {
+    setLoading(false); // Kết thúc loading
+  }
+};
+
 
   fetchMatchesWithCreators(); 
 

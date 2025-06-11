@@ -154,7 +154,12 @@ useEffect(() => {
     try {
       const loginResponse = await axios.post(
         "https://berendersepuser.onrender.com/login", // sửa URL backend khi deploy
-        { username, password }
+        { username, password },
+          {
+    headers: {
+      'x-api-key': 'adminsepuser' 
+    }
+          }
       );
 
       const { user, token } = loginResponse.data;
@@ -262,7 +267,12 @@ const handleSignup = async (event) => {
   try {
     // Check if username already exists
     const checkResponse = await axios.get(
-      `https://berendersepuser.onrender.com/users`
+      `https://berendersepuser.onrender.com/users`,
+                {
+    headers: {
+      'x-api-key': 'adminsepuser' // chính là SECRET_KEY
+    }
+          }
     );
 
     const existingUser = checkResponse.data.find(
@@ -277,7 +287,12 @@ const handleSignup = async (event) => {
     // Send signup data to API
     const registerResponse = await axios.post(
       'https://berendersepuser.onrender.com/users',
-      dataToSend
+      dataToSend,
+                {
+    headers: {
+      'x-api-key': 'adminsepuser'
+    }
+          }
     );
 
     if (registerResponse.status === 200 || registerResponse.status === 201) {

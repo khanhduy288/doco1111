@@ -115,8 +115,7 @@ const updateUserExp = async (creatorId) => {
   try {
     const res = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
       headers: {
-        "x-secret-key": "adminsepuser"
-      }
+      'x-api-key': 'adminsepuser'      }
     });
 
     const user = await res.json();
@@ -126,8 +125,7 @@ const updateUserExp = async (creatorId) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "x-secret-key": "adminsepuser"
-      },
+        'x-api-key': 'adminsepuser'      },
       body: JSON.stringify({
         ...user,
         exp: currentExp + 1
@@ -470,8 +468,7 @@ const fetchCreatorInfo = async (creatorId) => {
   try {
     const res = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
       headers: {
-        'x-secret-key': 'adminsepuser'
-      }
+      'x-api-key': 'adminsepuser'      }
     });
 
     if (!res.ok) throw new Error("Cannot load data");

@@ -188,6 +188,12 @@ const handleWithdraw = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    const contractOwner = await contract.owner();
+if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
+  message.error("error !");
+  setLoading(false);
+  return;
+}
 
     const tokenContract = new ethers.Contract(
       usdtAddress,

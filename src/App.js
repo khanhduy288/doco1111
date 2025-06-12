@@ -56,7 +56,7 @@ import History from "./components/Pages/Home/History.js";
 import ResultSettlement from "./components/Pages/Home/ResultSettlement";
 import AuctionPage from './components/Pages/Home/AuctionPage.js'; // đường dẫn đúng với bạn
 import DashboardMember from './components/Pages/Home/DashboardMember.jsx'; // đường dẫn đúng với bạn
-
+import ProtectedRouteAdmin from './components/Pages/Auth/ProtectedRouteAdmin.jsx'
 
 
 
@@ -78,8 +78,14 @@ function App() {
           <Routes>
             <Route path="/authentication" element={<LoginSignup />} />
             <Route path="/Revenuepage" element={<RevenuePage />} /> {/* Đây nè */}
-            <Route path="/dashboard" element={<Dashboard />} /> {/* Đây nè */}
-            <Route path="/dashboard-member/:id" element={<DashboardMember />} />
+<Route
+  path="/Dashboard"
+  element={
+    <ProtectedRouteAdmin>
+      <Dashboard />
+    </ProtectedRouteAdmin>
+  }
+/>            <Route path="/dashboard-member/:id" element={<DashboardMember />} />
             <Route path="/forgetPassword" element={<ForgetPassword />} />
             <Route path="/resetPassword*" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />

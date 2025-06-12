@@ -76,37 +76,17 @@ const Header = ({ onExtra }) => {
       }
     };
   
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("SEPuser");
+  toast.success("Logged out successfully!");
+  navigate("/login");
+  setUserInfo(null);
+  setUserName(null);
+};
 
 
-  const handleConnectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setWalletAddress(accounts[0]);
-        notification.success({
-          message: "Wallet Connected",
-          description: `Connected to ${truncateAddress(accounts[0])}`,
-        });
-      } catch (error) {
-        console.error("Error connecting wallet:", error);
-      }
-    } else {
-      window.open("https://metamask.io/download.html", "_blank");
-    }
-  };
 
-  
-  const handleDisconnectWallet = () => {
-    setWalletAddress(null);
-    notification.info({
-      message: "Wallet Disconnected",
-      description: "You have disconnected your wallet.",
-    });
-  };
-
-  const truncateAddress = (address) => {
-    return address.slice(0, 6) + "..." + address.slice(-4);
-  };
 
   return (
     <>
@@ -313,18 +293,37 @@ const Header = ({ onExtra }) => {
   }}
 >
 {userInfo && (
-  <div style={{ color: "#ccc", marginRight: "10px", fontSize: "20px", lineHeight: 1.2, fontWeight: 500 }}>
-    <div>
-      {userInfo.name}{" "}
-      <span style={{ color: "orange", fontSize: "16px" }}>
-        {Array(userInfo.level).fill("⭐").join(" ")}
-      </span>
-    </div>
-    {userInfo.balance !== undefined && (
-      <div style={{ fontSize: "16px", color: "#aaa", marginTop: "2px" }}>
-        Balance: {userInfo.balance} USDT
+  <div style={{ color: "#ccc", display: "flex", alignItems: "center", gap: "12px" }}>
+    <div style={{ fontSize: "20px", lineHeight: 1.2, fontWeight: 500 }}>
+      <div>
+        {userInfo.name}{" "}
+        <span style={{ color: "orange", fontSize: "16px" }}>
+          {Array(userInfo.level).fill("⭐").join(" ")}
+        </span>
       </div>
-    )}
+      {userInfo.balance !== undefined && (
+        <div style={{ fontSize: "16px", color: "#aaa", marginTop: "2px" }}>
+          Balance: {userInfo.balance} USDT
+        </div>
+      )}
+    </div>
+
+    <button
+      onClick={handleLogout}
+      style={{
+        background: "transparent",
+        border: "none",
+        color: "#ccc",
+        cursor: "pointer",
+        fontSize: "18px",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px"
+      }}
+    >
+      <LogoutOutlined style={{ fontSize: "18px", color: "orange" }} />
+      Logout
+    </button>
   </div>
 )}
 

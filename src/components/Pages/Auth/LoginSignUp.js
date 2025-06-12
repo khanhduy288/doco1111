@@ -48,7 +48,7 @@ useEffect(() => {
             // Lưu user mới nhất
             localStorage.setItem("SEPuser", JSON.stringify(user));
             // Redirect theo role + status
-            if (user.level === 0) {
+            if (user.level === 6) {
               navigate("/Dashboardmember");
             } else if (user.status !== "approved") {
               navigate("/");
@@ -153,13 +153,14 @@ useEffect(() => {
 
     try {
       const loginResponse = await axios.post(
-        "https://berendersepuser.onrender.com/login", // sửa URL backend khi deploy
+        "https://berendersepuser.onrender.com/login", 
         { username, password },
           {
     headers: {
-      'x-api-key': 'adminsepuser' 
+      "Content-Type": "application/json"
     }
-          }
+  }
+
       );
 
       const { user, token } = loginResponse.data;
@@ -196,17 +197,17 @@ useEffect(() => {
         localStorage.removeItem("rememberedUsername");
       }
 
-      if (meUser.level === 0) {
-        toast.success("Login successful (Admin)!");
-        navigate("/Dashboardmember");
-      } else if (meUser.status !== "approved") {
-        toast.success("Login successful!");
-        navigate("/");
-      } else {
-        toast.error("Your account is not approved yet.");
-      }
+if (meUser.level === 6) {
+  toast.success("Login successful (Admin)!");
+  navigate("/Dashboard");
+} else {
+  toast.success("Login successful!");
+  navigate("/");
+}
     } catch (error) {
       console.error("Login failed:", error);
+      console.log("Error response:", error.response); // Thêm dòng này để xem rõ
+
       toast.error(
         error.response?.data?.message || "Login failed. Please try again later."
       );

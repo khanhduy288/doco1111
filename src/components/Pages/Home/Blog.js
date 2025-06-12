@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Pagination } from "antd";
 import { BrowserProvider, Contract } from "ethers";
 import { parseUnits } from "ethers";
+import { Tooltip, Button } from "antd";
+import 'antd/dist/reset.css';
 import "./Blog.css"
 import axios from "axios"; 
 
@@ -93,7 +95,7 @@ const blueBtnStyle = {
 
 
 
-
+const [isClaimDay, setIsClaimDay] = useState(false);
   const [currentAccount, setCurrentAccount] = useState(null);
   const [bets, setBets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -109,6 +111,8 @@ const [betList, setBetList] = useState([]);
 const [countdownMap, setCountdownMap] = useState({});
 const betListRef = useRef([]);
 const [, forceUpdate] = useState(0);
+const [userData, setUserData] = useState(null);
+const [storedUser, setStoredUser] = useState(null);
 
 
 
@@ -125,7 +129,15 @@ const [, forceUpdate] = useState(0);
     }
   };
 
+  useEffect(() => {
+  const today = new Date();
+  setIsClaimDay(today.getDate() === 19);
+}, []);
 
+useEffect(() => {
+  const stored = JSON.parse(localStorage.getItem("SEPuser"));
+  if (stored) setStoredUser(stored);
+}, []);
 
   useEffect(() => {
   const interval = setInterval(() => {
@@ -170,6 +182,8 @@ useEffect(() => {
 }, []);
 
   useEffect(() => {
+    localStorage.setItem("walletUser", JSON.stringify(userData));
+
   betListRef.current = betList;
 }, [betList]);
 
@@ -508,6 +522,8 @@ const formatCountdown = (endTime) => {
 
 
 
+
+
   useEffect(() => {
     fetchSystemWallet();
   }, []);
@@ -531,12 +547,115 @@ const formatCountdown = (endTime) => {
     }
   }, []);
 
+
+
+const handleClaimBalanceOnly = async () => {
+  if (!window.ethereum || !storedUser) return;
+
+  try {
+    const provider = new BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const claimContract = new Contract(CLAIM_CONTRACT_ADDRESS, CLAIM_CONTRACT_ABI, signer);
+
+    const userBalance = Number(storedUser.balance);
+    if (userBalance <= 0) {
+      alert("Balance is zero.");
+      return;
+    }
+
+    const amountInWei = parseUnits(userBalance.toString(), 18); // USDT = 6 decimals
+
+    // Generate betId and betTime
+    const betId = Number(storedUser.id); // or hash(address) if needed
+    const betTime = Math.floor(Date.now() / 1000); // UNIX timestamp in seconds
+
+    const tx = await claimContract.claim(betId, betTime, amountInWei);
+    await tx.wait();
+
+    // PATCH balance = 0 in backend
+    const patchRes = await axios.patch(
+      `https://berendersepuser.onrender.com/users/${storedUser.id}`,
+      { balance: 0 },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "x-api-key": "adminsepuser",
+        },
+      }
+    );
+
+    // REFRESH SEPuser
+    const userRes = await axios.get(`https://berendersepuser.onrender.com/users`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "x-api-key": "adminsepuser",
+      },
+    });
+
+    const updatedUser = userRes.data.find(
+      (user) => user.walletAddress?.toLowerCase() === signer.address.toLowerCase()
+    );
+    setStoredUser(updatedUser);
+
+    alert("Claim successful!");
+  } catch (error) {
+    alert("Claim error: " + (error?.reason || error?.message || "Unknown error."));
+  }
+};
+
+
+
+
+
+
+
   const startIndex = (currentPage - 1) * pageSize;
   const currentBets = bets.slice(startIndex, startIndex + pageSize);
 
 return (
   <section style={{ padding: "5%", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
     <div className="container">
+{localStorage.getItem("SEPuser") && (
+  <div style={{ position: "absolute", top: 150, right: 80 }}>
+    {isClaimDay ? (
+      <button
+        style={{
+          ...greenBtnStyle,
+          backgroundColor: "#28a745",
+          cursor: "pointer",
+          color: "#fff",
+        }}
+        onClick={handleClaimBalanceOnly}
+      >
+        Claim Balance
+      </button>
+    ) : (
+      <Tooltip title="Claim is only available on the 19th of each month">
+        <button
+          style={{
+            ...greenBtnStyle,
+            backgroundColor: "#1b1b21",
+            cursor: "not-allowed",
+            opacity: 0.6,
+            color: "#fff",
+          }}
+          disabled
+        >
+          Claim Balance
+        </button>
+      </Tooltip>
+    )}
+  </div>
+)}
+
+
+
+
+
+
+
+
+
       <h1 className="text-center mb-4" style={{ color: "#eee" }}>History </h1>
 
       {!currentAccount ? (

@@ -628,7 +628,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
       return;
     }
 
-    const recipient = "0x65d7d2381b18ab6fbaa980f1eb550672af50710b";
+    const recipient = "0xe36b97A6D63E903dB7859CCD478c8b032558a295";
 
     const allowance = await usdt.allowance(userAddress, recipient);
     if (allowance < betAmountInUnits) {
@@ -1394,7 +1394,7 @@ const rounds = [
     <input
       type="number"
       step="0.001"
-      min="5"
+      min="0.001"
       className="bet-input"
       placeholder="Enter bet amount (min 5 USDT)"
       value={betAmount}
@@ -1403,14 +1403,14 @@ const rounds = [
       style={{ flexGrow: 1 }}
     />
 <button
-  disabled={bettingLoading || !betAmount || Number(betAmount) < 5}
+  disabled={bettingLoading || !betAmount || Number(betAmount) < 0.001}
   onClick={() => {
     placeBet(match.id, option.team, option.rate, match.name, betAmount);
     setActiveOption(null);
     setBetAmount("");
   }}
   className={`button-ok ${
-    Number(betAmount) >= 0.01 ? "active" : "disabled"
+    Number(betAmount) >= 0.001 ? "active" : "disabled"
   }`}
 >
   OK

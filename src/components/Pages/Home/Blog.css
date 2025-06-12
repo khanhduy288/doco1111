@@ -54,7 +54,7 @@ button:hover:not(:disabled) {
 
 button:disabled {
   background-color: #44bd32;
-  cursor: not-allowed;
+  /* cursor: not-allowed; */
 }
 
 .spinner {

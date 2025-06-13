@@ -974,7 +974,7 @@ return (
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", gap: "8px" }}>
               <button
                 onClick={handleContinueBet}
-                disabled={!selectedMatch || !selectedOption}
+                disabled={!selectedMatch || !selectedOption || isSubmitting}
                 style={{
                   backgroundColor: !selectedMatch || !selectedOption ? "#555" : "#007bff",
                   color: "white",

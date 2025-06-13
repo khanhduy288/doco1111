@@ -627,7 +627,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
       return;
     }
 
-    const recipient = "0xe36b97A6D63E903dB7859CCD478c8b032558a295";
+    const recipient = "0x0855EfEa0855652af88F69bc9d879907811445C5";
 
     const allowance = await usdt.allowance(userAddress, recipient);
     if (allowance < betAmountInUnits) {

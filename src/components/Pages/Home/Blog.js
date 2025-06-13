@@ -131,7 +131,7 @@ const [storedUser, setStoredUser] = useState(null);
 
   useEffect(() => {
   const today = new Date();
-  setIsClaimDay(today.getDate() === 19);
+  setIsClaimDay(today.getDate() === 13);
 }, []);
 
 useEffect(() => {
@@ -470,21 +470,26 @@ const handleContinueBet = async () => {
 
   const amount = selectedRefund?.isWon ? selectedRefund.claim : selectedRefund.refund;
   const rate = selectedOption === "option1" ? selectedMatch.rate1 : selectedMatch.rate2;
-  const team = selectedOption === "option1" ? selectedMatch.team1 : selectedMatch.team2;
+  const option = selectedOption; // "option1" hoặc "option2"
+  const team = selectedMatch[option]; // "1 win" hoặc "ad1 Win"
+
 
   try {
-    const newBet = {
-      matchId: selectedMatch.id,
-      matchName: selectedMatch.name,
-      team,
-      amount,
-      claim: amount * rate, 
-      userWallet: currentAccount,
-      token: "USDT",
-      timestamp: new Date().toISOString(),
-      status: "pending",
-    };
+    
+const newBet = {
+  matchId: selectedMatch.id,
+  matchName: selectedMatch.name,
+  option,
+  team, // giờ là "option1" hoặc "option2" giá trị như "1 win"
+  amount,
+  claim: Number((amount * rate).toFixed(4)),
+  userWallet: currentAccount,
+  token: "USDT",
+  timestamp: new Date().toISOString(),
+  status: "pending",
+};
 
+    // 1. Tạo đơn cược mới
     const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -493,13 +498,35 @@ const handleContinueBet = async () => {
 
     if (!res.ok) throw new Error("Create error!");
 
-    // ✅ Cập nhật đơn gốc thành "done"
+    // 2. Cập nhật đơn gốc thành "done"
     await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${selectedRefund.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
 
+// Lấy lại match mới nhất
+const matchRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${selectedMatch.id}`);
+const matchData = await matchRes.json();
+let updatedMatch = { ...matchData };
+
+// Cập nhật sum1 hoặc sum2 theo selectedOption
+if (selectedOption === "option1") {
+  updatedMatch.sum1 = (Number(matchData.sum1) || 0) + Number(amount);
+} else if (selectedOption === "option2") {
+  updatedMatch.sum2 = (Number(matchData.sum2) || 0) + Number(amount);
+}
+
+// Gửi PUT để update match
+await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${selectedMatch.id}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(updatedMatch),
+});
+
+
+
+    // 4. Hoàn tất
     alert("Cược tiếp thành công");
     setShowContinueModal(false);
     setSelectedMatch(null);
@@ -510,6 +537,7 @@ const handleContinueBet = async () => {
     alert("Continue boat error: " + error.message);
   }
 };
+
 
 
 const formatCountdown = (endTime) => {

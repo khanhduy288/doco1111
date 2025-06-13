@@ -3,12 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { CartContext } from "../Cart/CartContext.js";
 import { Modal, Button, Badge, notification } from "antd";
-import { LogoutOutlined } from "@ant-design/icons";
 import "./Layout.css";
 import Cart from "../Cart/Cart.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse, faBars, faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { FaUser } from "react-icons/fa";
+import { LogoutOutlined, ReloadOutlined } from "@ant-design/icons";
+import axios from "axios";
+
+
+
+
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
 
@@ -21,6 +27,49 @@ const Header = ({ onExtra }) => {
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [userName, setUserName] = useState(null);
   const [walletAddress, setWalletAddress] = useState(null);
+
+
+  const [loadingUserInfo, setLoadingUserInfo] = useState(false);
+
+const fetchUserInfo = async () => {
+  const localUser = JSON.parse(localStorage.getItem("SEPuser"));
+  const userId = localUser?.id;
+  if (!userId) return;
+
+  try {
+    setLoadingUserInfo(true);
+
+    const res = await fetch(`https://berendersepuser.onrender.com/users/${userId}`, {
+      headers: {
+        "x-api-key": "adminsepuser", // hoặc đúng key bạn đang dùng
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch user info by ID");
+    }
+
+    const data = await res.json();
+
+    setUserInfo(data);
+
+    // Đồng thời cập nhật lại localStorage nếu muốn
+    localStorage.setItem("SEPuser", JSON.stringify(data));
+  } catch (err) {
+    console.error("Failed to fetch user info", err);
+  } finally {
+    setLoadingUserInfo(false);
+  }
+};
+
+
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
+
+
+
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("SEPuser"));
@@ -79,11 +128,26 @@ const Header = ({ onExtra }) => {
 const handleLogout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("SEPuser");
-  toast.success("Logged out successfully!");
-  navigate("/login");
+  localStorage.removeItem("userInfo"); // Nếu có
+  localStorage.removeItem("walletUser"); // Nếu có
+  localStorage.removeItem("walletAddress"); // Nếu có
+
+  // Nếu bạn từng set axios mặc định:
+  if (axios.defaults.headers.common["Authorization"]) {
+    delete axios.defaults.headers.common["Authorization"];
+  }
+
   setUserInfo(null);
   setUserName(null);
+
+  toast.success("Logged out successfully!");
+
+  // Reset toàn bộ app nếu cần (tránh lỗi session)
+  // window.location.href = "/login"; 
+  // Hoặc chỉ dùng navigate nếu state đã clean đủ
+  navigate("/login");
 };
+
 
 
 
@@ -296,14 +360,18 @@ const handleLogout = () => {
   <div style={{ color: "#ccc", display: "flex", alignItems: "center", gap: "12px" }}>
     <div style={{ fontSize: "20px", lineHeight: 1.2, fontWeight: 500 }}>
       <div>
-        {userInfo.name}{" "}
+        {userInfo.fullName}{" "}
         <span style={{ color: "orange", fontSize: "16px" }}>
           {Array(userInfo.level).fill("⭐").join(" ")}
         </span>
       </div>
       {userInfo.balance !== undefined && (
-        <div style={{ fontSize: "16px", color: "#aaa", marginTop: "2px" }}>
+        <div style={{ fontSize: "16px", color: "#aaa", marginTop: "2px", display: "flex", alignItems: "center", gap: "6px" }}>
           Balance: {userInfo.balance} USDT
+          <ReloadOutlined
+            onClick={fetchUserInfo} // hoặc hàm nào đó bạn dùng để refresh
+            className={loadingUserInfo ? "refresh-button loading" : "refresh-button"}
+          />
         </div>
       )}
     </div>
@@ -326,6 +394,7 @@ const handleLogout = () => {
     </button>
   </div>
 )}
+
 
 
 

@@ -21,7 +21,6 @@ const Menu = () => {
   const [betAmount, setBetAmount] = useState("0.01");
   const [now, setNow] = useState(Date.now());
   const [loading, setLoading] = useState(true);
-
   const [betsByMatchId, setBetsByMatchId] = useState({});
   const [allBets, setAllBets] = useState([]);
   const BET_API = "https://68271b3b397e48c913189c7d.mockapi.io/football";
@@ -277,7 +276,7 @@ const fetchMatchesWithCreators = async () => {
 
   fetchMatchesWithCreators(); 
 
-  const intervalId = setInterval(fetchMatchesWithCreators, 30000); 
+  const intervalId = setInterval(fetchMatchesWithCreators, 5000); 
 
   return () => {
     isMounted = false;

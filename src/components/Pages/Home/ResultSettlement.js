@@ -31,10 +31,9 @@ useEffect(() => {
   const interval = setInterval(async () => {
     if (!matches.length || !bets.length) return;
 
-const processingBets = bets.filter(
-  (bet) => bet.status?.startsWith("processing") && bet.processStart
-);
-
+    const processingBets = bets.filter(
+      (bet) => bet.status?.startsWith("processing") && bet.processStart
+    );
 
     if (processingBets.length === 0) return;
 
@@ -70,47 +69,47 @@ const processingBets = bets.filter(
       })
     );
 
-for (const matchId of updatedMatchIds) {
-  const relatedBets = bets.filter((b) => b.matchId.toString() === matchId.toString());
-  const allDone = relatedBets.every((b) => !b.status?.startsWith("processing"));
+    for (const matchId of updatedMatchIds) {
+      const relatedBets = bets.filter((b) => b.matchId.toString() === matchId.toString());
+      const allDone = relatedBets.every((b) => !b.status?.startsWith("processing"));
 
-  if (allDone) {
-    const match = matches.find((m) => m.id.toString() === matchId.toString());
-    if (!match || !match.option1 || !match.option2 || !match.winningTeam) continue;
+      if (allDone) {
+        const match = matches.find((m) => m.id.toString() === matchId.toString());
+        if (!match || !match.option1 || !match.option2 || !match.winningTeam) continue;
 
-    const status1 = match.winningTeam === match.option1 ? "won" : "lose";
-    const status2 = match.winningTeam === match.option2 ? "won" : "lose";
+        const status1 = match.winningTeam === match.option1 ? "won" : "lose";
+        const status2 = match.winningTeam === match.option2 ? "won" : "lose";
 
-    await fetch(`${API_BASE}/football/${match.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...match, status1, status2 }),
-    });
+        await fetch(`${API_BASE}/football/${match.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...match, status1, status2 }),
+        });
 
-    const sum1 = parseFloat(match.sum1) || 0;
-    const sum2 = parseFloat(match.sum2) || 0;
-    const totalBet = sum1 + sum2;
+        const sum1 = parseFloat(match.sum1) || 0;
+        const sum2 = parseFloat(match.sum2) || 0;
+        const totalBet = sum1 + sum2;
 
-    const creatorId = match.creatorId;
-    const userRes = await fetch(`${API_BASE}/user/${creatorId}`);
-    const user = await userRes.json();
+        const creatorId = match.creatorId;
+        const userRes = await fetch(`${API_BASE}/user/${creatorId}`);
+        const user = await userRes.json();
 
-    if (user) {
-      const level = parseFloat(user.level) || 1;
-      const reward = (totalBet / 2) * (level / 100);
+        if (user) {
+          const level = parseFloat(user.level) || 1;
+          const reward = (totalBet / 2) * (level / 100);
 
-      await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...user,
-          balance: (parseFloat(user.balance) || 0) + reward,
-          matchesCreated: (parseInt(user.matchesCreated) || 0) + 1,
-        }),
-      });
+          await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...user,
+              balance: (parseFloat(user.balance) || 0) + reward,
+              matchesCreated: (parseInt(user.matchesCreated) || 0) + 1,
+            }),
+          });
+        }
+      }
     }
-  }
-}
 
     const refreshedBetsRes = await fetch(`${API_BASE}/bet`);
     const refreshedBets = await refreshedBetsRes.json();
@@ -123,6 +122,7 @@ for (const matchId of updatedMatchIds) {
 
   return () => clearInterval(interval);
 }, [bets, matches]);
+
 
 
 useEffect(() => {
@@ -431,42 +431,7 @@ const filteredMatches = matches.filter((match) => {
 
  return (
   <div style={{ padding: "20px", backgroundColor: "#121212", color: "#eee", minHeight: "100vh" }}>
-    {/* Header */}
-    <div style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "10px 15px",
-      marginBottom: "20px",
-      backgroundColor: "#1e1e1e",
-      borderRadius: "8px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
-      color: "#ffa726",
-      fontWeight: "600",
-      fontSize: "1rem",
-    }}>
-      {userInfo && (
-        <div className="welcome-message text-dark fw-bold my-2 d-flex align-items-center gap-2">
-<span style={{ color: 'white' }}>
-  Welcome, {userInfo.fullName}! | Level: {userInfo.level} {renderStars(userInfo.level)} | Balance: {userInfo.balance} USDT
-</span>
-          <button
-            onClick={refreshUserInfo}
-            title="Refresh"
-            style={{
-              border: 'none',
-              background: 'transparent',
-              fontSize: '18px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transform: loading ? 'rotate(360deg)' : 'none',
-              transition: 'transform 0.5s linear',
-            }}
-          >
-            🔄
-          </button>
-        </div>
-      )}
-    </div>
+
 
     <h1 style={{ color: "#f5f5f5", textAlign: "center" }}>Match Result Decider</h1>
 

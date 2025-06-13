@@ -223,3 +223,12 @@ form .btn input[type="submit"] {
 .resend-otp span:hover {
   text-decoration: underline;
 }
+/* Áp dụng màu chữ đen cho toàn bộ input bên trong login-signUp */
+/* Chỉ đổi màu chữ trong input */
+.login-signUp input[type="text"],
+.login-signUp input[type="password"],
+.login-signUp input[type="email"],
+.login-signUp input[type="tel"],
+.login-signUp input[type="number"] {
+  color: black !important;
+}

@@ -162,17 +162,18 @@ const [isClaimDay, setIsClaimDay] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [systemWallet, setSystemWallet] = useState(null);
   const pageSize = 6;
-const [showContinueModal, setShowContinueModal] = useState(false);
-const [selectedRefund, setSelectedRefund] = useState(null);
-const [matchList, setMatchList] = useState([]); // Dữ liệu trận đấu
-const [selectedMatch, setSelectedMatch] = useState(null);
-const [selectedOption, setSelectedOption] = useState(null);
-const [betList, setBetList] = useState([]);
-const [countdownMap, setCountdownMap] = useState({});
-const betListRef = useRef([]);
-const [, forceUpdate] = useState(0);
-const [userData, setUserData] = useState(null);
-const [storedUser, setStoredUser] = useState(null);
+  const [showContinueModal, setShowContinueModal] = useState(false);
+  const [selectedRefund, setSelectedRefund] = useState(null);
+  const [matchList, setMatchList] = useState([]); // Dữ liệu trận đấu
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [betList, setBetList] = useState([]);
+  const [countdownMap, setCountdownMap] = useState({});
+  const betListRef = useRef([]);
+  const [, forceUpdate] = useState(0);
+  const [userData, setUserData] = useState(null);
+  const [storedUser, setStoredUser] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 
@@ -523,6 +524,8 @@ const handleContinue = async (bet, isWon = false) => {
 
 
 const handleContinueBet = async () => {
+  
+  if (isSubmitting) return; 
   if (!selectedMatch || !selectedOption) {
     alert("Please select a match and a betting option.");
     return;

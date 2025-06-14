@@ -1,9 +1,8 @@
-/* Guide.css - Phiên bản nền tối, chữ trắng */
 
 .guide-section {
   padding: 2rem 1rem;
-  color: #eee; /* chữ trắng sáng */
-  background-color: #222831; /* nền xám đen nhẹ */
+  color: #eee; 
+  background-color: #222831; 
   font-family: 'Segoe UI', sans-serif;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
@@ -11,7 +10,7 @@
 
 .guide-section h2 {
   font-size: 1.6rem;
-  color: #f58220; /* cam tươi làm điểm nhấn */
+  color: #f58220; 
   font-weight: bold;
   margin-bottom: 1rem;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
@@ -22,21 +21,21 @@
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #ffa726; /* cam sáng hơn */
+  color: #ffa726; 
 }
 
 .guide-section h6 {
   font-size: 1rem;
   font-weight: 600;
   margin-top: 1.2rem;
-  color: #ffb74d; /* cam nhạt */
+  color: #ffb74d; 
 }
 
 .guide-section p {
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 1rem;
-  color: #ddd; /* chữ hơi nhạt */
+  color: #ddd; 
 }
 
 .guide-section ul {
@@ -47,7 +46,7 @@
 }
 
 .guide-section strong {
-  color: #ff9800; /* cam sáng nổi bật */
+  color: #ff9800; 
 }
 
 .breadcrumbs {
@@ -88,39 +87,37 @@ html, body {
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* Override cho section có nhiều class này */
 .ftco-section.contact-section.bg-light.guide-section {
-  background-color: #222831 !important;  /* nền xám đen */
-  color: #eee !important;                 /* chữ trắng sáng */
-  padding: 2rem 1rem !important;          /* padding rõ ràng */
+  background-color: #222831 !important;  
+  color: #eee !important;                 
+  padding: 2rem 1rem !important;          
   border-radius: 12px !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* Các thẻ trong section */
 .ftco-section.contact-section.bg-light.guide-section h2 {
-  color: #f58220 !important; /* cam tươi điểm nhấn */
+  color: #f58220 !important; 
   font-weight: bold;
   margin-bottom: 1rem;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
 }
 
 .ftco-section.contact-section.bg-light.guide-section h5 {
-  color: #ffa726 !important; /* cam sáng */
+  color: #ffa726 !important; 
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
 .ftco-section.contact-section.bg-light.guide-section h6 {
-  color: #ffb74d !important; /* cam nhạt */
+  color: #ffb74d !important;
   font-weight: 600;
   margin-top: 1.2rem;
 }
 
 .ftco-section.contact-section.bg-light.guide-section p {
-  color: #ddd !important;    /* chữ hơi nhạt */
+  color: #ddd !important;   
   line-height: 1.6;
   margin-bottom: 1rem;
   font-size: 1rem;
@@ -134,10 +131,9 @@ html, body {
 }
 
 .ftco-section.contact-section.bg-light.guide-section strong {
-  color: #ff9800 !important; /* cam sáng nổi bật */
+  color: #ff9800 !important; 
 }
 
-/* Breadcrumbs nếu có */
 .breadcrumbs {
   color: #bbb !important;
   font-size: 0.95rem;
@@ -154,7 +150,6 @@ html, body {
   text-decoration: underline;
 }
 
-/* Responsive */
 @media screen and (max-width: 576px) {
   .ftco-section.contact-section.bg-light.guide-section {
     padding: 1.5rem 1rem !important;
@@ -174,7 +169,6 @@ html, body {
 }
 
 
-/* Responsive Mobile */
 @media screen and (max-width: 576px) {
   .guide-section {
     padding: 1.5rem 1rem;

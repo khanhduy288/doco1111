@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Header from '../Layout/Header';  // phải import Header mới dùng được
+import Header from '../Layout/Header';  
 import { SiBinance } from 'react-icons/si';
 import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from "react-toastify";
@@ -31,7 +31,7 @@ const Menu = () => {
   const [systemMessage, setSystemMessage] = useState('Loading...');
   const [creatorInfo, setCreatorInfo] = useState({ name: "", level: "" });
   const [userInfo, setUserInfo] = useState(null);
-  const [activeOption, setActiveOption] = React.useState(null); // lưu option đang đặt cược (team hoặc id)
+  const [activeOption, setActiveOption] = React.useState(null); 
   const [updateTick, setUpdateTick] = React.useState(0);
   const [tab, setTab] = useState("live");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -114,19 +114,20 @@ const updateUserExp = async (creatorId) => {
   try {
     const res = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
       headers: {
-      'x-api-key': 'adminsepuser'      }
+        'x-api-key': 'adminsepuser'
+      }
     });
 
     const user = await res.json();
-    const currentExp = user.exp || 0;
+    const currentExp = Number(user.exp) || 0;
 
     await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        'x-api-key': 'adminsepuser'      },
+        'x-api-key': 'adminsepuser'
+      },
       body: JSON.stringify({
-        ...user,
         exp: currentExp + 1
       })
     });
@@ -134,6 +135,7 @@ const updateUserExp = async (creatorId) => {
     console.error("Failed to update user exp:", error);
   }
 };
+
 
 
     
@@ -208,7 +210,6 @@ const handleCreate = async (e) => {
   };
 
   try {
-    // Gửi yêu cầu tạo match
     const res = await fetch(BET_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -219,7 +220,7 @@ const handleCreate = async (e) => {
 
     await updateUserExp(creatorId);
 
-    toast.success("Tạo kèo thành công!");
+    toast.success("Bet created successfully!");
 
     setForm({
       name: "",
@@ -244,7 +245,7 @@ useEffect(() => {
 
 const fetchMatchesWithCreators = async () => {
   try {
-    setLoading(true); // Bắt đầu loading
+    setLoading(true); 
 
     const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
     const matchesData = await res.json();
@@ -269,7 +270,7 @@ const fetchMatchesWithCreators = async () => {
   } catch (err) {
     console.error("Matches:", err);
   } finally {
-    setLoading(false); // Kết thúc loading
+    setLoading(false); 
   }
 };
 
@@ -667,7 +668,6 @@ const placeBet = async (matchId, team, rate, matchName) => {
       return;
     }
 
-    // 2. Cập nhật sum1 hoặc sum2 vào /matches
     const matchRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${matchId}`);
     const matchData = await matchRes.json();
     let updatedMatch = { ...matchData };
@@ -705,9 +705,6 @@ const placeBet = async (matchId, team, rate, matchName) => {
     forceUpdate();
 
 };
-
-
-
 
 
 const rounds = [
@@ -807,7 +804,6 @@ const rounds = [
       &times;
     </button>
 
-    {/* Match Type */}
     <div className="form-row">
       <select
         name="matchType"
@@ -829,7 +825,6 @@ const rounds = [
       </select>
     </div>
 
-    {/* Match Name */}
     <div className="form-row">
       <input
         name="name"
@@ -840,10 +835,8 @@ const rounds = [
       />
     </div>
 
-    {/* Team + Link cùng dòng (2 cột) */}
     {form.matchType === "top_win_bot_lose" ? (
       <div className="form-row" style={{ display: "flex", gap: "16px" }}>
-        {/* Cột Team1 + Link */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
           <div style={{ position: "relative", width: "100%" }}>
             <input
@@ -887,7 +880,6 @@ const rounds = [
           />
         </div>
 
-        {/* Cột Team2 + Link */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
           <div style={{ position: "relative", width: "100%" }}>
             <input
@@ -1019,7 +1011,6 @@ const rounds = [
       </>
     )}
 
-    {/* Countdown */}
     <div className="form-row">
       <select name="countdown" value={form.countdown} onChange={handleChange} style={{ width: "100%" }}>
         <option value="">Select the game start time (*)</option>
@@ -1034,7 +1025,6 @@ const rounds = [
       </select>
     </div>
 
-    {/* Submit */}
     <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
       <button type="submit" className="btn-create">
         Create Bet
@@ -1089,7 +1079,6 @@ const rounds = [
     <div className="tooltip-text">Only available for 5-star accounts</div>
   </div>
 
-  {/* 🔍 Search Input */}
 <input
   type="text"
   className="search-input"

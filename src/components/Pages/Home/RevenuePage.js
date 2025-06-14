@@ -24,13 +24,10 @@ import { ethers } from "ethers";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-// Địa chỉ token USDT trên BSC
 const usdtAddress = "0x55d398326f99059fF775485246999027B3197955";
-// Địa chỉ contract của bạn
 const contractAddress = "0xe36b97A6D63E903dB7859CCD478c8b032558a295";
 
 const contractABI = [
-  // ... giữ nguyên ABI như bạn đã cung cấp
   {
     inputs: [
       { internalType: "address", name: "_usdt", type: "address" }
@@ -107,7 +104,7 @@ function truncateAddress(address) {
 
 const switchToBSC = async () => {
   const bscParams = {
-    chainId: "0x38", // 56 in hex
+    chainId: "0x38",
     chainName: "Binance Smart Chain",
     nativeCurrency: {
       name: "Binance Coin",
@@ -123,7 +120,7 @@ const switchToBSC = async () => {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: bscParams.chainId }],
     });
-    message.success("Đã chuyển sang mạng Binance Smart Chain (BSC).");
+    message.success("Switched to Binance Smart Chain (BSC).");
   } catch (switchError) {
     if (switchError.code === 4902) {
       try {
@@ -131,12 +128,12 @@ const switchToBSC = async () => {
           method: "wallet_addEthereumChain",
           params: [bscParams],
         });
-        message.success("Đã thêm và chuyển sang mạng BSC.");
+        message.success("BSC network added and switched successfully.");
       } catch (addError) {
-        message.error("Không thể thêm mạng BSC vào MetaMask.");
+        message.error("Failed to add BSC network to MetaMask.");
       }
     } else {
-      message.error("Người dùng đã huỷ chuyển sang mạng BSC.");
+      message.error("User canceled the network switch.");
     }
   }
 };
@@ -156,76 +153,76 @@ const RevenuePage = () => {
     if (window.ethereum) {
       switchToBSC();
     } else {
-      message.warning("Không tìm thấy MetaMask.");
+      message.warning("MetaMask not found.");
     }
   }, []);
 
   const connectWallet = async () => {
     try {
       if (!window.ethereum) {
-        message.error("Vui lòng cài đặt MetaMask!");
+        message.error("Please install MetaMask!");
         return;
       }
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
       setWalletAddress(accounts[0]);
-      message.success("Kết nối ví thành công!");
+      message.success("Wallet connected successfully!");
     } catch (error) {
-      console.error("Lỗi khi kết nối ví:", error);
-      message.error("Kết nối ví thất bại!");
+      console.error("Wallet connection error:", error);
+      message.error("Failed to connect wallet!");
     }
   };
-const handleWithdraw = async () => {
-  if (!walletAddress) {
-    message.warning("Vui lòng kết nối ví trước khi rút tiền!");
-    return;
-  }
 
-  try {
-    setLoading(true);
-
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-    const contractOwner = await contract.owner();
-if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
-  message.error("error !");
-  setLoading(false);
-  return;
-}
-
-    const tokenContract = new ethers.Contract(
-      usdtAddress,
-      [
-        "function balanceOf(address) view returns (uint256)",
-        "function decimals() view returns (uint8)",
-      ],
-      provider
-    );
-
-    const balance = await tokenContract.balanceOf(contractAddress);
-    console.log("Balance contract USDT:", balance.toString());
-
-    // ethers v6 trả về bigint, so sánh kiểu này
-    if (balance === 0n) {
-      message.warning("Ví smart không còn USDT để rút.");
-      setLoading(false);
+  const handleWithdraw = async () => {
+    if (!walletAddress) {
+      message.warning("Please connect your wallet before withdrawing!");
       return;
     }
 
-    const tx = await contract.withdrawUSDT(balance);
-    message.info("Đang gửi giao dịch...");
-    await tx.wait();
-    message.success("Rút hết USDT thành công!");
-  } catch (error) {
-    console.error("Lỗi khi rút tiền:", error);
-    message.error("Lỗi khi rút tiền: " + (error.message || error));
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
 
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contractOwner = await contract.owner();
+
+      if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
+        message.error("Error: Not the contract owner.");
+        setLoading(false);
+        return;
+      }
+
+      const tokenContract = new ethers.Contract(
+        usdtAddress,
+        [
+          "function balanceOf(address) view returns (uint256)",
+          "function decimals() view returns (uint8)",
+        ],
+        provider
+      );
+
+      const balance = await tokenContract.balanceOf(contractAddress);
+      console.log("Contract USDT Balance:", balance.toString());
+
+      if (balance === 0n) {
+        message.warning("Smart contract wallet has no USDT to withdraw.");
+        setLoading(false);
+        return;
+      }
+
+      const tx = await contract.withdrawUSDT(balance);
+      message.info("Sending transaction...");
+      await tx.wait();
+      message.success("Successfully withdrew all USDT!");
+    } catch (error) {
+      console.error("Withdrawal error:", error);
+      message.error("Withdrawal error: " + (error.message || error));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Layout style={{ background: "#f0f2f5", minHeight: "100vh" }}>
@@ -239,13 +236,13 @@ if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
           }}
         >
           <Title level={2} style={{ textAlign: "center", marginBottom: 30 }}>
-            Doanh Thu & Lợi Nhuận
+            Revenue & Profit
           </Title>
 
           <div style={{ textAlign: "center", marginBottom: 24 }}>
             <Space>
               <Button type="default" onClick={connectWallet}>
-                {walletAddress ? "Ví đã kết nối" : "Kết nối ví MetaMask"}
+                {walletAddress ? "Wallet Connected" : "Connect MetaMask Wallet"}
               </Button>
               {walletAddress && <Text code>{truncateAddress(walletAddress)}</Text>}
             </Space>
@@ -262,7 +259,7 @@ if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
                 }}
               >
                 <Text strong style={{ fontSize: 18, color: "#1890ff" }}>
-                  Tổng Doanh Thu
+                  Total Revenue
                 </Text>
                 <br />
                 <Text style={{ fontSize: 28, fontWeight: "bold", color: "#0a3d62" }}>
@@ -280,7 +277,7 @@ if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
                 }}
               >
                 <Text strong style={{ fontSize: 18, color: "#52c41a" }}>
-                  Tổng Lợi Nhuận
+                  Total Profit
                 </Text>
                 <br />
                 <Text style={{ fontSize: 28, fontWeight: "bold", color: "#145214" }}>
@@ -298,7 +295,7 @@ if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
               onClick={handleWithdraw}
               style={{ minWidth: 200, fontWeight: "600" }}
             >
-              Rút tiền từ ví Smart Contract
+              Withdraw from Smart Contract Wallet
             </Button>
           </div>
 
@@ -317,7 +314,7 @@ if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
                   type="monotone"
                   dataKey="revenue"
                   stroke="#1890ff"
-                  name="Doanh Thu"
+                  name="Revenue"
                   strokeWidth={3}
                   activeDot={{ r: 8 }}
                 />
@@ -325,7 +322,7 @@ if (contractOwner.toLowerCase() !== walletAddress.toLowerCase()) {
                   type="monotone"
                   dataKey="profit"
                   stroke="#52c41a"
-                  name="Lợi Nhuận"
+                  name="Profit"
                   strokeWidth={3}
                 />
               </LineChart>

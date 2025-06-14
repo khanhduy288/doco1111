@@ -2,7 +2,6 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Pages/Home/Home.js";
 import Menu from "./components/Pages/Home/Menu.js";
-import Reservation from "./components/Pages/Home/Reservation.js";
 import Blog from "./components/Pages/Home/Blog.js";
 import Contact from "./components/Pages/Home/Contact.js";
 import LoginSignup from "./components/Pages/Auth/LoginSignUp.js";
@@ -26,14 +25,12 @@ import ManagerLayout from "./components/Pages/Role/ManagerRole/Layout/ManagerLay
 import ListStaff from "./components/Pages/Role/ManagerRole/Pages/ListStaff.js";
 import ListTableReservation from "./components/Pages/Role/ManagerRole/Pages/ListTableReservation.js";
 import ManagerProfile from "./components/Pages/Role/ManagerRole/Pages/ManagerProfile.js";
-import ReservationDetail from "./components/Pages/Home/ReservationDetails.js";
 import CustomerLayout from "./components/Pages/Role/CustomerRole/Layout/CustomerLayout.js";
 import BookedTable from "./components/Pages/Role/CustomerRole/Pages/BookedTable.js";
 import Profile from "./components/Pages/Role/CustomerRole/Pages/Profile.js";
 import BookedDetails from "./components/Pages/Role/CustomerRole/Pages/BookedDetails.js";
 import ChangePassword from "./components/Pages/Role/CustomerRole/Pages/ChangePassoword.js";
 import ReceptionistLayout from "./components/Pages/Role/ReceptionistRole/Layout/ReceptionistLayout.js";
-import DetailReservation from "./components/Pages/Role/ManagerRole/Pages/DetailReservation.js";
 import { ReservationProvider } from "./components/Pages/Home/ReservationContext.js";
 import OwnerLayout from "./components/Pages/Role/OwnerRole/Layout/OwnerLayout.js";
 import OwnerDashboard from "./components/Pages/Role/OwnerRole/Pages/OwnerDashboard.js";
@@ -52,10 +49,9 @@ import OwnerChangePassword from "./components/Pages/Role/OwnerRole/Pages/OwnerCh
 import ReceptionistChangePassword from "./components/Pages/Role/ReceptionistRole/Pages/ReceptionistChangePassword.js";
 import ResetPassword from "./components/Pages/Auth/ResetPassword.js";
 import RevenuePage from "./components/Pages/Home/RevenuePage.js";
-import History from "./components/Pages/Home/History.js";
 import ResultSettlement from "./components/Pages/Home/ResultSettlement";
-import AuctionPage from './components/Pages/Home/AuctionPage.js'; // đường dẫn đúng với bạn
-import DashboardMember from './components/Pages/Home/DashboardMember.jsx'; // đường dẫn đúng với bạn
+import AuctionPage from './components/Pages/Home/AuctionPage.js'; 
+import DashboardMember from './components/Pages/Home/DashboardMember.jsx'; 
 import ProtectedRouteAdmin from './components/Pages/Auth/ProtectedRouteAdmin.jsx'
 
 
@@ -112,7 +108,6 @@ function App() {
                 element={<ListTableReservation />}
               />
               <Route path="profile" element={<ManagerProfile />} />
-              <Route path="details/:id" element={<DetailReservation />} />
               <Route path="profile" element={<ManagerProfile />} />
               <Route path="changepw" element={<ManagerChangePassword />} />
             </Route>
@@ -148,18 +143,11 @@ function App() {
               <Route path="/menu" element={<Menu />} />
               <Route path="/auction" element={<AuctionPage />} />
               <Route path="/auction/:id" element={<AuctionPage />} />
-              <Route path="/history" element={<History />} />
               <Route path="/result" element={<ResultSettlement />} />
               <Route path="/details/:id" element={<DishDetails />} />
-              <Route path="/reservation" element={<Reservation />} />
               <Route path="/loguser" element={<Blog />} />
               <Route path="/blogDetails/:id" element={<BlogDetails />} />
               <Route path="/guide" element={<Contact />} />
-              <Route
-                path="/reservationDetail"
-                element={<ReservationDetail />}
-              />
-
               <Route path="/customer" element={<ProtectedCustomerLayout />}>
                 <Route path="bookedtable" element={<BookedTable />} />
                 <Route path="profile" element={<Profile />} />

@@ -1,11 +1,9 @@
-/* Font và nền tổng thể */
 body {
   background-color: #08080b;
   color: #ffffff;
   font-family: 'Poppins', sans-serif;
 }
 
-/* Container */
 .container {
   background: #08080b !important;
   color: #ffffff !important;
@@ -14,7 +12,6 @@ body {
   width: 100%;
 }
 
-/* Navbar */
 .navbar {
   position: sticky;
   top: 0;
@@ -24,7 +21,6 @@ body {
   border-bottom: 1px solid #333;
 }
 
-/* Navbar link */
 .nav-link {
   font-size: 17px !important;
   color: #ccc !important;
@@ -49,7 +45,6 @@ body {
   color: #ff6600;
 }
 
-/* Navbar toggler */
 .navbar-toggler {
   border: none;
   background: transparent;
@@ -68,7 +63,6 @@ body {
 
 
 
-/* Dropdown animation */
 .nav-item.dropdown .dropdown-menu {
   opacity: 0;
   visibility: hidden;
@@ -83,7 +77,6 @@ body {
   transform: translateY(0px);
 }
 
-/* Cart icon badge */
 .fa-cart-shopping {
   position: relative;
   display: inline-block;
@@ -101,7 +94,6 @@ body {
   font-size: 0.7em;
 }
 
-/* Modal */
 .modal-content,
 Modal {
   background-color: #08080b !important;
@@ -113,7 +105,6 @@ Modal {
   color: #ffffff !important;
 }
 
-/* Button */
 .ant-btn-primary {
   background-color: #ff6600 !important;
   border: none;
@@ -124,7 +115,6 @@ Modal {
   background-color: #ff8533 !important;
 }
 
-/* Footer */
 .ftco-footer {
   background-color: #08080b;
   color: #fff;
@@ -170,7 +160,6 @@ footer .text-center p {
   font-size: 0.9rem;
 }
 
-/* Social icon trong footer */
 .ftco-footer-social li {
   display: flex;
   align-items: center;
@@ -186,7 +175,6 @@ footer .text-center p {
   color: white;
 }
 
-/* Dropdown hover */
 .nav-item.dropdown:hover .dropdown-menu {
   display: block;
   margin-top: 0;
@@ -220,7 +208,7 @@ footer .text-center p {
 
 .social-link {
   background-color: black !important;
-  color: white;  /* màu icon */
+  color: white;  
   padding: 0px;
   border-radius: 6px;
   display: inline-block;
@@ -228,8 +216,8 @@ footer .text-center p {
 }
 
 .social-link:hover {
-  background-color: #333; /* màu hover tối hơn */
-  color: #ffd700; /* màu vàng khi hover */
+  background-color: #333; 
+  color: #ffd700; 
 }
 .refresh-button {
   background: transparent;
@@ -250,7 +238,6 @@ footer .text-center p {
   transform: scale(0.95);
 }
 
-/* Nếu bạn muốn tự xoay icon bằng class thay vì dùng spin của antd */
 .refresh-button.loading {
   animation: spin 1s linear infinite;
 }

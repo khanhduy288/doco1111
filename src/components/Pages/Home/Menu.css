@@ -1,5 +1,5 @@
 body {
-  background-color: #08080b !important; /* nền xám xanh nhẹ, dễ chịu cho mắt */
+  background-color: #08080b !important; 
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
@@ -10,7 +10,7 @@ body {
 .container {
   max-width: 960px;
   margin: 0 auto;
-  padding-top: -50px !important;  /* chỉ giảm padding trên */
+  padding-top: -50px !important;  
   padding-right: 20px;
   padding-bottom: 30px;
   padding-left: 20px;
@@ -23,12 +23,11 @@ body {
 
 h1 {
   text-align: center;
-  color: #00bcd4; /* Màu xanh nổi bật nhưng hài hòa */
+  color: #00bcd4;
   font-size: 2rem;
   margin-bottom: 30px;
 }
 
-/* Nút kết nối ví */
 
 
 
@@ -36,7 +35,6 @@ h1 {
   background-color: #25292b !important;
 }
 
-/* Thông báo ví đã kết nối */
 .container p {
   font-size: 14px;
   background-color: #1b1b21 !important;
@@ -53,14 +51,14 @@ h1 {
 }
 
 .match-card {
-  background: #08080b; /* Nền xám đậm cho đồng bộ với .match-header */
-  border: 0px solid #333; /* Viền mờ tinh tế */
+  background: #08080b; 
+  border: 0px solid #333; 
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 25px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  color: #ffffff; /* chữ trắng */
+  color: #ffffff; 
 
 }
 
@@ -72,8 +70,8 @@ h1 {
 }
 
 .match-header {
-  background-color: #2c2c2c; /* nền xám đậm */
-  color: #ffffff; /* chữ trắng */
+  background-color: #2c2c2c; 
+  color: #ffffff; 
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -83,7 +81,7 @@ h1 {
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 20px;
-  border-left: 5px solid #f39c12 ; /* viền nhấn bên trái */
+  border-left: 5px solid #f39c12 ; 
   transition: background-color 0.3s ease;
 }
 
@@ -92,20 +90,18 @@ h1 {
   text-align: center;
 }
 
-/* Nhấn mạnh tên đội */
 .match-header span:first-child {
   font-weight: 600;
   font-size: 20px;
 }
 
-/* Nhấn mạnh countdown */
 .match-header span:last-child {
   font-size: 16px;
-  color: #f1c40f; /* màu vàng nhẹ cho thời gian */
+  color: #f1c40f; 
 }
 
 .bet-options {
-  background-color: #08080b; /* Nền xám đậm */
+  background-color: #08080b;
   padding: 20px;
   border-radius: 12px;
   margin-top: 15px;
@@ -131,7 +127,7 @@ h1 {
 
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* cho phần tử con chiếm chiều ngang đầy đủ */
+  align-items: stretch; 
 }
 
 
@@ -151,11 +147,10 @@ h1 {
   align-items: center !important;
   justify-content: center !important;
 
-  /* Gradient border */
   border: 1px solid transparent;
   background-image: 
-    linear-gradient(#2f2f37, #2f2f37), /* Nền thật */
-    linear-gradient(45deg, red, rgb(120, 120, 228)); /* Viền gradient */
+    linear-gradient(#2f2f37, #2f2f37),
+    linear-gradient(45deg, red, rgb(120, 120, 228)); 
   background-origin: border-box;
   background-clip: padding-box, border-box;
 }
@@ -170,8 +165,8 @@ h1 {
 
 .bet-btn:hover {
   background-image: 
-    linear-gradient(#333333, #333333),  /* Màu nền hover */
-    linear-gradient(45deg, red, rgb(120, 120, 228)); /* Giữ border gradient */}
+    linear-gradient(#333333, #333333), 
+    linear-gradient(45deg, red, rgb(120, 120, 228)); }
 
 .bet-btn:disabled {
   background-color: #3f3a3a;
@@ -191,9 +186,9 @@ h1 {
 
 
 .bet-list {
-  flex-grow: 1;            /* chiếm hết không gian còn lại */
-  max-height: 120px;       /* giới hạn chiều cao, bạn chỉnh theo ý muốn */
-  overflow-y: auto;        /* bật thanh cuộn dọc */
+  flex-grow: 1;           
+  max-height: 120px;      
+  overflow-y: auto;       
   background-color: #2d2d2d;
   padding: 10px;
   border-radius: 6px;
@@ -202,7 +197,6 @@ h1 {
   color: #ddd;
 }
 
-/* Thanh cuộn đẹp (chỉ hỗ trợ trên trình duyệt WebKit) */
 .bet-list::-webkit-scrollbar {
   width: 8px;
 }
@@ -217,7 +211,6 @@ h1 {
   border-radius: 6px;
 }
 
-/* Thanh cuộn cho Firefox */
 .bet-list {
   scrollbar-width: thin;
   scrollbar-color: #00bcd4 #1b1b21;
@@ -247,7 +240,7 @@ h1 {
 
 
 .wallet-btn {
-  margin: 20px 0; /* cách đều trên dưới */
+  margin: 20px 0; 
   padding: 10px 20px;
   background-color: #2f2f35 !important;
   color: white;
@@ -255,7 +248,7 @@ h1 {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  display: inline-block; /* tránh bị ảnh hưởng layout */
+  display: inline-block; 
 }
 
 
@@ -285,14 +278,14 @@ h1 {
   display: flex;
   gap: 16px;
   padding: 20px;
-  background-color: #08080b; /* nền xám đen nhẹ */
+  background-color: #08080b; 
   flex-wrap: wrap;
   border-radius: 10px;
   justify-content: center;
 }
 
 .ad-box {
-  background-color: #1b1b21; /* nền xám đen nhẹ */
+  background-color: #1b1b21; 
   color: #fff;
   padding: 16px 24px;
   border-radius: 12px;
@@ -306,12 +299,12 @@ h1 {
   text-decoration: none;
   display: block;
 
-  text-align: center; /* căn giữa toàn bộ chữ */
+  text-align: center; 
 }
 .ad-box strong {
   font-weight: 700;
-  font-size: 1.3rem; /* chữ to hơn */
-  display: block;    /* bắt buộc xuống dòng */
+  font-size: 1.3rem; 
+  display: block;   
   margin-bottom: 6px;
 }
 
@@ -323,12 +316,10 @@ h1 {
 }
 
 
-/* Style cho chữ sau dấu ':' - xuống dòng và nhỏ hơn */
 .ad-box strong {
   font-weight: 600;
 }
 
-/* Tạo khoảng cách xuống dòng và chữ nhỏ hơn cho phần sau dấu ':' */
 .ad-box .after-colon {
   display: block;
   margin-top: 4px;
@@ -342,7 +333,7 @@ h1 {
 .ad-box:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 14px rgba(255, 106, 0, 0.35);
-  background-color: #27272b; /* nền xám đen nhẹ */
+  background-color: #27272b; 
   text-decoration: underline;
 }
 
@@ -394,9 +385,9 @@ h1 {
 }
 
 .custom-btn:hover {
-  background-color: #1a2b3a; /* sáng hơn */
-  color: #a0d2ff; /* màu chữ sáng hơn */
-  border-color: #3399ff; /* viền sáng hơn */
+  background-color: #1a2b3a; 
+  color: #a0d2ff; 
+  border-color: #3399ff; 
 }
   .tooltip-wrapper {
     position: relative;
@@ -414,7 +405,7 @@ h1 {
     padding: 8px 10px;
     position: absolute;
     z-index: 1;
-    bottom: 125%; /* Hiển thị phía trên */
+    bottom: 125%; 
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
@@ -426,7 +417,7 @@ h1 {
   .tooltip-wrapper .tooltip-text::after {
     content: "";
     position: absolute;
-    top: 100%; /* Mũi tên chỉ xuống */
+    top: 100%;
     left: 50%;
     transform: translateX(-50%);
     border-width: 6px;
@@ -462,7 +453,7 @@ h1 {
 }
 
 .button-ok.active {
-  background-color: #007bff; /* xanh da trời */
+  background-color: #007bff; 
 }
 
 
@@ -506,15 +497,15 @@ h1 {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px; /* giảm khoảng cách trên dưới */
+  padding: 4px 12px;
   background: #111923;
   color: #7cbfe9;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  height: 36px; /* cố định chiều cao nút */
-  line-height: 1; /* giảm khoảng cách dòng chữ */
+  height: 36px;
+  line-height: 1; 
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -531,7 +522,7 @@ h1 {
 
 .tab-menu-wrapper {
   position: relative;
-  height: 40px; /* đủ để chứa nút 3 chấm */
+  height: 40px;
 }
 
 .tab-toggle-btn {
@@ -540,11 +531,11 @@ h1 {
   border: none;
   font-size: 22px;
   cursor: pointer;
-  height: 36px;           /* chiều cao nút cân đối */
-  padding: 4px 12px;      /* giảm padding trên dưới */
-  line-height: 1;         /* giảm khoảng cách dòng */
+  height: 36px;           
+  padding: 4px 12px;      
+  line-height: 1;        
   display: flex;
-  align-items: center;    /* căn giữa chữ theo chiều dọc */
+  align-items: center;   
   justify-content: center; 
   border-radius: 6px;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -637,8 +628,7 @@ h1 {
   box-sizing: border-box;
 }
 
-/* Responsive cho điện thoại */
-@media (max-width: 800px) {
+@media (max-width: 1200px) {
   .search-input {
     width: 120px;
   }
@@ -661,22 +651,9 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow: visible; /* Đảm bảo nút không bị ẩn */
+  overflow: visible; 
 }
 
-/* .close-btn {
-  position: absolute !important;
-  top: 12px !important;
-  right: 16px !important;
-  background: transparent !important;
-  border: none !important;
-  font-size: 24px !important;
-  color: #aaa !important;
-  cursor: pointer !important;
-  line-height: 1 !important;
-  padding: 0 !important;
-  z-index: 10 !important;
-} */
 
 .close-btn:hover {
   color: #ff6a00 !important;
@@ -811,7 +788,6 @@ h1 {
   letter-spacing: 1px;
 }
 
-/* Responsive for mobile */
 @media (max-width: 700px) {
   .match-row {
     font-size: 18px;

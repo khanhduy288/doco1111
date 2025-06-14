@@ -1,7 +1,7 @@
 import "animate.css/animate.min.css";
 import WOW from "wow.js";
 import { useEffect } from "react";
-import './Contact.css'; // ✅ import CSS riêng
+import './Contact.css';
 
 const Contact = () => {
   useEffect(() => {
@@ -10,13 +10,11 @@ const Contact = () => {
 
   return (
     <>
-      {/* Bỏ hẳn section hero-wrap */}
 
       <section className="ftco-section contact-section bg-light guide-section" style={{ paddingTop: '30px' }}>
         <div className="container">
           <div className="row mb-5">
             <div className="col-md-12">
-              {/* Nếu bạn muốn giữ lại tiêu đề chính, chuyển h1 xuống đây */}
               <h2>How to Create "Boat" & Earn Commission</h2>
 
               <h5>Step 1: Register an Account</h5>

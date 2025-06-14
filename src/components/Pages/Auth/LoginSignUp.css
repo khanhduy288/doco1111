@@ -7,8 +7,8 @@
 }
 .login-signUp {
   display: grid;
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
+  height: 100vh; 
+  width: 100vw; 
   place-items: center;
   background: -webkit-linear-gradient(left, #bec8d2, #babfc4, #728394, #0073e6),
     url("../../../../public/images/bg_1.jpg");
@@ -17,8 +17,8 @@
 }
 .forget-password {
   display: grid;
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
+  height: 100vh; 
+  width: 100vw;
   place-items: center;
   background: -webkit-linear-gradient(left, #bec8d2, #babfc4, #728394, #0073e6),
     url("../../../../public/images/bg_1.jpg");
@@ -145,7 +145,6 @@ input[type="radio"] {
 }
 .form-inner form .field input:focus {
   border-color: #1a75ff;
-  /* box-shadow: inset 0 0 3px #fb6aae; */
 }
 .form-inner form .field input::placeholder {
   color: #999;
@@ -223,8 +222,7 @@ form .btn input[type="submit"] {
 .resend-otp span:hover {
   text-decoration: underline;
 }
-/* Áp dụng màu chữ đen cho toàn bộ input bên trong login-signUp */
-/* Chỉ đổi màu chữ trong input */
+
 .login-signUp input[type="text"],
 .login-signUp input[type="password"],
 .login-signUp input[type="email"],

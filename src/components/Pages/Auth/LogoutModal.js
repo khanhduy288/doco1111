@@ -11,10 +11,10 @@ const LogoutModal = ({ isOpen, onRequestClose, onConfirm }) => (
     className="modal-content"
     overlayClassName="modal-overlay"
   >
-    <h4>Đăng xuất khỏi hệ thống?</h4>
+    <h4>Logout System</h4>
     <div className="modal-actions">
-      <button onClick={onRequestClose}>Hủy</button>
-      <button onClick={onConfirm}>Đăng xuất</button>
+      <button onClick={onRequestClose}>Cancel</button>
+      <button onClick={onConfirm}>Logout</button>
     </div>
   </Modal>
 );

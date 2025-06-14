@@ -41,7 +41,7 @@ const fetchUserInfo = async () => {
 
     const res = await fetch(`https://berendersepuser.onrender.com/users/${userId}`, {
       headers: {
-        "x-api-key": "adminsepuser", // hoặc đúng key bạn đang dùng
+        "x-api-key": "adminsepuser", 
       },
     });
 
@@ -71,36 +71,6 @@ const fetchUserInfo = async () => {
 
 
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("SEPuser"));
-    if (user) {
-      setUserName(user.userName);
-    }
-  }, []);
-
-  useEffect(() => {
-  const user = JSON.parse(localStorage.getItem("SEPuser"));
-  if (user) {
-    setUserName(user.userName); // vẫn giữ nếu bạn cần
-    const userId = user.id; // hoặc đúng trường userId trong SEPuser
-
-    // Giả sử API url như sau (bạn thay URL thật)
-    fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setUserInfo({
-          level:data.level,
-          name: data.fullName,
-          balance: data.balance,
-        });
-      })
-      .catch((error) => {
-        console.error("Failed to fetch user info:", error);
-      });
-  }
-}, []);
-
-
   const openCartModal = () => setIsCartModalOpen(true);
   const closeCartModal = () => setIsCartModalOpen(false);
 
@@ -128,11 +98,10 @@ const fetchUserInfo = async () => {
 const handleLogout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("SEPuser");
-  localStorage.removeItem("userInfo"); // Nếu có
-  localStorage.removeItem("walletUser"); // Nếu có
-  localStorage.removeItem("walletAddress"); // Nếu có
+  localStorage.removeItem("userInfo"); 
+  localStorage.removeItem("walletUser"); 
+  localStorage.removeItem("walletAddress"); 
 
-  // Nếu bạn từng set axios mặc định:
   if (axios.defaults.headers.common["Authorization"]) {
     delete axios.defaults.headers.common["Authorization"];
   }
@@ -142,10 +111,8 @@ const handleLogout = () => {
 
   toast.success("Logged out successfully!");
 
-  // Reset toàn bộ app nếu cần (tránh lỗi session)
-  // window.location.href = "/login"; 
-  // Hoặc chỉ dùng navigate nếu state đã clean đủ
-  navigate("/login");
+
+  navigate("/authentication");
 };
 
 
@@ -165,7 +132,6 @@ const handleLogout = () => {
   }}
 >
   <style>{`
-    /* Container mặc định desktop */
     #ftco-navbar > div {
       display: flex !important;
       align-items: center !important;
@@ -176,12 +142,10 @@ const handleLogout = () => {
 
     }
 
-    /* Logo căn trái */
     #ftco-navbar .navbar-brand {
       margin-right: 20px;
     }
 
-    /* Nút toggle ở góc phải */
     #ftco-navbar .navbar-toggler {
       position: absolute !important;
       right: 15px;
@@ -190,7 +154,6 @@ const handleLogout = () => {
       border: none;
     }
 
-    /* Menu nav mặc định căn phải */
     #ftco-navbar .navbar-collapse {
       display: flex !important;
       align-items: center !important;
@@ -208,10 +171,9 @@ const handleLogout = () => {
       gap: 20px;
     }
 
-    /* ===== Mobile (dưới 768px) ===== */
     @media (max-width: 768px) {
       #ftco-navbar > div {
-        justify-content: center !important; /* căn giữa container (logo + nút) */
+        justify-content: center !important; 
         position: relative;
       }
 
@@ -227,7 +189,6 @@ const handleLogout = () => {
         z-index: 1050; /* trên menu */
       }
 
-      /* Khi menu đóng thì ẩn menu nav */
       #ftco-navbar .navbar-collapse {
         display: none !important;
         position: static;
@@ -235,7 +196,6 @@ const handleLogout = () => {
         background: none;
       }
 
-      /* Khi menu mở (bootstrap thêm class show) thì hiện menu full width dọc */
       #ftco-navbar .navbar-collapse.show {
         display: block !important;
         position: absolute;
@@ -248,7 +208,6 @@ const handleLogout = () => {
         z-index: 1040;
       }
 
-      /* Menu nav dọc căn trái */
       #ftco-navbar .navbar-nav {
         flex-direction: column !important;
         gap: 10px !important;
@@ -369,7 +328,7 @@ const handleLogout = () => {
         <div style={{ fontSize: "16px", color: "#aaa", marginTop: "2px", display: "flex", alignItems: "center", gap: "6px" }}>
           Balance: {userInfo.balance} USDT
           <ReloadOutlined
-            onClick={fetchUserInfo} // hoặc hàm nào đó bạn dùng để refresh
+            onClick={fetchUserInfo} 
             className={loadingUserInfo ? "refresh-button loading" : "refresh-button"}
           />
         </div>

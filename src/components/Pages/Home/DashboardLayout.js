@@ -1,11 +1,10 @@
 import React from "react";
-import DashboardContent from "./DashboardContent"; // phần bạn đã viết
+import DashboardContent from "./DashboardContent"; 
 import { Home, BarChart2, Settings, Mail, MapPin } from "lucide-react";
 
 const DashboardLayout = () => {
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar bên trái */}
       <aside className="w-20 md:w-60 bg-blue-900 text-white flex flex-col items-center py-4">
         <div className="mb-6 text-center">
           <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-full mb-2"></div>
@@ -20,7 +19,6 @@ const DashboardLayout = () => {
         </nav>
       </aside>
 
-      {/* Nội dung dashboard bên phải */}
       <main className="flex-1 bg-gray-50 p-4">
         <DashboardContent />
       </main>

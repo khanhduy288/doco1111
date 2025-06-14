@@ -25,13 +25,13 @@ const ForgetPassword = () => {
 
       if (data.isSuccessed) {
         toast.success(
-          "Gửi thành công yêu cầu đặt lại mật khẩu . Vui lòng kiểm tra email"
+          "Suggest, check gmail!"
         );
       } else {
-        toast.error(data.message || "Đã có lỗi xảy ra vui lòng thử lại");
+        toast.error(data.message || "Error");
       }
     } catch (error) {
-      toast.error("Đã có lỗi xảy ra vui lòng thử lại");
+      toast.error("Error");
     }
   };
 
@@ -48,16 +48,16 @@ const ForgetPassword = () => {
             autoClose={2500}
           />
           <Link to="/authentication" className="">
-            Quay lại đăng nhập
+            Login
           </Link>
           <div className="title-text"></div>
           <div className="form-container">
-            <h4 style={{ textAlign: "center" }}>Quên mật khẩu</h4>
+            <h4 style={{ textAlign: "center" }}>ForgetPassword</h4>
             <div className="form-inner">
               <form onSubmit={handleSubmit} className="">
                 <div className="field">
                   <label htmlFor="email" className="text-dark">
-                    Nhập email
+                    Email
                   </label>
                   <input
                     type="email"

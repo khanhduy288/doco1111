@@ -18,7 +18,7 @@ const ResetPassword = () => {
     const decodedToken = decodeURIComponent(token);
 
     if (newPassword !== confirmPassword) {
-      alert("Mật khẩu không khớp");
+      alert("Pass error!");
       return;
     }
 
@@ -44,20 +44,20 @@ const ResetPassword = () => {
       if (response.ok) {
         const result = await response.text();
         if (result.trim().toLowerCase() === "true") {
-          toast.success("Đổi mật khẩu thành công");
+          toast.success("successful!");
           setTimeout(() => {
             nav("/authentication");
           }, 2000);
         } else {
-          toast.error("Có lỗi xảy ra, vui lòng thử lại");
+          toast.error("Error!");
         }
       } else {
         const errorText = await response.text();
-        toast.error(errorText || "Có lỗi xảy ra, vui lòng thử lại");
+        toast.error(errorText || "Error!");
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      toast.error("Error!");
     }
   };
 
@@ -74,16 +74,16 @@ const ResetPassword = () => {
             autoClose={1500}
           />
           <Link to="/authentication" className="">
-            Quay lại đăng nhập
+            Back Login
           </Link>
           <div className="title-text"></div>
           <div className="form-container">
-            <h4 style={{ textAlign: "center" }}>Đổi mật khẩu</h4>
+            <h4 style={{ textAlign: "center" }}>Change Password</h4>
             <div className="form-inner">
               <form onSubmit={handleSubmit}>
                 <div className="field">
                   <label htmlFor="password" className="text-dark">
-                    Mật khẩu mới
+                    New password!
                   </label>
                   <input
                     type="password"
@@ -94,7 +94,7 @@ const ResetPassword = () => {
                 </div>
                 <div className="field">
                   <label htmlFor="confirm-password" className="text-dark">
-                    Nhập lại mật khẩu
+                    Confirm Password
                   </label>
                   <input
                     type="password"

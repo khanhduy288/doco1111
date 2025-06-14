@@ -288,7 +288,7 @@ const handleDecideResult = async () => {
 
 const updateCreatorBalance = async (creatorId, sum1, sum2) => {
   try {
-    const creatorRes = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`);
+    const creatorRes = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`);
     const creator = await creatorRes.json();
 
     if (!creator || !creator.level) {
@@ -301,13 +301,12 @@ const updateCreatorBalance = async (creatorId, sum1, sum2) => {
     const newBalance = +(creator.balance + bonus).toFixed(6);
 
 
-    const updateRes = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${creatorId}`, {
-      method: "PUT",
+    const updateRes = await fetch(`https://berendersepuser.onrender.com/users/${creatorId}`, {
+      method: "PATCH", 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ...creator,
-        balance: newBalance,
-      }),
+        balance: newBalance
+      })
     });
 
     if (!updateRes.ok) {

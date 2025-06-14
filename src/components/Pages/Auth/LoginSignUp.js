@@ -41,13 +41,10 @@ useEffect(() => {
         .then((res) => {
           const user = res.data.user;
           if (!user) {
-            // Token invalid, xóa token và user
             localStorage.removeItem("token");
             localStorage.removeItem("SEPuser");
           } else {
-            // Lưu user mới nhất
             localStorage.setItem("SEPuser", JSON.stringify(user));
-            // Redirect theo role + status
             if (user.level === 6) {
               navigate("/Dashboardmember");
             } else if (user.status !== "approved") {
@@ -56,7 +53,6 @@ useEffect(() => {
           }
         })
         .catch(() => {
-          // Xóa token và user khi lỗi
           localStorage.removeItem("token");
           localStorage.removeItem("SEPuser");
         });
@@ -84,7 +80,6 @@ useEffect(() => {
     );
   };
   
-  // Hàm đảm bảo reCAPTCHA tồn tại
   const ensureRecaptchaExists = () => {
     if (!document.querySelector("#recaptcha-container div")) {
       resetRecaptcha();
@@ -128,28 +123,27 @@ useEffect(() => {
       password
     );
 
-    if (password.length < minLength) {
-      return "Mật khẩu phải có ít nhất 6 ký tự.";
-    }
-    if (!hasUpperCase) {
-      return "Mật khẩu phải chứa ít nhất 1 chữ in hoa.";
-    }
-    if (!hasLowerCase) {
-      return "Mật khẩu phải chứa ít nhất 1 chữ in thường.";
-    }
-    if (!hasNumber) {
-      return "Mật khẩu phải chứa ít nhất 1 số.";
-    }
-    if (!hasSpecialChar) {
-      return "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.";
-    }
-    return null;
+if (password.length < minLength) {
+  return "Password must be at least 6 characters long.";
+}
+if (!hasUpperCase) {
+  return "Password must contain at least one uppercase letter.";
+}
+if (!hasLowerCase) {
+  return "Password must contain at least one lowercase letter.";
+}
+if (!hasNumber) {
+  return "Password must contain at least one number.";
+}
+if (!hasSpecialChar) {
+  return "Password must contain at least one special character.";
+}
+return null;
   };
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    // validate username + password như hiện tại
 
     try {
       const loginResponse = await axios.post(
@@ -170,10 +164,8 @@ useEffect(() => {
         return;
       }
 
-      // Lưu token
       localStorage.setItem("token", token);
 
-      // Gọi /me lấy user mới nhất
       const meRes = await axios.get("https://berendersepuser.onrender.com/me", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -188,7 +180,6 @@ useEffect(() => {
         return;
       }
 
-      // Lưu user info
       localStorage.setItem("SEPuser", JSON.stringify(meUser));
 
       if (rememberMe) {
@@ -206,7 +197,7 @@ if (meUser.level === 6) {
 }
     } catch (error) {
       console.error("Login failed:", error);
-      console.log("Error response:", error.response); // Thêm dòng này để xem rõ
+      console.log("Error response:", error.response); 
 
       toast.error(
         error.response?.data?.message || "Login failed. Please try again later."
@@ -222,42 +213,35 @@ if (meUser.level === 6) {
 const handleSignup = async (event) => {
   event.preventDefault();
 
-  // Validate phone number length (10 characters)
   if (signupData.phoneNumber.length !== 10) {
     toast.error("Phone number must be 10 characters.");
     return;
   }
 
-  // Validate wallet address (basic check for length 42 and starts with 0x)
   if (!signupData.walletAddress || !/^0x[a-fA-F0-9]{40}$/.test(signupData.walletAddress)) {
     toast.error("Invalid wallet address format.");
     return;
   }
 
-  // Validate password rules (assume you have validatePassword function)
   const passwordError = validatePassword(signupData.passWord);
   if (passwordError) {
     toast.error(passwordError);
     return;
   }
 
-  // Confirm password match
   if (signupData.passWord !== confirmPassword) {
     toast.error("Password and confirm password do not match.");
     return;
   }
 
-  // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(signupData.email)) {
     toast.error("Invalid email format.");
     return;
   }
 
-  // Add dob (date of signup) in ISO format
   const currentDate = new Date().toISOString();
 
-  // Compose data to send with balance and level
   const dataToSend = {
     ...signupData,
     dob: currentDate,
@@ -266,12 +250,11 @@ const handleSignup = async (event) => {
   };
 
   try {
-    // Check if username already exists
     const checkResponse = await axios.get(
       `https://berendersepuser.onrender.com/users`,
                 {
     headers: {
-      'x-api-key': 'adminsepuser' // chính là SECRET_KEY
+      'x-api-key': 'adminsepuser' 
     }
           }
     );
@@ -285,7 +268,6 @@ const handleSignup = async (event) => {
       return;
     }
 
-    // Send signup data to API
     const registerResponse = await axios.post(
       'https://berendersepuser.onrender.com/users',
       dataToSend,
@@ -298,7 +280,6 @@ const handleSignup = async (event) => {
 
     if (registerResponse.status === 200 || registerResponse.status === 201) {
       toast.success("Registration successful! Please wait for approval.");
-      // Optionally reset form or redirect here
     } else {
       toast.error("Registration failed. Please try again.");
     }
@@ -346,15 +327,15 @@ const handleSignup = async (event) => {
         setConfirmPassword("");
         setOtp("");
         setShowOtpInput(false);
-        toast.success("Đăng ký thành công!");
+        toast.success("Registration successful!");
         setIsLoginActive(true);
       } else {
-        toast.error("Đăng ký thất bại. Hãy kiểm tra lại thông tin.");
+        toast.error("Registration failed. Please check your information.");
       }
     } catch (error) {
-      console.error("Xác thực và đăng ký thất bại:", error);
+      console.error("Verification and registration failed:", error);
       toast.error(
-        "Mã OTP không khả dụng. Hãy kiểm tra lại."
+        "Invalid OTP. Please double-check."
       );
     }
   };
@@ -362,9 +343,7 @@ const handleSignup = async (event) => {
   const handleSignupInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "phoneNumber") {
-      // Chỉ cho phép nhập số
       const numericValue = value.replace(/[^\d]/g, "");
-      // Giới hạn độ dài là 10 số
       const truncatedValue = numericValue.slice(0, 10);
       setSignupData((prevData) => ({
         ...prevData,
@@ -388,8 +367,8 @@ const handleSignup = async (event) => {
     signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier)
       .then((confirmationResult) => {
         setConfirmationResult(confirmationResult);
-        toast.success("Mã OTP mới đã được gửi thành công!");
-        setResendTimer(60); // Đặt thời gian chờ 60 giây
+        toast.success("OTP Send success!");
+        setResendTimer(60); 
         const timer = setInterval(() => {
           setResendTimer((prevTimer) => {
             if (prevTimer <= 1) {
@@ -401,8 +380,8 @@ const handleSignup = async (event) => {
         }, 1000);
       })
       .catch((error) => {
-        console.log("Lỗi khi gửi lại mã OTP:", error);
-        toast.error("Lỗi khi gửi lại mã. Hãy thử lại sau.");
+        console.log( error);
+        toast.error("Error");
       });
   };
 
@@ -449,7 +428,6 @@ const handleSignup = async (event) => {
           className="form-inner"
           style={{ marginLeft: isLoginActive ? "0%" : "-100%" }}
         >
-          {/* Login form */}
           <form
             onSubmit={handleLogin}
             className={`login ${isLoginActive ? "active" : ""}`}
@@ -508,7 +486,6 @@ const handleSignup = async (event) => {
             </div>
           </form>
 
-          {/* Signup form */}
           <form
             onSubmit={handleSignup}
             className={`signup ${!isLoginActive ? "active" : ""}`}
@@ -580,7 +557,6 @@ const handleSignup = async (event) => {
               />
             </div>
 
-            {/* Wallet Address Input */}
             <div className="field">
               <label htmlFor="walletAddress" className="text-dark">
                 Wallet Address (Metamask)
@@ -591,7 +567,7 @@ const handleSignup = async (event) => {
                 required
                 value={signupData.walletAddress || ""}
                 onChange={handleSignupInputChange}
-                maxLength={42} // Ethereum address length
+                maxLength={42} 
                 placeholder="0x..."
               />
             </div>

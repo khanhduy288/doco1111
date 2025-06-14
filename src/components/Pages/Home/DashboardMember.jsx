@@ -51,7 +51,6 @@ const [phoneNumber, setPhoneNumber] = useState("");
   const toggleNav = () => setIsNavOpen(!isNavOpen);
 
   useEffect(() => {
-  // Gọi API lấy thông tin user khi component mount
   async function fetchUserData() {
     try {
       const res = await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${id}`);
@@ -65,10 +64,9 @@ const [phoneNumber, setPhoneNumber] = useState("");
   
 
   fetchUserData();
-}, [id]); // chạy khi id thay đổi
+}, [id]); 
 
   useEffect(() => {
-  // Giả sử bạn đã có userData từ fetch
   if (userData) {
     setEmail(userData.email || "");
     setPhoneNumber(userData.phoneNumber || "");
@@ -255,35 +253,36 @@ const saveAccountInfo = async () => {
 
 
 
-  const handleApprove = async (userId) => {
-    try {
-      await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "approved" }),
-      });
-      fetchPendingUsers();
-      toast.success("Người dùng đã được duyệt.");
-    } catch (error) {
-      console.error("Lỗi khi duyệt người dùng:", error);
-      toast.error("Không thể duyệt người dùng.");
-    }
-  };
+const handleApprove = async (userId) => {
+  try {
+    await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "approved" }),
+    });
+    fetchPendingUsers();
+    toast.success("User has been approved.");
+  } catch (error) {
+    console.error("Error approving user:", error);
+    toast.error("Failed to approve user.");
+  }
+};
 
-  const handleReject = async (userId) => {
-    try {
-      await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "rejected" }),
-      });
-      fetchPendingUsers();
-      toast.success("Người dùng đã bị từ chối.");
-    } catch (error) {
-      console.error("Lỗi khi từ chối người dùng:", error);
-      toast.error("Không thể từ chối người dùng.");
-    }
-  };
+
+const handleReject = async (userId) => {
+  try {
+    await fetch(`https://65682fed9927836bd9743814.mockapi.io/api/singup/signup/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "rejected" }),
+    });
+    fetchPendingUsers();
+    toast.success("User has been rejected.");
+  } catch (error) {
+    console.error("Error rejecting user:", error);
+    toast.error("Failed to reject user.");
+  }
+};
 
   return (
     <div className="dashboard-container">
@@ -503,40 +502,41 @@ const saveAccountInfo = async () => {
           </>
         )}
 
-        {activeTab === "approval" && (
-          <>
-            <h2>Danh sách đăng ký chờ xét duyệt</h2>
-            {pendingUsers.length === 0 ? (
-              <p>Không có yêu cầu nào đang chờ xét duyệt.</p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Họ tên</th>
-                    <th>Email</th>
-                    <th>SĐT</th>
-                    <th>Date</th>
-                    <th>Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.fullName || user.username}</td>
-                      <td>{user.email}</td>
-                      <td>{user.phoneNumber}</td>
-                      <td>{user.dob}</td>
-                      <td>
-                        <button onClick={() => handleApprove(user.id)}>Approval</button>
-                        <button onClick={() => handleReject(user.id)}>Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        )}
+{activeTab === "approval" && (
+  <>
+    <h2>Pending Registration Requests</h2>
+    {pendingUsers.length === 0 ? (
+      <p>No requests awaiting approval.</p>
+    ) : (
+      <table>
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Date of Birth</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pendingUsers.map((user) => (
+            <tr key={user.id}>
+              <td>{user.fullName || user.username}</td>
+              <td>{user.email}</td>
+              <td>{user.phoneNumber}</td>
+              <td>{user.dob}</td>
+              <td>
+                <button onClick={() => handleApprove(user.id)}>Approve</button>
+                <button onClick={() => handleReject(user.id)}>Reject</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </>
+)}
+
 
 {activeTab === "settings" && (
   <div className="settings-tab" style={{ maxWidth: "500px", marginTop: "20px" }}>

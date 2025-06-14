@@ -53,11 +53,11 @@ const DishDetails = () => {
         <div className="container">
           <div className="row no-gutters slider-text align-items-end justify-content-center">
             <div className="col-md-9 wow animate__animated animate__fadeIn text-center mb-5">
-              <h1 className="mb-2 bread">Chi tiết món</h1>
+              <h1 className="mb-2 bread">Detail</h1>
               <p className="breadcrumbs">
                 <span className="mr-2">
                   <a href="index.html">
-                    Trang chủ <i className="fa fa-chevron-right" />
+                   Detail <i className="fa fa-chevron-right" />
                   </a>
                 </span>{" "}
                 <span>
@@ -91,8 +91,8 @@ const DishDetails = () => {
               bodyStyle={{ padding: "20px" }}
             >
               <div style={{ textAlign: "center", height: "140px" }}>
-                <h3 style={{ color: "#1890ff" }}>Món: {dish.name}</h3>
-                <h4 style={{ color: "#52c41a" }}>Giá: {dish.price} VND</h4>
+                <h3 style={{ color: "#1890ff" }}> {dish.name}</h3>
+                <h4 style={{ color: "#52c41a" }}> {dish.price} </h4>
                 <Button
                   type="primary"
                   style={{
@@ -102,11 +102,11 @@ const DishDetails = () => {
                   }}
                   onClick={() => addToCart(dish)}
                 >
-                  Đặt món
+                  Buy
                 </Button>
               </div>
               <div style={{ marginTop: "30px" }}>
-                <h4 style={{ color: "#1890ff" }}>Mô tả:</h4>
+                <h4 style={{ color: "#1890ff" }}>Decription:</h4>
                 <p style={{ color: "#595959" }}>{dish.description}</p>
               </div>
             </Card>

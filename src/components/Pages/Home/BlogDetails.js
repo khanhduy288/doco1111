@@ -50,15 +50,15 @@ const BlogDetails = () => {
         <div className="container">
           <div className="row no-gutters slider-text align-items-end justify-content-center">
             <div className="col-md-9 wow animate__animated animate__fadeIn text-center mb-5">
-              <h1 className="mb-2 bread">Chi tiết bài viết</h1>
+              <h1 className="mb-2 bread">Blog Details</h1>
               <p className="breadcrumbs">
                 <span className="mr-2">
                   <a href="index.html">
-                    Trang chủ <i className="fa fa-chevron-right" />
+                    Home <i className="fa fa-chevron-right" />
                   </a>
                 </span>{" "}
                 <span>
-                  Chi tiết bài viết <i className="fa fa-chevron-right" />
+                  Blog Details <i className="fa fa-chevron-right" />
                 </span>
               </p>
             </div>
@@ -69,8 +69,8 @@ const BlogDetails = () => {
       <div className="container mt-3 mb-3">
         <div className="row">
           <div className="col-lg-12">
-            <h2 style={{ textAlign: "left", fontStyle: "italic", fontSize:"40px" }}>🌟{blog.title}</h2>
-            <h2 style={{ textAlign: "left" }}>🌟{blog.subTitle}</h2>
+            <h2 style={{ textAlign: "left", fontStyle: "italic", fontSize:"40px" }}>🌟 {blog.title}</h2>
+            <h2 style={{ textAlign: "left" }}>🌟 {blog.subTitle}</h2>
             <img src={blog.image} style={{ width: "100%" }} alt="" />
             <h5 className="mt-3" style={{ textAlign: "left" }}>
               {blog.description}
@@ -78,14 +78,14 @@ const BlogDetails = () => {
             <p>
               ---------------------------------------------------------------------------------------------------------------------------
             </p>
-            <h5>⏰ Giờ phục vụ: </h5>
-            <h5>🔺 Thứ 2 - Chủ nhật: Sáng: 10h - 14h/ Tối: 18h - 21h</h5>
-            <h5>☎️ Hotline đặt bàn: 039 797 0202</h5>
+            <h5>⏰ Opening Hours (Singapore Time): </h5>
+            <h5>🔺 Monday - Sunday: Morning: 10:00 - 14:00 / Evening: 18:00 - 21:00</h5>
+            <h5>☎️ Reservation Hotline: 039 797 0202</h5>
             <p>
               ---------------------------------------------------------------------------------------------------------------------------
             </p>
-            <h5>Cơ sở 1 : Khu CN cao Hòa Lạc</h5>
-            <h5>Cơ sở 2 : 201 Nguyễn Tuân</h5>
+            <h5>Branch 1: High-Tech Park</h5>
+            <h5>Branch 2: 201 </h5>
           </div>
         </div>
       </div>

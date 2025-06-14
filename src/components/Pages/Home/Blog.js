@@ -6,7 +6,9 @@ import { Tooltip, Button } from "antd";
 import 'antd/dist/reset.css';
 import "./Blog.css"
 import axios from "axios"; 
-
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 const REFUND_COUNTDOWN_SECONDS = 180; 
 const CLAIM_CONTRACT_ADDRESS = "0x0855EfEa0855652af88F69bc9d879907811445C5"; 
@@ -134,6 +136,8 @@ const SYSTEM_WALLET_API = "https://681de07ac1c291fa66320473.mockapi.io/addressqr
 
 const Blog = () => {
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const greenBtnStyle = {
   backgroundColor: "#28a745",
@@ -290,7 +294,7 @@ useEffect(() => {
             }
 
             if (bet.countdownEnd && now >= bet.countdownEnd && !bet.hasAutoBet) {
-              processedBets.add(bet.id); // đánh dấu đã xử lý
+              processedBets.add(bet.id); 
 
               const matchRes = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/football");
               const matches = await matchRes.json();
@@ -533,8 +537,8 @@ const handleContinueBet = async () => {
 
   const amount = selectedRefund?.isWon ? selectedRefund.claim : selectedRefund.refund;
   const rate = selectedOption === "option1" ? selectedMatch.rate1 : selectedMatch.rate2;
-  const option = selectedOption; // "option1" hoặc "option2"
-  const team = selectedMatch[option]; // "1 win" hoặc "ad1 Win"
+  const option = selectedOption; 
+  const team = selectedMatch[option]; 
 
 
   try {
@@ -543,7 +547,7 @@ const newBet = {
   matchId: selectedMatch.id,
   matchName: selectedMatch.name,
   option,
-  team, // giờ là "option1" hoặc "option2" giá trị như "1 win"
+  team, 
   amount,
   claim: Number((amount * rate).toFixed(4)),
   userWallet: currentAccount,
@@ -552,7 +556,6 @@ const newBet = {
   status: "pending",
 };
 
-    // 1. Tạo đơn cược mới
     const res = await fetch("https://68271b3b397e48c913189c7d.mockapi.io/bet", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -561,26 +564,22 @@ const newBet = {
 
     if (!res.ok) throw new Error("Create error!");
 
-    // 2. Cập nhật đơn gốc thành "done"
     await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/bet/${selectedRefund.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
 
-// Lấy lại match mới nhất
 const matchRes = await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${selectedMatch.id}`);
 const matchData = await matchRes.json();
 let updatedMatch = { ...matchData };
 
-// Cập nhật sum1 hoặc sum2 theo selectedOption
 if (selectedOption === "option1") {
   updatedMatch.sum1 = (Number(matchData.sum1) || 0) + Number(amount);
 } else if (selectedOption === "option2") {
   updatedMatch.sum2 = (Number(matchData.sum2) || 0) + Number(amount);
 }
 
-// Gửi PUT để update match
 await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${selectedMatch.id}`, {
   method: "PUT",
   headers: { "Content-Type": "application/json" },
@@ -589,8 +588,7 @@ await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${selectedMatc
 
 
 
-    // 4. Hoàn tất
-    alert("Cược tiếp thành công");
+    alert("Continue boat successful!");
     setShowContinueModal(false);
     setSelectedMatch(null);
     setSelectedOption(null);
@@ -603,12 +601,7 @@ await fetch(`https://68271b3b397e48c913189c7d.mockapi.io/football/${selectedMatc
 
 
 
-const formatCountdown = (endTime) => {
-  const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-  const mins = Math.floor(remaining / 60);
-  const secs = remaining % 60;
-  return `${mins}m ${secs}s`;
-};
+
 
 
 
@@ -654,16 +647,14 @@ const handleClaimBalanceOnly = async () => {
       return;
     }
 
-    const amountInWei = parseUnits(userBalance.toString(), 18); // USDT = 6 decimals
+    const amountInWei = parseUnits(userBalance.toString(), 18); 
 
-    // Generate betId and betTime
-    const betId = Number(storedUser.id); // or hash(address) if needed
-    const betTime = Math.floor(Date.now() / 1000); // UNIX timestamp in seconds
+    const betId = Number(storedUser.id); 
+    const betTime = Math.floor(Date.now() / 1000); 
 
     const tx = await claimContract.claim(betId, betTime, amountInWei);
     await tx.wait();
 
-    // PATCH balance = 0 in backend
     const patchRes = await axios.patch(
       `https://berendersepuser.onrender.com/users/${storedUser.id}`,
       { balance: 0 },
@@ -820,9 +811,9 @@ return (
                       <td style={{ padding: "10px 8px" }}>{bet.team}</td>
                       <td style={{ padding: "10px 8px", textAlign: "right" }}>{bet.amount}</td>
                       <td style={{ padding: "10px 8px", textAlign: "center" }}>{bet.status}</td>
-                      <td style={{ padding: "10px 8px" }}>
-                        {new Date(bet.timestamp).toLocaleString()}
-                      </td>
+<td style={{ padding: "10px 8px" }}>
+  {dayjs(bet.timestamp).tz('Asia/Singapore').format('DD/MM/YYYY HH:mm:ss')}
+</td>
                       <td style={{ padding: "10px 8px" }}>
                         <a
                           href={`https://bscscan.com/tx/${bet.txHash}`}
@@ -995,7 +986,7 @@ return (
                     e.currentTarget.style.backgroundColor = "#007bff";
                 }}
               >
-                Cược tiếp
+                Confirm 
               </button>
 
               <button
@@ -1013,7 +1004,7 @@ return (
                 onMouseOver={e => (e.currentTarget.style.backgroundColor = "#c82333")}
                 onMouseOut={e => (e.currentTarget.style.backgroundColor = "#dc3545")}
               >
-                Hủy
+                Cancel
               </button>
             </div>
           </div>

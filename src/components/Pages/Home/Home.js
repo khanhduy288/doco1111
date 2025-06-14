@@ -15,7 +15,6 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const [showCreateBetForm, setShowCreateBetForm] = useState(false);
 
-  // Thêm state để quản lý mở/đóng menu sidebar
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const [form, setForm] = useState({
@@ -67,7 +66,7 @@ const Home = () => {
 
   const handleBuyNow = async (product) => {
     if (!window.ethereum) {
-      toast.error("Vui lòng cài đặt MetaMask!");
+      toast.error("Please install MetaMask!");
       return;
     }
 
@@ -89,10 +88,10 @@ const Home = () => {
         params: [tx],
       });
 
-      toast.success(`TX thành công: ${txHash}`);
+      toast.success(`TX ok: ${txHash}`);
     } catch (error) {
       console.error(error);
-      toast.error("Giao dịch bị huỷ hoặc lỗi.");
+      toast.error("Error!");
     }
   };
 
@@ -160,7 +159,6 @@ const Home = () => {
 
   return (
     <>
-      {/* Nút toggle menu */}
       {user && (
         <button
           className="sidebar-toggle-btn"
@@ -172,7 +170,6 @@ const Home = () => {
         </button>
       )}
 
-      {/* Sidebar menu */}
       {user && sidebarOpen && (
         <nav className="sidebar-menu">
           <h3>Menu</h3>
@@ -277,12 +274,6 @@ const Home = () => {
           ))}
         </Row>
 
-        {/* 3 div quảng cáo phía dưới */}
-        <div className="ads-section">
-          <div className="ad-box">Quảng cáo 1</div>
-          <div className="ad-box">Quảng cáo 2</div>
-          <div className="ad-box">Quảng cáo 3</div>
-        </div>
       </div>
     </>
   );

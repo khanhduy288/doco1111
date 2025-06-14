@@ -707,16 +707,7 @@ const placeBet = async (matchId, team, rate, matchName) => {
 };
 
 
-// const filteredMatches = matches.filter(match => {
-//   const countdownTime = new Date(match.countdown).getTime();
 
-//   if (tab === "live") {
-//     return countdownTime > now;
-//   } else if (tab === "history") {
-//     return countdownTime <= now && countdownTime >= startOfDay.getTime() && countdownTime <= endOfDay.getTime();
-//   }
-//   return false;
-// });
 
 
 const rounds = [
